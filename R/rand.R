@@ -66,7 +66,7 @@ strand <- function(x, n_strata = 5, transform = identity, algorithm = "curveball
 
 #' Null model randomization analysis of alpha diversity metrics
 #'
-#' This function compares to diversity metrics calculated in \link{sphy_diversity} to their null distributions
+#' This function compares to diversity metrics calculated in \link{ps_diversity} to their null distributions
 #' computed by randomizing the community matrix. Randomization is done using the \link{strand} method for
 #' community matrices containing continuous occurrence quantities such as occurrence probabilities or abundances.
 #'
@@ -76,22 +76,22 @@ strand <- function(x, n_strata = 5, transform = identity, algorithm = "curveball
 #' @param n_cores Integer giving the number of compute cores to use for parallel processing.
 #' @param ... Additional arguments passed to \link{strand}, such as \code{n_strata}, \code{jitter}, \code{transform},
 #'    \code{priority}, etc.
-#' @return A matrix with a row for every row of \code{x}, a column for every metric in \link{sphy_diversity}, and
+#' @return A matrix with a row for every row of \code{x}, a column for every metric in \link{ps_diversity}, and
 #'    values indicating the proportion of randomizations in which the observed diversity metric was greater than
 #'    the randomized metric.
 #' @export
-sphy_rand <- function(sp, n_rand = 100, spatial = T, n_cores = 1, ...){
+ps_rand <- function(sp, n_rand = 100, spatial = T, n_cores = 1, ...){
       phy <- sp$tree
       tip_occs <- get_tip_occs(sp)
 
-      div <- sphy_diversity(sp, spatial = F)
+      div <- ps_diversity(sp, spatial = F)
       rand <- array(NA, c(dim(div), n_rand + 1))
       rand[,,1] <- div
 
       perm <- function(comm, tree, ...){
             rcomm <- strand(comm, ...)
             rsp <- sphy(tree, rcomm)
-            sphy_diversity(rsp)
+            ps_diversity(rsp)
       }
 
       if(n_cores == 1){
@@ -125,7 +125,7 @@ sphy_rand <- function(sp, n_rand = 100, spatial = T, n_cores = 1, ...){
 #' This function is a wrapper around the \code{cpr_rand_test} function from Joel Nitta's \code{canaper} package.
 #' In keeping with CANAPE, it requires a binary community matrix and uses a hard significance threshold (for an
 #' alternative that utilizes continuous occurrences values and retains a significance gradient, see
-#' \link{snape} and \link{sphy_rand}).
+#' \link{ps_snape} and \link{ps_rand}).
 #'
 #' @param sp spatialphy object
 #' @param null_model see \code{canaper::cpr_rand_test}
@@ -138,10 +138,10 @@ sphy_rand <- function(sp, n_rand = 100, spatial = T, n_cores = 1, ...){
 #'
 #' @return A matrix or raster stack with a column or layer (respectively) for each metric.
 #' @export
-sphy_canape <- function(sp, null_model = "curveball", spatial = T, ...){
+ps_canape <- function(sp, null_model = "curveball", spatial = T, ...){
 
       cpr <- require("canaper")
-      if(!cpr) stop("The sphy_canape() function requires the canaper library, but couldn't find it; please see https://github.com/joelnitta/canaper for info and installation.")
+      if(!cpr) stop("The ps_canape() function requires the canaper library, but couldn't find it; please see https://github.com/joelnitta/canaper for info and installation.")
 
       phy <- sp$tree
       comm <- sp$occ[, tip_indices(phy)]

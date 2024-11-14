@@ -19,7 +19,7 @@ strand(
 \item{x}{Community matrix with species in rows, sites in columns, and nonnegative occurrence quantities in cells.}
 
 \item{n_strata}{Integer giving the number of strata to split the data into. Must be 2 or greater. Larger values
-will result randomizations with less mixing but higher fidelity to marginal distributions.}
+will result in randomizations with less mixing but higher fidelity to marginal distributions.}
 
 \item{transform}{A function used to transform the values in \code{x} before assigning them to \code{n_strata}
 equal intervals. Examples include \code{sqrt}, \code{log}, \code{rank}, etc.; the default is \code{identity}.}
@@ -31,7 +31,7 @@ equal intervals. Examples include \code{sqrt}, \code{log}, \code{rank}, etc.; th
 
 \item{priority}{Either "rows", "cols", or "neither", indicating whether randomization within strata should
 prioritize maintaining the marginal distributions of the rows or columns of the input matrix. The default,
-"neither", prioritizes both.}
+"neither", doesn't give precedence to either dimension.}
 
 \item{n_iter}{Positive integer giving the number of iterations to use for stepwise algorithms.}
 }
@@ -41,8 +41,8 @@ A randomized version of \code{x}.
 \description{
 This is a community null model method for quantitative data (e.g. abundance or occurrence probability)
 that preserves row and column totals, and also approximately preserves the marginal distributions of
-rows and columns. For each randomization the data set is split into strata, each representing a numerical
-range of the input quantities, a separate binary randomization is done for each stratum, and the results
-are combined to produce a randomized, quantitative community matrix. See \code{vegan::commsim()} for details
-about other binary and quantitative null models.
+rows and columns. For each randomization, the data set is split into strata representing numerical ranges
+of the input quantities, a separate binary randomization is done for each stratum, and the results are
+combined to produce a randomized, quantitative community matrix. See \code{vegan::commsim()} for details about
+other binary and quantitative null models.
 }

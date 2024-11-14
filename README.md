@@ -1,13 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# spatialphy
+# phylospatial
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-`spatialphy` is an R package for spatial phylogentic analysis. The field
-of spatial phylogenetics focuses on accounting for evolutionary
+`phylospatial` is an R package for spatial phylogentic analysis. The
+field of spatial phylogenetics focuses on accounting for evolutionary
 relationships among taxa when describing biodiversity patterns, an
 approach that has a number of advantages over species-based accounting.
 This library currently includes functions for computing:
@@ -17,21 +17,21 @@ This library currently includes functions for computing:
 - phylogenetic regionalization
 - phylogenetic conservation prioritization
 
-One feature that differentiates `spatialphy` from some similar packages
-is that in addition to working with binary presence/absence data, it’s
-also designed to work with continuous quantities such as occurrence
-probabilities or abunances. These quantities are treated as weights
-throughout all the analyses in the package, avoiding the need to discard
-information by thresholding the data.
+One feature that differentiates `phylospatial` from some similar
+packages is that in addition to working with binary presence/absence
+data, it’s also designed to work with continuous quantities such as
+occurrence probabilities or abundances. These quantities are treated as
+weights throughout all the analyses in the package, avoiding the need to
+discard information by thresholding the data.
 
 ## Installation
 
 This package is not yet on CRAN. You can install the development version
-of spatialphy like so:
+of phylospatial like so:
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("matthewkling/spatialphy")
+remotes::install_github("matthewkling/phylospatial")
 ```
 
 ## Examples
@@ -39,21 +39,21 @@ remotes::install_github("matthewkling/spatialphy")
 Spatial phylogenetic analyses require two essential ingredients: data on
 the geographic distributions of a set of organisms, and a phylogeny
 representing their evolutionary relationships. All workflows in the
-spatialphy package involve creating a data set of class `'spatialphy'`
+phylospatial package involve creating a data set of class `'spatialphy'`
 containing these necessary components. A user would normally define this
 object with their own data using the `sphy()` function, but we can also
-simulate a demonstration dataset using `sphy_simulate()`.
+simulate a demonstration dataset using `ps_simulate()`.
 
-To get started, let’s load the `spatialphy` library and simulate a demo
-data set. To get a peek at the underlying data, let’s plot the
+To get started, let’s load the `phylospatial` library and simulate a
+demo data set. To get a peek at the underlying data, let’s plot the
 geographic ranges of the terminal species:
 
 ``` r
-library(spatialphy)
+library(phylospatial)
 library(tmap); library(magrittr)
 set.seed(123)
-sp <- sphy_simulate(n_tips = 20, n_x = 50, n_y = 50)
-tm_shape(get_tip_occs(sp, spatial = TRUE)) + 
+ps <- ps_simulate(n_tips = 20, n_x = 50, n_y = 50)
+tm_shape(get_tip_occs(ps, spatial = TRUE)) + 
       tm_raster(palette = "inferno", style = "cont", title = "occurrence\nprobability")
 ```
 
@@ -61,14 +61,14 @@ tm_shape(get_tip_occs(sp, spatial = TRUE)) +
 
 #### Alpha diversity
 
-We can pass this our `spatialphy` object to various other functions in
-the library. The `sphy_diversity()` function calculates a number of
-alpha diversity measures, including phylogenetic diversity (PD) and
+We can pass this `spatialphy` object to various other functions in the
+library. The `ps_diversity()` function calculates a number of alpha
+diversity measures, including phylogenetic diversity (PD) and
 phylogenetic endemism (PE), among others. Let’s calculate the diversity
 metrics and make a plot of PD:
 
 ``` r
-div <- sphy_diversity(sp)
+div <- ps_diversity(ps)
 names(div)
 #>  [1] "TR"  "CR"  "PD"  "TE"  "CE"  "PE"  "Em"  "RPD" "PEm" "RPE"
 tm_shape(div$PD) + tm_raster(palette = "inferno", style = "cont")
@@ -77,7 +77,7 @@ tm_shape(div$PD) + tm_raster(palette = "inferno", style = "cont")
 <img src="man/figures/README-alpha-1.png" width="50%" />
 
 We can also use randomization to calculate the significance of these
-diversity metrics under a null model, using the `sphy_rand()` function.
+diversity metrics under a null model, using the `ps_rand()` function.
 The default null model uses a stratified randomization designed for use
 with continuous occurrence data. Let’s run 100 randomizations and plot
 the results for PE. This is a quantile value that gives the proportion
@@ -87,7 +87,7 @@ grid cells in a one-tailed test with alpha = 0.05, these would be cells
 with values greater than 0.95).
 
 ``` r
-rand <- sphy_rand(sp, n_rand = 100)
+rand <- ps_rand(ps, n_rand = 100)
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=                                                                     |   1%  |                                                                              |=                                                                     |   2%  |                                                                              |==                                                                    |   3%  |                                                                              |===                                                                   |   4%  |                                                                              |====                                                                  |   5%  |                                                                              |====                                                                  |   6%  |                                                                              |=====                                                                 |   7%  |                                                                              |======                                                                |   8%  |                                                                              |======                                                                |   9%  |                                                                              |=======                                                               |  10%  |                                                                              |========                                                              |  11%  |                                                                              |========                                                              |  12%  |                                                                              |=========                                                             |  13%  |                                                                              |==========                                                            |  14%  |                                                                              |==========                                                            |  15%  |                                                                              |===========                                                           |  16%  |                                                                              |============                                                          |  17%  |                                                                              |=============                                                         |  18%  |                                                                              |=============                                                         |  19%  |                                                                              |==============                                                        |  20%  |                                                                              |===============                                                       |  21%  |                                                                              |===============                                                       |  22%  |                                                                              |================                                                      |  23%  |                                                                              |=================                                                     |  24%  |                                                                              |==================                                                    |  25%  |                                                                              |==================                                                    |  26%  |                                                                              |===================                                                   |  27%  |                                                                              |====================                                                  |  28%  |                                                                              |====================                                                  |  29%  |                                                                              |=====================                                                 |  30%  |                                                                              |======================                                                |  31%  |                                                                              |======================                                                |  32%  |                                                                              |=======================                                               |  33%  |                                                                              |========================                                              |  34%  |                                                                              |========================                                              |  35%  |                                                                              |=========================                                             |  36%  |                                                                              |==========================                                            |  37%  |                                                                              |===========================                                           |  38%  |                                                                              |===========================                                           |  39%  |                                                                              |============================                                          |  40%  |                                                                              |=============================                                         |  41%  |                                                                              |=============================                                         |  42%  |                                                                              |==============================                                        |  43%  |                                                                              |===============================                                       |  44%  |                                                                              |================================                                      |  45%  |                                                                              |================================                                      |  46%  |                                                                              |=================================                                     |  47%  |                                                                              |==================================                                    |  48%  |                                                                              |==================================                                    |  49%  |                                                                              |===================================                                   |  50%  |                                                                              |====================================                                  |  51%  |                                                                              |====================================                                  |  52%  |                                                                              |=====================================                                 |  53%  |                                                                              |======================================                                |  54%  |                                                                              |======================================                                |  55%  |                                                                              |=======================================                               |  56%  |                                                                              |========================================                              |  57%  |                                                                              |=========================================                             |  58%  |                                                                              |=========================================                             |  59%  |                                                                              |==========================================                            |  60%  |                                                                              |===========================================                           |  61%  |                                                                              |===========================================                           |  62%  |                                                                              |============================================                          |  63%  |                                                                              |=============================================                         |  64%  |                                                                              |==============================================                        |  65%  |                                                                              |==============================================                        |  66%  |                                                                              |===============================================                       |  67%  |                                                                              |================================================                      |  68%  |                                                                              |================================================                      |  69%  |                                                                              |=================================================                     |  70%  |                                                                              |==================================================                    |  71%  |                                                                              |==================================================                    |  72%  |                                                                              |===================================================                   |  73%  |                                                                              |====================================================                  |  74%  |                                                                              |====================================================                  |  75%  |                                                                              |=====================================================                 |  76%  |                                                                              |======================================================                |  77%  |                                                                              |=======================================================               |  78%  |                                                                              |=======================================================               |  79%  |                                                                              |========================================================              |  80%  |                                                                              |=========================================================             |  81%  |                                                                              |=========================================================             |  82%  |                                                                              |==========================================================            |  83%  |                                                                              |===========================================================           |  84%  |                                                                              |============================================================          |  85%  |                                                                              |============================================================          |  86%  |                                                                              |=============================================================         |  87%  |                                                                              |==============================================================        |  88%  |                                                                              |==============================================================        |  89%  |                                                                              |===============================================================       |  90%  |                                                                              |================================================================      |  91%  |                                                                              |================================================================      |  92%  |                                                                              |=================================================================     |  93%  |                                                                              |==================================================================    |  94%  |                                                                              |==================================================================    |  95%  |                                                                              |===================================================================   |  96%  |                                                                              |====================================================================  |  97%  |                                                                              |===================================================================== |  98%  |                                                                              |===================================================================== |  99%  |                                                                              |======================================================================| 100%
 tm_shape(rand$qPE) + tm_raster(palette = "inferno", style = "cont")
 ```
@@ -98,22 +98,22 @@ tm_shape(rand$qPE) + tm_raster(palette = "inferno", style = "cont")
 
 We can also look at patterns in the phylogenetic similarity among
 locations. The first step here is to compute the community phylogenetic
-distance between every pair of sites, using the `sphy_dist()` function
-to add a pairwise distance matrix as an additional component in our
-spatialphy dataset.
+distance between every pair of sites, using the `ps_dist()` function to
+add a pairwise distance matrix as an additional component in our spatial
+phylogenetic dataset.
 
 ``` r
-sp <- sphy_dist(sp, add = TRUE)
+ps <- ps_dist(ps, add = TRUE)
 ```
 
 Having done this, we can then assess spatial turnover patterns in a
 couple ways. We can qualitatively visualize compositional differences by
 converting the distance matrix to a set of colors representing how
-similar two sites are to each other, using the `sphy_rgb()` function:
+similar two sites are to each other, using the `ps_rgb()` function:
 
 ``` r
-sp %>%
-      sphy_rgb(method = "cmds") %>%
+ps %>%
+      ps_rgb(method = "cmds") %>%
       tm_shape() +
       tm_rgb(max.value = 1) +
       tm_layout(title = "Phylogenetic ordination")
@@ -123,12 +123,12 @@ sp %>%
 
 We can also perform a more formal cluster analysis that splits the
 landscape into a set of evolutionary bioregions, using the
-`sphy_regions()` function. Let’s ask for eight regions using the
-“kmeans” clustering method:
+`ps_regions()` function. Let’s ask for eight regions using the “kmeans”
+clustering method:
 
 ``` r
-sp %>%
-      sphy_regions(k = 8, method = "kmeans") %>%
+ps %>%
+      ps_regions(k = 8, method = "kmeans") %>%
       tm_shape() +
       tm_raster(style = "cat", palette = "Dark2",
                 title = "phylogenetic region") +
@@ -142,7 +142,7 @@ sp %>%
 Finally, this package can perform a basic spatial conservation
 prioritization, identifying priority locations for the creation of new
 protected areas in order to maximize biodiversity protection. This is
-done using the `sphy_prioritize()` function, which uses a greedy forward
+done using the `ps_prioritize()` function, which uses a greedy forward
 stepwise algorithm to produce a nested ranking of conservation
 priorities.
 
@@ -157,8 +157,8 @@ taxa. But for this example let’s stick with the defaults. In the map
 below, the highest-priority sites are shown in yellow.
 
 ``` r
-sp %>%
-      sphy_prioritize() %>%
+ps %>%
+      ps_prioritize() %>%
       tm_shape() + 
       tm_raster(palette = "-inferno", style = "log10",
                 title = "conservation\npriorities") + 

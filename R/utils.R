@@ -6,7 +6,7 @@ NULL
 
 
 enforce_spatialphy <- function(x){
-      if(!inherits(x, "spatialphy")) stop("Dataset must be an object of class 'spatialphy' created by the 'sphy()' or 'sphy_simulate()' function.")
+      if(!inherits(x, "spatialphy")) stop("Dataset must be an object of class 'spatialphy' created by the 'sphy()' or 'ps_simulate()' function.")
 }
 
 # this gives the position in the edge list, not the node INDEX per se (the number contained in edge list)
@@ -87,7 +87,7 @@ to_raster <- function(m, template){
 #'
 #' @return A list containing a phylogenetic tree and a raster stack of terminal taxon ranges.
 #' @export
-sphy_simulate <- function(n_tips = 10,
+ps_simulate <- function(n_tips = 10,
                           n_x = 20,
                           n_y = 20,
                           boolean_ranges = F

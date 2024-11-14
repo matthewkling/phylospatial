@@ -42,7 +42,7 @@ beta_diversity <- function(M, branch_lengths){
 #'
 #' @return A pairwise phylogenetic difference matrix, with values of 1/PhyloSor, either on its own or as an element of \code{sp}.
 #' @export
-sphy_dist <- function(sp, endemism = FALSE, normalize = TRUE, add = TRUE){
+ps_dist <- function(sp, endemism = FALSE, normalize = TRUE, add = TRUE){
 
       if(!is.null(sp$dist)){
             message("distance already included in dataset; skipping calculation")
@@ -77,7 +77,7 @@ sphy_dist <- function(sp, endemism = FALSE, normalize = TRUE, add = TRUE){
 #'
 #' @return A raster or matrix with an integer indicating which of the \code{k} regions each site belongs to.
 #' @export
-sphy_regions <- function(sp, k = 5, method = "kmeans", endemism = FALSE, normalize = TRUE){
+ps_regions <- function(sp, k = 5, method = "kmeans", endemism = FALSE, normalize = TRUE){
 
       # sites with taxa
       a <- rowSums(sp$occ) > 0
@@ -89,7 +89,7 @@ sphy_regions <- function(sp, k = 5, method = "kmeans", endemism = FALSE, normali
             occ[!is.finite(occ)] <- 0
             regions <- kmeans(occ, k)$cluster
       }else{
-            if(is.null(sp$dist)) sp <- sphy_dist(sp, endemism, normalize, add = T)
+            if(is.null(sp$dist)) sp <- ps_dist(sp, endemism, normalize, add = T)
 
             d <- as.matrix(sp$dist)
             rownames(d) <- colnames(d) <- paste("cell", 1:ncol(d))
@@ -130,7 +130,7 @@ sphy_regions <- function(sp, k = 5, method = "kmeans", endemism = FALSE, normali
 #'
 #' @return A raster or matrix with layers or columns (respectively) containing RGB color values in the range 0-1.
 #' @export
-sphy_rgb <- function(sp, method = "nmds", trans = identity){
+ps_rgb <- function(sp, method = "nmds", trans = identity){
 
       d <- as.matrix(sp$dist)
       rownames(d) <- colnames(d) <- paste("cell", 1:ncol(d))
