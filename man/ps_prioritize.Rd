@@ -16,7 +16,7 @@ Otherwise, must be a numeric vector or \code{SpatRaster} with dimensionality mat
 \item{lambda}{Shape parameter for taxon conservation benefit function. This can be any real number. Positive values, such as the default
 value \code{1}, place higher priority on conserving the first part of the range of a given species or clade, while negative values
 (which are not typically used) place higher priority on fully protecting some taxa than partially protecting all taxa. See the function
-\link{lambda} for details.}
+\link{plot_lambda} for details.}
 
 \item{level}{Effectiveness level of proposed new reserves (number between 0 and 1, with same meaning as starting \code{protection}).}
 }

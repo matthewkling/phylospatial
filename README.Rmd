@@ -19,14 +19,15 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-`phylospatial` is an R package for spatial phylogentic analysis. The field of spatial phylogenetics focuses on accounting for evolutionary relationships among taxa when describing biodiversity patterns, an approach that has a number of advantages over species-based accounting. This library currently includes functions for computing:
+`phylospatial` is an R package for spatial phylogentic analysis. The field of spatial phylogenetics focuses on accounting for evolutionary relationships among taxa when describing biodiversity patterns, an approach that has a number of advantages over species-based accounting. This library includes functions for computing:
 
 -   diversity measures like phylogenetic diversity
+-   statistical hypothesis testing using randomization-based null models
 -   turnover measures like phylogenetic betaendemism
 -   phylogenetic regionalization
 -   phylogenetic conservation prioritization
 
-One feature that differentiates `phylospatial` from some similar packages is that in addition to working with binary presence/absence data, it's also designed to work with continuous quantities such as occurrence probabilities or abundances. These quantities are treated as weights throughout all the analyses in the package, avoiding the need to discard information by thresholding the data.
+One feature that differentiates `phylospatial` from similar packages is that in addition to working with binary presence/absence data, all functions also work with continuous quantities such as occurrence probabilities or abundances. These quantities are treated as weights throughout all the analyses in the package, avoiding the need to discard information by thresholding the data.
 
 
 ## Installation
@@ -63,7 +64,9 @@ We can pass this `phylospatial` object to various other functions in the library
 ```{r alpha, message=FALSE, warning=FALSE}
 div <- ps_diversity(ps)
 names(div)
-tm_shape(div$PD) + tm_raster(palette = "inferno", style = "cont")
+tm_shape(div$PD) + 
+      tm_raster(palette = "inferno", style = "cont") +
+      tm_layout(legend.outside = T)
 ```
 
 
@@ -71,19 +74,21 @@ We can also use randomization to calculate the statistical significance of these
 
 ```{r rand, message=FALSE, warning=FALSE}
 rand <- ps_rand(ps, n_rand = 100)
-tm_shape(rand$qPE) + tm_raster(palette = "inferno", style = "cont")
+tm_shape(rand$qPE) + 
+      tm_raster(palette = "inferno", style = "cont") +
+      tm_layout(legend.outside = T)
 ```
 
 
 #### Beta diversity (turnover)
 
-We can also look at patterns in the phylogenetic similarity among locations. The first step here is to compute the community phylogenetic distance between every pair of sites, using the `ps_dissim()` function to add a pairwise distance matrix as an additional component in our spatial phylogenetic dataset.
+We can also look at patterns in the phylogenetic similarity among locations. The first step here is to compute the community phylogenetic distance between every pair of sites, using the `ps_dissim()` function to add a pairwise distance matrix as an additional component in our spatial phylogenetic data set. This function includes a range of scaling options and alternative dissimilarity indices; let's run an example using quantitative Sorensen's index (`method = "bray"`), weighting taxa by inverse range size (`endemism = TRUE`), and normalizing community sums to emphasize relative compositional differences (`normalize = TRUE`):
 
 ```{r beta, message=FALSE, warning=FALSE}
-ps <- ps_dissim(ps, add = TRUE)
+ps <- ps_add_dissim(ps, method = "bray", endemism = TRUE, normalize = TRUE)
 ```
 
-Having done this, we can then assess spatial turnover patterns in a couple ways. We can qualitatively visualize compositional differences by converting the distance matrix to a set of colors representing how similar two sites are to each other, using the `ps_rgb()` function:
+Having done this, we can then assess spatial turnover patterns in a couple ways. We can qualitatively visualize compositional differences by converting the distance matrix to a set of colors representing how similar two sites are to each other, using the `ps_rgb()` function. Various ordination methods are available; here we'll use `"cmds"`:
 
 ```{r rgb, message=FALSE, warning=FALSE}
 ps %>%
@@ -93,7 +98,7 @@ ps %>%
       tm_layout(title = "Phylogenetic community ordination")
 ```
 
-We can also perform a more formal cluster analysis that splits the landscape into a set of evolutionary bioregions, using the `ps_regions()` function. Let's ask for eight regions using the "kmeans" clustering method:
+We can also perform a more formal cluster analysis that splits the landscape into a set of evolutionary bioregions, using the `ps_regions()` function. Let's ask for eight regions using the `"kmeans"` clustering method:
 
 ```{r regions, message=FALSE, warning=FALSE}
 ps %>%

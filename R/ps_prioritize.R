@@ -26,12 +26,12 @@ plot_lambda <- function(){
       x <- seq(0, 1, .01)
       lambda <- c(-1, -.5, 0, .5, 2, 1)
       d <- sapply(lambda, function(l) benefit(x, lambda = l))
-      matplot(x, d, type = "l", lty = 1, col = 1:ncol(d),
-              xlab = "proportion of taxon range protected",
-              ylab = "conservation benefit",
-              main = "Examples of alternative `labmda` values")
-      legend("bottomright", legend = lambda,
-             col = 1:ncol(d), pch = 1, title = "lambda")
+      graphics::matplot(x, d, type = "l", lty = 1, col = 1:ncol(d),
+                        xlab = "proportion of taxon range protected",
+                        ylab = "conservation benefit",
+                        main = "Examples of alternative `labmda` values")
+      graphics::legend("bottomright", legend = lambda,
+                       col = 1:ncol(d), pch = 1, title = "lambda")
 }
 
 
@@ -46,7 +46,7 @@ plot_lambda <- function(){
 #' @param lambda Shape parameter for taxon conservation benefit function. This can be any real number. Positive values, such as the default
 #' value \code{1}, place higher priority on conserving the first part of the range of a given species or clade, while negative values
 #' (which are not typically used) place higher priority on fully protecting some taxa than partially protecting all taxa. See the function
-#' \link{lambda} for details.
+#' \link{plot_lambda} for details.
 #' @param level Effectiveness level of proposed new reserves (number between 0 and 1, with same meaning as starting \code{protection}).
 #'
 #' @return A ranking of conservation priorities, with low values representing higher priorities.

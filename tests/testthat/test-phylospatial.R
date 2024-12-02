@@ -1,11 +1,10 @@
 test_that("phylospatial function works on example data", {
-      ps <- moss
-      comm <- get_tip_comm(ps, spatial = TRUE)
-      expect_no_error(phylospatial(ps$tree, comm))
+      suppressWarnings(library(sf))
+      expect_no_error(phylospatial(moss$tree, get_tip_comm(moss, spatial = TRUE)))
 })
 
 test_that("terminals are not scrambled during data transformations", {
-      require(sf)
+      suppressWarnings(library(sf))
       ps <- moss
       comm <- get_tip_comm(ps, spatial = TRUE)
       ps2 <- phylospatial(ps$tree, comm)

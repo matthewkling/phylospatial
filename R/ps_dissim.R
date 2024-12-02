@@ -11,35 +11,33 @@
 #'    to derive endemism.
 #' @param normalize Logical indicating whether community values should be divided by row totals (community sums). If `TRUE`,
 #'    dissimilarity is based on proportional community composition. This happens after endemism is derived.
-#' @param add Logical indicating whether the input phylospatial object should be returned with the dissimilarity matrix
-#'    as the `dist` element (TRUE, the default) or the dissimilarity matrix should returned alone (FALSE).
 #' @param ... Additional arguments passed to \link[vegan]{vegdist}.
 #'
-#' @return A pairwise phylogenetic dissimilarity matrix of class `dist`, either on its own or as the `dissim` element
-#'    of \code{sp}.
+#' @return A pairwise phylogenetic dissimilarity matrix of class `dist`.
 #' @export
-ps_dissim <- function(ps, method = "bray", endemism = FALSE, normalize = TRUE, add = TRUE, ...){
+ps_dissim <- function(ps, method = "bray", endemism = FALSE, normalize = TRUE, ...){
 
       enforce_ps(ps)
       method <- match.arg(method)
-
-      if(!is.null(ps$dissim)){
-            message("Distance already included in dataset; skipping calculation.")
-            if(add) return(ps)
-            if(!add) return(ps$dissim)
-      }
-
       comm <- ps$comm
       if(endemism) comm <- apply(comm, 2, function(x) x / sum(x))
       if(normalize) comm <- t(apply(comm, 1, function(x) x / sum(x)))
       comm[!is.finite(comm)] <- 0
       comm <- t(apply(comm, 1, function(x) x * ps$tree$edge.length)) # scale by branch length
       dist <- suppressWarnings(vegan::vegdist(comm, method = method, ...))
+      return(dist)
 
-      if(add){
-            ps$dissim <- dist
-            return(ps)
-      }else{
-            return(dist)
-      }
+}
+
+#' Add community dissimilarity data to a `phylospatial` object
+#'
+#' This function calculates pairwise quantitative phylogenetic dissimilarity between communities and returns the
+#' phylospatial object with the dissimilarity data as an element called `dissim`.
+#'
+#' @inheritParams ps_dissim
+#' @return \code{ps} with a new `dissim` element added.
+#' @export
+ps_add_dissim <- function(ps, method = "bray", endemism = FALSE, normalize = TRUE, ...){
+      ps$dissim <- ps_dissim(ps, method = method, endemism = endemism, normalize = normalize, ...)
+      return(ps)
 }
