@@ -1,0 +1,50 @@
+
+
+#' Color space ordination of spatial phylogenetic composition
+#'
+#' @param ps phylospatial object.
+#' @param method Ordination method, either "pca" (principal component analysis), "cmds" (classical MDS),
+#'    or "nmds" (nonmetric MDS, the default, which is slower but often preferred).
+#' @param trans A function giving a transformation to apply to each dimension of the ordinated data.
+#'    The default is the identity function. Specifying \code{rank} generates a more uniform color distribution.
+#'
+#' @return A raster or matrix with layers or columns (respectively) containing RGB color values in the range 0-1.
+#' @export
+ps_rgb <- function(ps, method = c("nmds", "cmds", "pca"), trans = identity){
+
+      method <- match.arg(method)
+      enforce_ps(ps)
+      stopifnot("Input data set contains no `dissim` data; add it first using `ps_dissim()`." = !is.null(ps$dissim))
+
+      d <- as.matrix(ps$dissim)
+      rownames(d) <- colnames(d) <- paste("cell", 1:ncol(d))
+      a <- occupied(ps) # sites with taxa
+      da <- d[a, a]
+
+      # sites fully segregated by the 2 basal clades have Inf distance;
+      # set distance to value greater than max observed distance
+      da[is.infinite(da)] <- max(da[!is.infinite(da)]) + 1000
+
+      # ordinate
+      if(method == "cmds") ord <- stats::cmdscale(da, k = 3)
+      if(method == "nmds") ord <- vegan::metaMDS(da, k = 3, trace = 0)$points
+      if(method == "pca") ord <- stats::prcomp(ps$comm[a,], scale. = T)$x[,1:3]
+
+      # scale
+      rgb <- apply(ord, 2, function(x){
+            x <- trans(x)
+            (x - min(x)) / (max(x) - min(x))
+      })
+
+      # reinsert NA values
+      b <- cbind(a, a, a)
+      colnames(b) <- c("r", "g", "b")
+      b[a,] <- rgb
+      b[!a,] <- NA
+
+      if(!is.null(ps$spatial)){
+            return(to_spatial(b, ps$spatial))
+      }else{
+            return(b)
+      }
+}

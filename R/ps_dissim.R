@@ -1,0 +1,45 @@
+
+#' Quantitative phylogenetic dissimilarity
+#'
+#' This function calculates pairwise quantitative phylogenetic dissimilarity between communities.
+#'
+#' @param ps phylospatial object.
+#' @param method Character indicating the dissimilarity index to use, passed to \link[vegan]{vegdist}. The default is
+#'    "bray", i.e. Bray-Curtis distance, also known as quantitative Sorensen's. See \link[vegan]{vegdist} for a complete
+#'    list of options.
+#' @param endemism Logical indicating whether community values should be divided by column totals (taxon range sizes)
+#'    to derive endemism.
+#' @param normalize Logical indicating whether community values should be divided by row totals (community sums). If `TRUE`,
+#'    dissimilarity is based on proportional community composition. This happens after endemism is derived.
+#' @param add Logical indicating whether the input phylospatial object should be returned with the dissimilarity matrix
+#'    as the `dist` element (TRUE, the default) or the dissimilarity matrix should returned alone (FALSE).
+#' @param ... Additional arguments passed to \link[vegan]{vegdist}.
+#'
+#' @return A pairwise phylogenetic dissimilarity matrix of class `dist`, either on its own or as the `dissim` element
+#'    of \code{sp}.
+#' @export
+ps_dissim <- function(ps, method = "bray", endemism = FALSE, normalize = TRUE, add = TRUE, ...){
+
+      enforce_ps(ps)
+      method <- match.arg(method)
+
+      if(!is.null(ps$dissim)){
+            message("Distance already included in dataset; skipping calculation.")
+            if(add) return(ps)
+            if(!add) return(ps$dissim)
+      }
+
+      comm <- ps$comm
+      if(endemism) comm <- apply(comm, 2, function(x) x / sum(x))
+      if(normalize) comm <- t(apply(comm, 1, function(x) x / sum(x)))
+      comm[!is.finite(comm)] <- 0
+      comm <- t(apply(comm, 1, function(x) x * ps$tree$edge.length)) # scale by branch length
+      dist <- suppressWarnings(vegan::vegdist(comm, method = method, ...))
+
+      if(add){
+            ps$dissim <- dist
+            return(ps)
+      }else{
+            return(dist)
+      }
+}

@@ -1,17 +1,28 @@
 Package: phylospatial
-Title: Spatial Phylogenetic Analyses in R
+Title: Tools for spatial phylogenetic analysis
 Version: 0.0.0.9000
 Authors@R: 
     person("Matthew", "Kling", , "mkling@uvm.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-9073-4240"))
-Description: This package computes a variety of spatial phylogenetic metrics, using data on a phylogenetic tree and the geographic distributions of the terminal taxa. Functionality includes diversity metrics, turnover and biotic regionalization analyses, and spatial conservation prioritization.
+Description: This package computes a variety of spatial phylogenetic metrics, using data on a phylogenetic tree and the geographic distributions of the terminal taxa. Functionality includes diversity and endemism metrics, turnover and biotic regionalization analyses, null model randomizations, and spatial conservation prioritization. All functions support quantitative community data in addition to binary data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
-Imports: 
+RoxygenNote: 7.3.2
+Imports:
     ape,
-    raster
-Suggests: 
+    sf,
+    stats,
+    terra,
     vegan
+Suggests:
+    canaper,
+    furrr,
+    future,
+    testthat (>= 3.0.0),
+    betapart
 URL: https://matthewkling.github.io/phylospatial/
+Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10)
+LazyData: true

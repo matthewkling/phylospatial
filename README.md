@@ -39,10 +39,11 @@ remotes::install_github("matthewkling/phylospatial")
 Spatial phylogenetic analyses require two essential ingredients: data on
 the geographic distributions of a set of organisms, and a phylogeny
 representing their evolutionary relationships. All workflows in the
-phylospatial package involve creating a data set of class `'spatialphy'`
-containing these necessary components. A user would normally define this
-object with their own data using the `sphy()` function, but we can also
-simulate a demonstration dataset using `ps_simulate()`.
+phylospatial package involve creating a data set of class
+`'phylospatial'` containing these necessary components. A user would
+normally define this object with their own data using the
+`phylospatial()` function, but we can also simulate a demonstration
+dataset using `ps_simulate()`.
 
 To get started, let’s load the `phylospatial` library and simulate a
 demo data set. To get a peek at the underlying data, let’s plot the
@@ -52,8 +53,10 @@ geographic ranges of the terminal species:
 library(phylospatial)
 library(tmap); library(magrittr)
 set.seed(123)
-ps <- ps_simulate(n_tips = 20, n_x = 50, n_y = 50)
-tm_shape(get_tip_occs(ps, spatial = TRUE)) + 
+ps <- ps_simulate(n_tips = 20, n_x = 50, n_y = 50, data_type = "probability")
+ps %>%
+      ps_get_ranges(tips_only = TRUE) %>%
+      tm_shape() + 
       tm_raster(palette = "inferno", style = "cont", title = "occurrence\nprobability")
 ```
 
@@ -61,7 +64,7 @@ tm_shape(get_tip_occs(ps, spatial = TRUE)) +
 
 #### Alpha diversity
 
-We can pass this `spatialphy` object to various other functions in the
+We can pass this `phylospatial` object to various other functions in the
 library. The `ps_diversity()` function calculates a number of alpha
 diversity measures, including phylogenetic diversity (PD) and
 phylogenetic endemism (PE), among others. Let’s calculate the diversity
@@ -76,15 +79,15 @@ tm_shape(div$PD) + tm_raster(palette = "inferno", style = "cont")
 
 <img src="man/figures/README-alpha-1.png" width="50%" />
 
-We can also use randomization to calculate the significance of these
-diversity metrics under a null model, using the `ps_rand()` function.
-The default null model uses a stratified randomization designed for use
-with continuous occurrence data. Let’s run 100 randomizations and plot
-the results for PE. This is a quantile value that gives the proportion
-of randomizations in which observed PE was greater than randomized PE in
-a given grid cell (if you wanted to identify “statistically significant”
-grid cells in a one-tailed test with alpha = 0.05, these would be cells
-with values greater than 0.95).
+We can also use randomization to calculate the statistical significance
+of these diversity metrics under a null model, using the `ps_rand()`
+function. The default null model uses a stratified randomization
+designed for use with continuous occurrence data. Let’s run 100
+randomizations and plot the results for PE. This is a quantile value
+that gives the proportion of randomizations in which observed PE was
+greater than randomized PE in a given grid cell (if you wanted to
+identify “statistically significant” grid cells in a one-tailed test
+with alpha = 0.05, these would be cells with values greater than 0.95).
 
 ``` r
 rand <- ps_rand(ps, n_rand = 100)
@@ -98,12 +101,12 @@ tm_shape(rand$qPE) + tm_raster(palette = "inferno", style = "cont")
 
 We can also look at patterns in the phylogenetic similarity among
 locations. The first step here is to compute the community phylogenetic
-distance between every pair of sites, using the `ps_dist()` function to
-add a pairwise distance matrix as an additional component in our spatial
-phylogenetic dataset.
+distance between every pair of sites, using the `ps_dissim()` function
+to add a pairwise distance matrix as an additional component in our
+spatial phylogenetic dataset.
 
 ``` r
-ps <- ps_dist(ps, add = TRUE)
+ps <- ps_dissim(ps, add = TRUE)
 ```
 
 Having done this, we can then assess spatial turnover patterns in a
@@ -116,7 +119,7 @@ ps %>%
       ps_rgb(method = "cmds") %>%
       tm_shape() +
       tm_rgb(max.value = 1) +
-      tm_layout(title = "Phylogenetic ordination")
+      tm_layout(title = "Phylogenetic community ordination")
 ```
 
 <img src="man/figures/README-rgb-1.png" width="50%" />

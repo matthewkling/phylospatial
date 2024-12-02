@@ -1,16 +1,14 @@
 
-
-
 #' Stratified randomization of community matrix
 #'
-#' This is a community null model method for quantitative data (e.g. abundance or occurrence probability)
+#' This is a community null model method for quantitative community data (e.g. abundance or occurrence probability)
 #' that preserves row and column totals, and also approximately preserves the marginal distributions of
 #' rows and columns. For each randomization, the data set is split into strata representing numerical ranges
 #' of the input quantities, a separate binary randomization is done for each stratum, and the results are
 #' combined to produce a randomized, quantitative community matrix. See `vegan::commsim()` for details about
 #' other binary and quantitative null models.
 #'
-#' @param x Community matrix with species in rows, sites in columns, and nonnegative occurrence quantities in cells.
+#' @param x Community matrix with species in rows, sites in columns, and nonnegative quantities in cells.
 #' @param n_strata Integer giving the number of strata to split the data into. Must be 2 or greater. Larger values
 #'    will result in randomizations with less mixing but higher fidelity to marginal distributions.
 #' @param transform A function used to transform the values in \code{x} before assigning them to \code{n_strata}
@@ -22,9 +20,10 @@
 #' @param priority Either "rows", "cols", or "neither", indicating whether randomization within strata should
 #'    prioritize maintaining the marginal distributions of the rows or columns of the input matrix. The default,
 #'    "neither", doesn't give precedence to either dimension.
+#' @param ... Ignored.
 #' @return A randomized version of \code{x}.
 #' @export
-strand <- function(x, n_strata = 5, transform = identity, algorithm = "curveball",
+quantize <- function(x, n_strata = 5, transform = identity, algorithm = "curveball",
                    jitter = .99, priority = "neither", n_iter = 10000, ...){
 
       nc <- ncol(x)
@@ -67,100 +66,62 @@ strand <- function(x, n_strata = 5, transform = identity, algorithm = "curveball
 #' Null model randomization analysis of alpha diversity metrics
 #'
 #' This function compares to diversity metrics calculated in \link{ps_diversity} to their null distributions
-#' computed by randomizing the community matrix. Randomization is done using the \link{strand} method for
-#' community matrices containing continuous occurrence quantities such as occurrence probabilities or abundances.
+#' computed by randomizing the community matrix. Randomization is done using the \link{quantize} method for
+#' community matrices containing continuous quantities such as occurrence probabilities or abundances.
 #'
-#' @param sp `spatialphy` object.
+#' @param ps `phylospatial` object.
 #' @param n_rand Integer giving the number of random communities to generate.
-#' @param spatial Boolean: should the function return a spatial object (TRUE, default) or a matix (FALSE).
+#' @param spatial Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE).
 #' @param n_cores Integer giving the number of compute cores to use for parallel processing.
-#' @param ... Additional arguments passed to \link{strand}, such as \code{n_strata}, \code{jitter}, \code{transform},
-#'    \code{priority}, etc.
+#' @param ... Additional arguments passed to \link{quantize}, such as \code{algorithm}, \code{n_iter},
+#'    \code{n_strata}, \code{jitter}, \code{transform}, \code{priority}, etc.
 #' @return A matrix with a row for every row of \code{x}, a column for every metric in \link{ps_diversity}, and
 #'    values indicating the proportion of randomizations in which the observed diversity metric was greater than
 #'    the randomized metric.
 #' @export
-ps_rand <- function(sp, n_rand = 100, spatial = T, n_cores = 1, ...){
-      phy <- sp$tree
-      tip_occs <- get_tip_occs(sp)
+ps_rand <- function(ps, n_rand = 100, spatial = T, n_cores = 1, ...){
 
-      div <- ps_diversity(sp, spatial = F)
+      enforce_ps(ps)
+      phy <- ps$tree
+      a <- occupied(ps)
+      tip_comm <- get_tip_comm(ps)[a, ]
+
+      div <- ps_diversity(ps, spatial = F)[a, ]
       rand <- array(NA, c(dim(div), n_rand + 1))
       rand[,,1] <- div
 
       perm <- function(comm, tree, ...){
-            rcomm <- strand(comm, ...)
-            rsp <- sphy(tree, rcomm)
+            rcomm <- quantize(comm, ...)
+            rsp <- phylospatial(tree, rcomm, check = FALSE,
+                                data_type = ps$data_type, clade_fun = ps$clade_fun)
             ps_diversity(rsp)
       }
 
       if(n_cores == 1){
-            pb <- txtProgressBar(min = 0, max = n_rand, initial = 0, style = 3)
+            pb <- utils::txtProgressBar(min = 0, max = n_rand, initial = 0, style = 3)
             for(i in 1:n_rand){
-                  rand[,,i+1] <- perm(tip_occs, phy, ...)
-                  setTxtProgressBar(pb, i)
+                  rand[,,i+1] <- perm(tip_comm, phy, ...)
+                  utils::setTxtProgressBar(pb, i)
             }
             close(pb)
       }else{
-            require(furrr)
-            plan(multisession, workers = n_cores)
-            rnd <- future_map(1:n_rand,
-                              function(i) perm(tip_occs, phy, ...),
+            if (!requireNamespace("furrr", quietly = TRUE)) {
+                  stop("To use `ncores` greater than 1, package `furrr` must be installed.", call. = FALSE)
+            }
+            future::plan(future::multisession, workers = n_cores)
+            rnd <- furrr::future_map(1:n_rand,
+                              function(i) perm(tip_comm, phy, ...),
                               .progress = TRUE,
-                              .options = furrr_options(seed = TRUE))
+                              .options = furrr::furrr_options(seed = TRUE))
             for(i in 1:n_rand) rand[,,i+1] <- rnd[[i]]
       }
 
       q <- apply(rand, 1:2, function(x) mean(x[1] > x[2:(n_rand+1)], na.rm = T) )
-      colnames(q) <- paste0("q", colnames(div))
 
-      if(spatial & !is.null(sp$spatial)) q <- to_raster(q, sp$spatial)
-      return(q)
-}
+      qa <- matrix(NA, length(a), ncol(q))
+      qa[a, ] <- q
+      colnames(qa) <- paste0("q", colnames(div))
 
-
-
-#' Binary randomization tests including CANAPE
-#'
-#' This function is a wrapper around the \code{cpr_rand_test} function from Joel Nitta's \code{canaper} package.
-#' In keeping with CANAPE, it requires a binary community matrix and uses a hard significance threshold (for an
-#' alternative that utilizes continuous occurrences values and retains a significance gradient, see
-#' \link{ps_snape} and \link{ps_rand}).
-#'
-#' @param sp spatialphy object
-#' @param null_model see \code{canaper::cpr_rand_test}
-#' @param spatial Boolean: should the function return a spatial object (TRUE, default) or a vector (FALSE).
-#' @param ... further arguments passed to \code{canaper::cpr_rand_test}
-#'
-#' @details This function runs \code{canaper::cpr_rand_test}; see the help for that function for details.
-#'
-#' It also runs \code{canaper::cpr_classify_endem} on the result, and includes the resulting classification as an additional variable, 'endem_type', in the output. 'endem_type' values 0-4 correspond to not-significant, neo, paleo, mixed, and super endemesim, respectively.
-#'
-#' @return A matrix or raster stack with a column or layer (respectively) for each metric.
-#' @export
-ps_canape <- function(sp, null_model = "curveball", spatial = T, ...){
-
-      cpr <- require("canaper")
-      if(!cpr) stop("The ps_canape() function requires the canaper library, but couldn't find it; please see https://github.com/joelnitta/canaper for info and installation.")
-
-      phy <- sp$tree
-      comm <- sp$occ[, tip_indices(phy)]
-      colnames(comm) <- phy$tip.label
-      rownames(comm) <- paste0("s", 1:nrow(comm))
-      cm <- comm[rowSums(comm) > 0, ]
-
-      r <- as.matrix(canaper::cpr_rand_test(cm, phy, null_model = null_model, ...))
-
-      ro <- matrix(NA, nrow(comm), ncol(r))
-      ro[rowSums(comm) > 0, ] <- r
-      rownames(ro) <- rownames(comm)
-      colnames(ro) <- colnames(r)
-
-      ro <- canaper::cpr_classify_endem(as.data.frame(ro))
-      ro$endem_type <- as.integer(factor(ro$endem_type,
-                                         levels = c("not significant", "neo", "paleo", "mixed", "super"))) - 1
-      ro <- as.matrix(ro)
-
-      if(spatial & !is.null(sp$spatial)) ro <- to_raster(ro, sp$spatial)
-      return(ro)
+      if(spatial & !is.null(ps$spatial)) qa <- to_spatial(qa, ps$spatial)
+      return(qa)
 }
