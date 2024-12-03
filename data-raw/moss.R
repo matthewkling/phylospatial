@@ -34,8 +34,10 @@ r <- terra::aggregate(r, 4, na.rm = T)
 moss <- phylospatial(tree, r)
 
 # save version with raster spatial data (since this can't be exported as rda)
-writeRaster(moss$spatial, "inst/extdata/moss_raster.tif", overwrite = TRUE)
 saveRDS(moss, "inst/extdata/moss.rds")
+writeRaster(moss$spatial, "inst/extdata/moss_raster.tif", overwrite = TRUE)
+writeRaster(ps_get_comm(moss), "inst/extdata/moss_comm.tif", overwrite = TRUE)
+write.tree(moss$tree, "inst/extdata/moss_tree.nex")
 
 
 ## polygons ##
@@ -51,6 +53,11 @@ pts <- pts %>%
       summarize_all(mean)
 p <- left_join(p, pts) %>%
       select(-hexid)
+
+# drop empty polygons
+# fixme: adding this section introduced "terminal scrambling" test error
+p <- p[!is.na(rowSums(st_drop_geometry(p))), ]
+p <- p[rowSums(st_drop_geometry(p)) > 0, ]
 
 moss <- phylospatial(tree, p)
 

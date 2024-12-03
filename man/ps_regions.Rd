@@ -28,3 +28,9 @@ A raster or matrix with an integer indicating which of the \code{k} regions each
 \description{
 Phyologenetic regionalization
 }
+\examples{
+library(sf)
+plot(ps_regions(moss))
+plot(ps_regions(ps_add_dissim(moss), k = 7, method = "average"))
+
+}

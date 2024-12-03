@@ -77,7 +77,7 @@ new_phylospatial <- function(tree, comm, spatial, dissim = NULL, data_type, clad
 #' takes a numeric vector and returns a single numeric output. Ignored if \code{comm} already includes clade ranges.
 #' @param check Logical indicating whether community data should be validated. Default is TRUE.
 #'
-#' @return A "phylospatial" object, which is a list containing the following elements:
+#' @return A `phylospatial` object, which is a list containing the following elements:
 #' \itemize{
 #'  \item{"data_type"}{Character indicating the community data type}
 #'  \item{"tree}{Phylogeny of class `phylo`}
@@ -86,6 +86,17 @@ new_phylospatial <- function(tree, comm, spatial, dissim = NULL, data_type, clad
 #'  \item{"dissim"}{A community dissimilary matrix of class `dist` indicating pairwise phylogenetic dissimilarity between sites. Missing unless
 #'  \code{ps_dissim(..., add = T)} is called.}
 #' }
+#'
+#' @examples
+#' # load phylogeny
+#' tree <- ape::read.tree(system.file("extdata", "moss_tree.nex", package = "phylospatial"))
+#'
+#' # load species distribution rasters
+#' comm <- terra::rast(system.file("extdata", "moss_comm.tif", package = "phylospatial"))
+#'
+#' # construct `phylospatial` object
+#' ps <- phylospatial(tree, comm)
+#' ps
 #'
 #' @export
 phylospatial <- function(tree, comm, spatial = NULL,
@@ -169,5 +180,31 @@ print.phylospatial <- function(x, ...){
           " -", ncol(x$comm), "clades across", nrow(x$comm), "sites\n",
           " - community data type:", x$data_type, "\n",
           " - spatial data class:", class(x$spatial)[1], "\n",
-          " - dissimilarity data:", ifelse(is.null(x$dissim), FALSE, TRUE), "\n")
+          " - dissimilarity data:", ifelse(is.null(x$dissim), "none", x$dissim_method), "\n")
+}
+
+
+#' Plot a `phylospatial` object
+#'
+#' @param ps `phylospatial` object
+#' @param comp Either \code{"tree"} or \code{"comm"}, indicating which component to plot.
+#' @param max_taxa Integer giving the maximum number of taxon ranges to plot, if \code{comp = "tree"}.
+#' @param ... Additional arguments passed to plotting methods.
+#' @method plot phylospatial
+#' @export
+plot.phylospatial <- function(ps, comp = c("tree", "comm"),
+                              max_taxa = 12,
+                              ...){
+      comp <- match.arg(comp)
+      if(comp == "tree"){
+            plot(ps$tree, ...)
+      }
+      if(comp == "comm"){
+            enforce_spatial(ps)
+            n <- min(max_taxa, nrow(ps$comm))
+            comm <- ps_get_comm(ps, tips_only = FALSE)
+            i <- sample(ncol(ps$comm), n)
+            if(inherits(ps$spatial, "SpatRaster")) terra::plot(comm[[i]], ...)
+            if(inherits(ps$spatial, "sf")) terra::plot(comm[, i], max.plot = n, ...)
+      }
 }

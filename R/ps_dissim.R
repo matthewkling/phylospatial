@@ -1,43 +1,94 @@
 
 #' Quantitative phylogenetic dissimilarity
 #'
-#' This function calculates pairwise quantitative phylogenetic dissimilarity between communities.
+#' This function calculates pairwise phylogenetic dissimilarity between communities. It works with both binary and
+#' quantitative community data sets. A wide range of phylogentic community dissimilarity metrics are supported,
+#' including phylogenetic Sorensen's and Jaccard's distances, turnover and nestedness components of Sorensen's distance,
+#' and phylogenetic versions of all community distance indices provided through the `vegan` library. The function also
+#' includes options to scale the community matrix in order to focus the analysis on endemism and/or on proportional
+#' differences in community composition. The results from this function can be visualized using \link{ps_rgb} or
+#' \link{ps_regions}, or used in a variety of statistical analyses.
 #'
 #' @param ps phylospatial object.
-#' @param method Character indicating the dissimilarity index to use, passed to \link[vegan]{vegdist}. The default is
-#'    "bray", i.e. Bray-Curtis distance, also known as quantitative Sorensen's. See \link[vegan]{vegdist} for a complete
-#'    list of options.
+#' @param method Character indicating the dissimilarity index to use:
+#'  \itemize{
+#'  \item{"sorensen": }{Sorensen's dissimilarity, a.k.a. Bray-Curtis distance (the default)}
+#'  \item{"sorensen_turnover": }{The turnover component of Sorensen's dissimilarity, a.k.a. Simpson's.}
+#'  \item{"sorensen_nestedness": }{The nestedness component of Sorensen's dissimilarity.}
+#'  \item{Any other valid `method` passed to \code{fun}. }{For options, see the documentation for those functions.}
+#' }
+#' @param fun Character indicating which general distance function from the `vegan` library to use: "\link[vegan]{vegdist}"
+#'    (the default), "\link[vegan]{designdist}", or "\link[vegan]{chaodist}". (While these functions are not explicitly
+#'    designed to calculate phylogenetic beta diversity, their use here incorporates the phylogenetic components.)
+#'    This argument is ignored if one of the three "sorensen" methods is selected.
 #' @param endemism Logical indicating whether community values should be divided by column totals (taxon range sizes)
-#'    to derive endemism.
-#' @param normalize Logical indicating whether community values should be divided by row totals (community sums). If `TRUE`,
-#'    dissimilarity is based on proportional community composition. This happens after endemism is derived.
-#' @param ... Additional arguments passed to \link[vegan]{vegdist}.
-#'
+#'    to derive endemism before computing distances.
+#' @param normalize Logical indicating whether community values should be divided by row totals (community sums) before
+#'    computing distances. If `TRUE`, dissimilarity is based on proportional community composition. Normalization is
+#'    applied after endemism.
+#' @param ... Additional arguments passed to \code{fun}.
+#' @seealso [ps_add_dissim()]
 #' @return A pairwise phylogenetic dissimilarity matrix of class `dist`.
+#' @examples
+#' # The default arguments give Sorensen's quantitative dissimilarity index
+#' # (a.k.a. Bray-Curtis distance):
+#' ps_dissim(moss)
+#'
+#' # This is equivalent to specifying to the formula explicitly via `designdist`:
+#' ps_dissim(moss, method = "(b+c)/(2*a+b+c)", fun = "designdist", terms = "minimum", abcd = TRUE)
+#'
+#' # Alternative arguments can specify a wide range of dissimilarity measures;
+#' # here's endemism-weighted Jaccard's dissimilarity:
+#' ps_dissim(moss, method = "jaccard", endemism = TRUE)
+#'
 #' @export
-ps_dissim <- function(ps, method = "bray", endemism = FALSE, normalize = TRUE, ...){
-
+ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", "chaodist"),
+                      endemism = FALSE, normalize = FALSE, ...){
       enforce_ps(ps)
-      method <- match.arg(method)
       comm <- ps$comm
-      if(endemism) comm <- apply(comm, 2, function(x) x / sum(x))
-      if(normalize) comm <- t(apply(comm, 1, function(x) x / sum(x)))
+      if(endemism) comm <- apply(comm, 2, function(x) x / sum(x, na.rm = T))
+      if(normalize) comm <- t(apply(comm, 1, function(x) x / sum(x, na.rm = T)))
       comm[!is.finite(comm)] <- 0
       comm <- t(apply(comm, 1, function(x) x * ps$tree$edge.length)) # scale by branch length
-      dist <- suppressWarnings(vegan::vegdist(comm, method = method, ...))
-      return(dist)
 
+      fun <- switch(match.arg(fun),
+                    "vegdist" = vegan::vegdist,
+                    "designdist" = vegan::designdist,
+                    "chaodist" = vegan::chaodist)
+
+      meth <- ifelse(method %in% c("sorensen", "sorensen_turnover", "sorensen_nestedness"), method, "other")
+      dist <- switch(meth,
+                     "sorensen" = suppressWarnings(
+                           vegan::vegdist(comm, method = "bray")),
+                     "sorensen_turnover" = suppressWarnings(
+                           vegan::designdist(comm, method = "pmin(b,c)/(a+pmin(b,c))",
+                                             terms = "minimum", abcd = TRUE)),
+                     "sorensen_nestedness" = suppressWarnings(
+                           vegan::vegdist(comm, method = "bray") -
+                                 vegan::designdist(comm, method = "pmin(b,c)/(a+pmin(b,c))",
+                                                   terms = "minimum", abcd = TRUE)),
+                     "other" = suppressWarnings(
+                           fun(comm, method = method, ...)))
+
+      return(dist)
 }
 
 #' Add community dissimilarity data to a `phylospatial` object
 #'
-#' This function calculates pairwise quantitative phylogenetic dissimilarity between communities and returns the
-#' phylospatial object with the dissimilarity data as an element called `dissim`.
+#' This function calculates pairwise phylogenetic dissimilarity between communities and returns the `phylospatial`
+#' object with the dissimilarity data added as an element called `dissim`. See \link{ps_dissim} for details.
 #'
-#' @inheritParams ps_dissim
+#' @param ps `phylospatial` data set.
+#' @param method Dissimilarity metric; see \link{ps_dissim} for details.
+#' @param ... Additional arguments passed to \link{ps_dissim}, such as \code{fun}, \code{endemism}, or \code{normalize}.
 #' @return \code{ps} with a new `dissim` element added.
+#' @examples
+#' ps_add_dissim(moss)
+#' ps_add_dissim(moss, fun = "vegdist", method = "jaccard", endemism = TRUE)
+#'
 #' @export
-ps_add_dissim <- function(ps, method = "bray", endemism = FALSE, normalize = TRUE, ...){
-      ps$dissim <- ps_dissim(ps, method = method, endemism = endemism, normalize = normalize, ...)
+ps_add_dissim <- function(ps, method = "sorensen", ...){
+      ps$dissim <- ps_dissim(ps, method, ...)
+      ps$dissim_method <- method
       return(ps)
 }

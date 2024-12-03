@@ -84,9 +84,9 @@ ps_rand <- function(ps, n_rand = 100, spatial = T, n_cores = 1, ...){
       enforce_ps(ps)
       phy <- ps$tree
       a <- occupied(ps)
-      tip_comm <- get_tip_comm(ps)[a, ]
+      tip_comm <- ps_get_comm(ps, spatial = FALSE)[a, ]
 
-      div <- ps_diversity(ps, spatial = F)[a, ]
+      div <- ps_diversity(ps, spatial = FALSE)[a, ]
       rand <- array(NA, c(dim(div), n_rand + 1))
       rand[,,1] <- div
 

@@ -35,3 +35,8 @@ The function calculates the following metrics:
 \item RPE: Relative phylogenetic endemism, i.e. mean endemism-weighted branch length (equivalent to PE / CE)
 }
 }
+\examples{
+div <- ps_diversity(ps_simulate())
+terra::plot(div)
+
+}

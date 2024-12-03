@@ -4,27 +4,24 @@
 \alias{ps_add_dissim}
 \title{Add community dissimilarity data to a \code{phylospatial} object}
 \usage{
-ps_add_dissim(ps, method = "bray", endemism = FALSE, normalize = TRUE, ...)
+ps_add_dissim(ps, method = "sorensen", ...)
 }
 \arguments{
-\item{ps}{phylospatial object.}
+\item{ps}{\code{phylospatial} data set.}
 
-\item{method}{Character indicating the dissimilarity index to use, passed to \link[vegan]{vegdist}. The default is
-"bray", i.e. Bray-Curtis distance, also known as quantitative Sorensen's. See \link[vegan]{vegdist} for a complete
-list of options.}
+\item{method}{Dissimilarity metric; see \link{ps_dissim} for details.}
 
-\item{endemism}{Logical indicating whether community values should be divided by column totals (taxon range sizes)
-to derive endemism.}
-
-\item{normalize}{Logical indicating whether community values should be divided by row totals (community sums). If \code{TRUE},
-dissimilarity is based on proportional community composition. This happens after endemism is derived.}
-
-\item{...}{Additional arguments passed to \link[vegan]{vegdist}.}
+\item{...}{Additional arguments passed to \link{ps_dissim}, such as \code{fun}, \code{endemism}, or \code{normalize}.}
 }
 \value{
 \code{ps} with a new \code{dissim} element added.
 }
 \description{
-This function calculates pairwise quantitative phylogenetic dissimilarity between communities and returns the
-phylospatial object with the dissimilarity data as an element called \code{dissim}.
+This function calculates pairwise phylogenetic dissimilarity between communities and returns the \code{phylospatial}
+object with the dissimilarity data added as an element called \code{dissim}. See \link{ps_dissim} for details.
+}
+\examples{
+ps_add_dissim(moss)
+ps_add_dissim(moss, fun = "vegdist", method = "jaccard", endemism = TRUE)
+
 }

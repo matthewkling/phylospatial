@@ -22,6 +22,11 @@
 #' * RPE: Relative phylogenetic endemism, i.e. mean endemism-weighted branch length (equivalent to PE / CE)
 #'
 #' @return A matrix or raster stack with a column or layer (respectively) for each diversity metric.
+#'
+#' @examples
+#' div <- ps_diversity(ps_simulate())
+#' terra::plot(div)
+#'
 #' @export
 ps_diversity <- function(ps, spatial = T){
 

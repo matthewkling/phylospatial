@@ -21,3 +21,9 @@ A raster or matrix with layers or columns (respectively) containing RGB color va
 \description{
 Color space ordination of spatial phylogenetic composition
 }
+\examples{
+ps <- ps_add_dissim(moss_data(spatial_type = "raster"))
+RGB <- ps_rgb(ps, method = "cmds")
+terra::plotRGB(RGB, scale = 1)
+
+}

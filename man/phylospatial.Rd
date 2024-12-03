@@ -37,7 +37,7 @@ takes a numeric vector and returns a single numeric output. Ignored if \code{com
 \item{check}{Logical indicating whether community data should be validated. Default is TRUE.}
 }
 \value{
-A "phylospatial" object, which is a list containing the following elements:
+A \code{phylospatial} object, which is a list containing the following elements:
 \itemize{
 \item{"data_type"}{Character indicating the community data type}
 \item{"tree}{Phylogeny of class \code{phylo}}
@@ -51,4 +51,16 @@ A "phylospatial" object, which is a list containing the following elements:
 This function creates a \code{phylospatial} object. This is the core data type in the phylospatial library, and
 is a required input to most other functions in the package. The two essential components of a spatial phylogeny object
 are a phylogenetic tree and an community data set.
+}
+\examples{
+# load phylogeny
+tree <- ape::read.tree(system.file("extdata", "moss_tree.nex", package = "phylospatial"))
+
+# load species distribution rasters
+comm <- terra::rast(system.file("extdata", "moss_comm.tif", package = "phylospatial"))
+
+# construct `phylospatial` object
+ps <- phylospatial(tree, comm)
+ps
+
 }

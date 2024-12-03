@@ -4,26 +4,63 @@
 \alias{ps_dissim}
 \title{Quantitative phylogenetic dissimilarity}
 \usage{
-ps_dissim(ps, method = "bray", endemism = FALSE, normalize = TRUE, ...)
+ps_dissim(
+  ps,
+  method = "sorensen",
+  fun = c("vegdist", "designdist", "chaodist"),
+  endemism = FALSE,
+  normalize = FALSE,
+  ...
+)
 }
 \arguments{
 \item{ps}{phylospatial object.}
 
-\item{method}{Character indicating the dissimilarity index to use, passed to \link[vegan]{vegdist}. The default is
-"bray", i.e. Bray-Curtis distance, also known as quantitative Sorensen's. See \link[vegan]{vegdist} for a complete
-list of options.}
+\item{method}{Character indicating the dissimilarity index to use:
+\itemize{
+\item{"sorensen": }{Sorensen's dissimilarity, a.k.a. Bray-Curtis distance (the default)}
+\item{"sorensen_turnover": }{The turnover component of Sorensen's dissimilarity, a.k.a. Simpson's.}
+\item{"sorensen_nestedness": }{The nestedness component of Sorensen's dissimilarity.}
+\item{Any other valid \code{method} passed to \code{fun}. }{For options, see the documentation for those functions.}
+}}
+
+\item{fun}{Character indicating which general distance function from the \code{vegan} library to use: "\link[vegan]{vegdist}"
+(the default), "\link[vegan]{designdist}", or "\link[vegan]{chaodist}". (While these functions are not explicitly
+designed to calculate phylogenetic beta diversity, their use here incorporates the phylogenetic components.)
+This argument is ignored if one of the three "sorensen" methods is selected.}
 
 \item{endemism}{Logical indicating whether community values should be divided by column totals (taxon range sizes)
-to derive endemism.}
+to derive endemism before computing distances.}
 
-\item{normalize}{Logical indicating whether community values should be divided by row totals (community sums). If \code{TRUE},
-dissimilarity is based on proportional community composition. This happens after endemism is derived.}
+\item{normalize}{Logical indicating whether community values should be divided by row totals (community sums) before
+computing distances. If \code{TRUE}, dissimilarity is based on proportional community composition. Normalization is
+applied after endemism.}
 
-\item{...}{Additional arguments passed to \link[vegan]{vegdist}.}
+\item{...}{Additional arguments passed to \code{fun}.}
 }
 \value{
 A pairwise phylogenetic dissimilarity matrix of class \code{dist}.
 }
 \description{
-This function calculates pairwise quantitative phylogenetic dissimilarity between communities.
+This function calculates pairwise phylogenetic dissimilarity between communities. It works with both binary and
+quantitative community data sets. A wide range of phylogentic community dissimilarity metrics are supported,
+including phylogenetic Sorensen's and Jaccard's distances, turnover and nestedness components of Sorensen's distance,
+and phylogenetic versions of all community distance indices provided through the \code{vegan} library. The function also
+includes options to scale the community matrix in order to focus the analysis on endemism and/or on proportional
+differences in community composition. The results from this function can be visualized using \link{ps_rgb} or
+\link{ps_regions}, or used in a variety of statistical analyses.
+}
+\examples{
+# The default arguments give Sorensen's quantitative dissimilarity index (a.k.a. Bray-Curtis distance):
+ps_dissim(moss)
+
+# This is equivalent to specifying to the formula explicitly via `designdist`:
+ps_dissim(moss, method = "(b+c)/(2*a+b+c)", fun = "designdist", terms = "minimum", abcd = TRUE)
+
+# Alternative arguments can specify a wide range of dissimilarity measures; here's endemism-weighted Jaccard's dissimilarity:
+ps_dissim(moss, method = "jaccard", endemism = TRUE)
+
+}
+\seealso{
+\code{\link[=ps_add_dissim]{ps_add_dissim()}}
 }

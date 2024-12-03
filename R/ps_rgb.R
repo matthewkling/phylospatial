@@ -9,6 +9,11 @@
 #'    The default is the identity function. Specifying \code{rank} generates a more uniform color distribution.
 #'
 #' @return A raster or matrix with layers or columns (respectively) containing RGB color values in the range 0-1.
+#' @examples
+#' ps <- ps_add_dissim(moss_data(spatial_type = "raster"))
+#' RGB <- ps_rgb(ps, method = "cmds")
+#' terra::plotRGB(RGB, scale = 1)
+#'
 #' @export
 ps_rgb <- function(ps, method = c("nmds", "cmds", "pca"), trans = identity){
 

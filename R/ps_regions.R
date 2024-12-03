@@ -13,6 +13,11 @@
 #'    \code{method = "kmeans"}; in other cases this information should instead be supplied to \link{ps_add_dissim}.
 #'
 #' @return A raster or matrix with an integer indicating which of the \code{k} regions each site belongs to.
+#' @examples
+#' library(sf)
+#' plot(ps_regions(moss))
+#' plot(ps_regions(ps_add_dissim(moss), k = 7, method = "average"))
+#'
 #' @export
 ps_regions <- function(ps, k = 5, method = "kmeans", endemism = FALSE, normalize = TRUE){
 
@@ -23,8 +28,8 @@ ps_regions <- function(ps, k = 5, method = "kmeans", endemism = FALSE, normalize
 
       if(method == "kmeans"){
             comm <- ps$comm[a,]
-            if(endemism) comm <- apply(comm, 2, function(x) x / sum(x))
-            if(normalize) comm <- t(apply(comm, 1, function(x) x / sum(x)))
+            if(endemism) comm <- apply(comm, 2, function(x) x / sum(x, na.rm = T))
+            if(normalize) comm <- t(apply(comm, 1, function(x) x / sum(x, na.rm = T)))
             comm[!is.finite(comm)] <- 0
             regions <- stats::kmeans(comm, k)$cluster
       }else{

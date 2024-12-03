@@ -35,7 +35,7 @@ moss_data <- function(data_type = c("probability", "binary"),
       }
 
       if(data_type == "binary"){
-            comm <- get_tip_comm(ps)
+            comm <- ps_get_comm(ps, spatial = F)
             comm <- apply(comm, 2, function(x) as.integer(x > (max(x, na.rm = T) * .25)))
             ps <- phylospatial(ps$tree, comm, spatial = ps$spatial, data_type = "binary")
       }
