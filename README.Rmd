@@ -52,7 +52,7 @@ set.seed(123)
 # ps <- ps_simulate(n_tips = 20, n_x = 50, n_y = 50, data_type = "probability")
 ps <- moss_data("prob", "poly")
 ps
-plot(ps, "tree")
+plot(ps, "tree", show.tip.label = F, type = "fan")
 plot(ps, "comm")
 ```
 

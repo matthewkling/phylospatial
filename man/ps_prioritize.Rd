@@ -4,7 +4,15 @@
 \alias{ps_prioritize}
 \title{Phylogenetic conservation prioritization}
 \usage{
-ps_prioritize(ps, protection = NULL, lambda = 1, level = 1)
+ps_prioritize(
+  ps,
+  protection = NULL,
+  lambda = 1,
+  level = 1,
+  method = c("optimal", "probable"),
+  n_reps = 100,
+  n_cores = 1
+)
 }
 \arguments{
 \item{ps}{phylospatial object.}
@@ -15,14 +23,51 @@ Otherwise, must be a numeric vector or \code{SpatRaster} with dimensionality mat
 
 \item{lambda}{Shape parameter for taxon conservation benefit function. This can be any real number. Positive values, such as the default
 value \code{1}, place higher priority on conserving the first part of the range of a given species or clade, while negative values
-(which are not typically used) place higher priority on fully protecting some taxa than partially protecting all taxa. See the function
-\link{plot_lambda} for details.}
+(which are not typically used) place higher priority on fully protecting the most important taxa (those with small ranges and long branches)
+rather than partially protecting all taxa. See the function \link{plot_lambda} for an illustration of alternative \code{lambda} values.}
 
 \item{level}{Effectiveness level of proposed new reserves (number between 0 and 1, with same meaning as starting \code{protection}).}
+
+\item{method}{Procedure for selecting which site to add to the reserve network at each iteration:
+\itemize{
+\item{"optimal": }{The default, this selects the site with the highest marginal value at each iteration. This is a
+optimal approach that gives the same result each time.}
+\item{"probable": }{This option selects a site randomly, with selection probabilities proportional to sites' marginal values. This
+approach gives a different prioritization ranking each time an optimization is performed, so \code{n_reps} optimizations are performed,
+and ranks for each site are summarized across repetitions.}
+}}
+
+\item{n_reps}{Number of random repetitions to do; only used if \code{method = "probable"}. Depending on the data set, a large number of reps
+(more than the default of 100) may be needed in order to achieve a stable result. This may be a computational barrier for large data
+sets; multicore processing via \code{n_cores} can help.}
+
+\item{n_cores}{Number of compute cores to use for parallel processing; only used if \code{method = "probable"}.}
 }
 \value{
-A ranking of conservation priorities, with low values representing higher priorities.
+Matrix containing a ranking of conservation priorities, with low values representing higher priorities. If \code{method = "optimal"},
+the matrix contains a single column "priority" containing the ranking. If \code{method = "probable"}, the "priority" column gives the
+mean rank across reps, columns labeled "q_X" give quantiles of the rank distribution for each site, and columns labled "top_X" give the
+proportion of reps in which a site was in the top X highest-priority sites.
 }
 \description{
 Create a ranking of conservation priorities using greedy forward stepwise optimization.
+}
+\details{
+This function uses the forward stepwise selection algorithm of Kling et al. (2019) to generate a ranked conservation prioritization.
+Prioritization begins with the starting protected lands network identified in \code{protection}, if provided. At each iteration, the marginal
+conservation value of fully protecting each site is calculated, and a site is selected to be added to the reserve network. Selection can
+happen either in an "optimal" or "probable" fashion as described under the \code{method} argument. This process is repeated until all sites
+are fully protected, with sites selected early in the process considered higher conservation priorities.
+
+Every time a new site is protected as the algorithm progresses, it changes the marginal conservation value of the other sites. Marginal
+value is calculated as the increase in conservation benefit that would arise from fully protecting a given site. This is a function of
+the site's current protection level, the quantitative presence probability or abundance of all terminal taxa and larger clades present
+in the site, their evolutionary branch lengths on the phylogeny, the impact that protecting the site would have on their range-wide
+protection levels, and the free parameter \code{lambda}. \code{lambda} determines the relative importance of protecting a small portion of every
+taxon's range, versus fully protecting the ranges of more valuable taxa (those with longer evolutionary branches and smaller geogrpahic
+ranges).
+}
+\references{
+Kling, M. M., Mishler, B. D., Thornhill, A. H., Baldwin, B. G., & Ackerly, D. D. (2019). Facets of phylodiversity: evolutionary
+diversification, divergence and survival as conservation targets. Philosophical Transactions of the Royal Society B, 374(1763), 20170397.
 }

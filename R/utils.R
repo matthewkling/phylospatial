@@ -29,6 +29,8 @@ to_spatial <- function(m, template){
                   terra::values(y) <- x
                   return(y)
             }))
+            s <- setNames(s, colnames(m))
+            terra::varnames(s) <- colnames(m)
       }
       if(inherits(template, "sf")){
             s <- cbind(template, as.data.frame(m))

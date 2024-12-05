@@ -107,7 +107,7 @@ phylospatial <- function(tree, comm, spatial = NULL,
       data_type <- match.arg(data_type)
       stopifnot("Tree must be an object of class 'phylo'." = inherits(tree, "phylo"))
       stopifnot("community data must be a `matrix`, `SpatRaster`, or `sf`." = inherits(comm, c("matrix", "SpatRaster", "sf")))
-      stopifnot("Spatial reference must be a SpatRaster." = inherits(spatial, c("NULL", "SpatRaster", "sf")))
+      stopifnot("Spatial reference must be a `SpatRaster` or `sf` object." = inherits(spatial, c("NULL", "SpatRaster", "sf")))
       if(inherits(spatial, "SpatRaster")) stopifnot("`spatial` must have the same number of grid cells as rows in `comm` data matrix." =
                                                            terra::ncell(spatial) == nrow(comm))
 

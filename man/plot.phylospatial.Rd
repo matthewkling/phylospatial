@@ -2,7 +2,7 @@
 % Please edit documentation in R/phylospatial.R
 \name{plot.phylospatial}
 \alias{plot.phylospatial}
-\title{Plot a phylospatial object}
+\title{Plot a \code{phylospatial} object}
 \usage{
 \method{plot}{phylospatial}(ps, comp = c("tree", "comm"), max_taxa = 12, ...)
 }
@@ -16,5 +16,5 @@
 \item{...}{Additional arguments passed to plotting methods.}
 }
 \description{
-Plot a phylospatial object
+Plot a \code{phylospatial} object
 }

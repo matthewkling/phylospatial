@@ -106,13 +106,14 @@ ps_rand <- function(ps, n_rand = 100, spatial = T, n_cores = 1, ...){
             close(pb)
       }else{
             if (!requireNamespace("furrr", quietly = TRUE)) {
-                  stop("To use `ncores` greater than 1, package `furrr` must be installed.", call. = FALSE)
+                  stop("To use `n_cores` greater than 1, package `furrr` must be installed.", call. = FALSE)
             }
             future::plan(future::multisession, workers = n_cores)
             rnd <- furrr::future_map(1:n_rand,
                               function(i) perm(tip_comm, phy, ...),
                               .progress = TRUE,
                               .options = furrr::furrr_options(seed = TRUE))
+            plan(sequential)
             for(i in 1:n_rand) rand[,,i+1] <- rnd[[i]]
       }
 
