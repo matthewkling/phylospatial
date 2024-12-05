@@ -16,10 +16,11 @@ or "nmds" (nonmetric MDS, the default, which is slower but often preferred).}
 The default is the identity function. Specifying \code{rank} generates a more uniform color distribution.}
 }
 \value{
-A raster or matrix with layers or columns (respectively) containing RGB color values in the range 0-1.
+A matrix or spatial object with three variables containing RGB color values in the range 0-1.
 }
 \description{
-Color space ordination of spatial phylogenetic composition
+Perform an ordination that reduces a spatial phylogenetic data set into three dimensions that can be
+plotted as the RGB bands of color space to visualize spatial patterns of community phylogenetic composition.
 }
 \examples{
 ps <- ps_add_dissim(moss_data(spatial_type = "raster"))

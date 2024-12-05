@@ -3,11 +3,11 @@
 #'
 #' This function calculates pairwise phylogenetic dissimilarity between communities. It works with both binary and
 #' quantitative community data sets. A wide range of phylogentic community dissimilarity metrics are supported,
-#' including phylogenetic Sorensen's and Jaccard's distances, turnover and nestedness components of Sorensen's distance,
-#' and phylogenetic versions of all community distance indices provided through the `vegan` library. The function also
-#' includes options to scale the community matrix in order to focus the analysis on endemism and/or on proportional
-#' differences in community composition. The results from this function can be visualized using \link{ps_rgb} or
-#' \link{ps_regions}, or used in a variety of statistical analyses.
+#' including phylogenetic Sorensen's and Jaccard's distances, turnover and nestedness components of Sorensen's distance
+#' (Baselga & Orme, 2012), and phylogenetic versions of all community distance indices provided through the `vegan` library.
+#' The function also includes options to scale the community matrix in order to focus the analysis on endemism and/or
+#' on proportional differences in community composition. The results from this function can be visualized using
+#' \link{ps_rgb} or \link{ps_regions}, or used in a variety of statistical analyses.
 #'
 #' @param ps phylospatial object.
 #' @param method Character indicating the dissimilarity index to use:
@@ -28,6 +28,8 @@
 #'    applied after endemism.
 #' @param ... Additional arguments passed to \code{fun}.
 #' @seealso [ps_add_dissim()]
+#' @references Baselga, A., & Orme, C. D. L. (2012). betapart: an R package for the study of beta diversity. Methods in
+#' Ecology and Evolution, 3(5), 808-812.
 #' @return A pairwise phylogenetic dissimilarity matrix of class `dist`.
 #' @examples
 #' # The default arguments give Sorensen's quantitative dissimilarity index

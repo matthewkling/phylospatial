@@ -46,8 +46,8 @@ sets; multicore processing via \code{n_cores} can help.}
 \value{
 Matrix containing a ranking of conservation priorities, with low values representing higher priorities. If \code{method = "optimal"},
 the matrix contains a single column "priority" containing the ranking. If \code{method = "probable"}, the "priority" column gives the
-mean rank across reps, columns labeled "q_X" give quantiles of the rank distribution for each site, and columns labled "top_X" give the
-proportion of reps in which a site was in the top X highest-priority sites.
+mean rank across reps, columns labeled "pct_X" give the Xth percentile of the rank distribution for each site, and columns labled "top_X"
+give the proportion of reps in which a site was in the top X highest-priority sites.
 }
 \description{
 Create a ranking of conservation priorities using greedy forward stepwise optimization.

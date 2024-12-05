@@ -26,11 +26,16 @@ dissimilarity is based on proportional community composition. This happens after
 A raster or matrix with an integer indicating which of the \code{k} regions each site belongs to.
 }
 \description{
-Phyologenetic regionalization
+Perform a clustering analysis that categorizes sites into biogeographic regions based on quantitative community
+compositional similarity.
 }
 \examples{
 library(sf)
 plot(ps_regions(moss))
 plot(ps_regions(ps_add_dissim(moss), k = 7, method = "average"))
 
+}
+\references{
+Daru, B. H., Elliott, T. L., Park, D. S., & Davies, T. J. (2017). Understanding the processes underpinning
+patterns of phylogenetic regionalization. Trends in Ecology & Evolution, 32(11), 845-860.
 }

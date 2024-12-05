@@ -13,6 +13,7 @@ benefit <- function(x, lambda = 1){
       (1-(1-x)^lambda)^(1/lambda)
 }
 
+
 #' Plot alternative lambda values
 #'
 #' Show a plot illustrating alternative values for the `lambda` parameter in \link{ps_prioritize}. Lambda determines the shape of
@@ -78,8 +79,8 @@ plot_lambda <- function(){
 #'    diversification, divergence and survival as conservation targets. Philosophical Transactions of the Royal Society B, 374(1763), 20170397.
 #' @return Matrix containing a ranking of conservation priorities, with low values representing higher priorities. If `method = "optimal"`,
 #'    the matrix contains a single column "priority" containing the ranking. If `method = "probable"`, the "priority" column gives the
-#'    mean rank across reps, columns labeled "q_X" give quantiles of the rank distribution for each site, and columns labled "top_X" give the
-#'    proportion of reps in which a site was in the top X highest-priority sites.
+#'    mean rank across reps, columns labeled "pct_X" give the Xth percentile of the rank distribution for each site, and columns labled "top_X"
+#'    give the proportion of reps in which a site was in the top X highest-priority sites.
 #' @export
 ps_prioritize <- function(ps,
                           protection = NULL,
@@ -172,7 +173,7 @@ ps_prioritize <- function(ps,
             ra <- t(apply(ra, 1, function(x) c(mean(x),
                                                stats::quantile(x, prob, na.rm = TRUE),
                                                sapply(top, function(q) mean(x <= q, na.rm = TRUE)))))
-            colnames(ra) <- c("priority", paste0("q_", prob), paste0("top_", top))
+            colnames(ra) <- c("priority", paste0("pct_", prob*100), paste0("top_", top))
       }
 
       # return prioritization

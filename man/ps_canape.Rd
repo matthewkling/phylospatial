@@ -30,3 +30,10 @@ It also runs \code{canaper::cpr_classify_endem} on the result, and includes the 
 additional variable, 'endem_type', in the output. 'endem_type' values 0-4 correspond to not-significant, neo,
 paleo, mixed, and super endemesim, respectively.
 }
+\references{
+Mishler, B. D., Knerr, N., González-Orozco, C. E., Thornhill, A. H., Laffan, S. W., & Miller, J. T. (2014).
+Phylogenetic measures of biodiversity and neo-and paleo-endemism in Australian Acacia. Nature Communications, 5(1), 4473.
+
+Nitta, J. H., Laffan, S. W., Mishler, B. D., & Iwasaki, W. (2023). canaper: categorical analysis
+of neo‐and paleo‐endemism in R. Ecography, 2023(9), e06638.
+}
