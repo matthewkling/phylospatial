@@ -59,6 +59,56 @@ or <code>sf</code> data frame with same number of rows as m.</p></dd>
 a variable for every column in <code>m</code>, depending on the data type of <code>template</code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># example using `sf` data set `moss`:</span></span></span>
+<span class="r-in"><span><span class="fu">to_spatial</span><span class="op">(</span><span class="va">moss</span><span class="op">$</span><span class="va">comm</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="va">moss</span><span class="op">$</span><span class="va">spatial</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 171 features and 5 fields</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: POLYGON</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: -405000 ymin: -664641 xmax: 585000 ymax: 495833</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Projected CRS: unnamed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> First 10 features:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         clade1 Sphagnum_teres      clade2 Sphagnum_squarrosum     clade3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.271485552   2.012270e-08 0.271485537        9.046410e-07 0.27148488</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.029584329   1.896249e-27 0.029584329        1.633291e-05 0.02956848</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.407162761   3.776328e-02 0.383896682        1.884237e-18 0.38389668</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.185452662   1.466808e-04 0.185333166        1.909400e-07 0.18533301</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.777731999   1.241481e-14 0.777731999        3.489658e-04 0.77765441</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.006214871   3.463186e-27 0.006214871        1.267038e-03 0.00495411</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  0.451858304   4.797141e-02 0.424238197        8.726398e-18 0.42423820</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  0.669838232   3.318939e-02 0.658504193        2.698501e-10 0.65850419</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  0.815675026   5.281141e-08 0.815675016        1.311591e-03 0.81543294</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.238225139   6.056255e-19 0.238225139        1.165790e-02 0.22923970</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                 x</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  POLYGON ((-375000 270666.4,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  POLYGON ((-375000 374589.5,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  POLYGON ((-345000 114781.8,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  POLYGON ((-345000 218704.9,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  POLYGON ((-345000 322627.9,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  POLYGON ((-345000 426551, -...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  POLYGON ((-315000 62820.32,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  POLYGON ((-315000 166743.4,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  POLYGON ((-315000 270666.4,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 POLYGON ((-315000 374589.5,...</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># and using a `SpatRaster`:</span></span></span>
+<span class="r-in"><span><span class="fu">to_spatial</span><span class="op">(</span><span class="fu"><a href="moss_data.html">moss_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">comm</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="fu"><a href="moss_data.html">moss_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">spatial</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> dimensions  : 18, 16, 5  (nrow, ncol, nlyr)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 60000, 60000  (x, y)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : -375000, 585000, -630000, 450000  (xmin, xmax, ymin, ymax)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +datum=NAD83 +units=m +no_defs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> varnames    : clade1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Sphagnum_teres </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               clade2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       :    clade1, Sphagnum_teres,    clade2, Sphagn~rrosum,    clade3 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 0.0000000,      0.0000000, 0.0000000,     0.0000000, 0.0000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 0.9318513,      0.2934258, 0.9318242,     0.3475139, 0.9198755 </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

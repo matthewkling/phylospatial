@@ -43,7 +43,7 @@ alternative that utilizes continuous community values and retains a significance
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ps_canape</span><span class="op">(</span><span class="va">ps</span>, null_model <span class="op">=</span> <span class="st">"curveball"</span>, spatial <span class="op">=</span> <span class="cn">T</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ps_canape</span><span class="op">(</span><span class="va">ps</span>, null_model <span class="op">=</span> <span class="st">"curveball"</span>, spatial <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -85,6 +85,26 @@ Phylogenetic measures of biodiversity and neo-and paleo-endemism in Australian A
 of neo‐and paleo‐endemism in R. Ecography, 2023(9), e06638.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"binary"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ps_canape</span><span class="op">(</span><span class="va">ps</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> dimensions  : 20, 20, 55  (nrow, ncol, nlyr)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 1, 1  (x, y)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 0, 20, 0, 20  (xmin, xmax, ymin, ymax)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. :  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> varnames    : pd_obs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               pd_rand_mean </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               pd_rand_sd </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       :    pd_obs, pd_rand_mean, pd_rand_sd,  pd_obs_z, pd_ob~upper, pd_ob~lower, ... </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 0.1419149,    0.2642274, 0.02773481, -3.327005,           0,           0, ... </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 0.8234926,    0.8158520, 0.07372272,  1.733122,         100,         100, ... </span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
