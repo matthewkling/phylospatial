@@ -41,14 +41,15 @@ plot_lambda <- function(){
 #' Create a ranking of conservation priorities using greedy forward stepwise optimization.
 #'
 #' @param ps phylospatial object.
-#' @param protection Starting protection status. If this argument is not specified, it is assumed that no existing reserves are present.
+#' @param init Starting protection status. If this argument is not specified, it is assumed that no existing reserves are present.
 #'    Otherwise, must be a numeric vector or `SpatRaster` with dimensionality matching the number of sites in \code{ps} and values between
 #'    0 and 1 representing the existing level of conservation effectiveness in each site.
 #' @param lambda Shape parameter for taxon conservation benefit function. This can be any real number. Positive values, such as the default
 #'    value \code{1}, place higher priority on conserving the first part of the range of a given species or clade, while negative values
 #'    (which are not typically used) place higher priority on fully protecting the most important taxa (those with small ranges and long branches)
 #'    rather than partially protecting all taxa. See the function \link{plot_lambda} for an illustration of alternative `lambda` values.
-#' @param level Effectiveness level of proposed new reserves (number between 0 and 1, with same meaning as starting \code{protection}).
+#' @param protection Degree of protection of proposed new reserves (number between 0 and 1, with same meaning as \code{init}).
+#' @param max_iter Integer giving max number of iterations to perform before stopping, i.e. max number of sites to rank.
 #' @param method Procedure for selecting which site to add to the reserve network at each iteration:
 #'  \itemize{
 #'    \item{"optimal": }{The default, this selects the site with the highest marginal value at each iteration. This is a
@@ -61,33 +62,72 @@ plot_lambda <- function(){
 #'    (more than the default of 100) may be needed in order to achieve a stable result. This may be a computational barrier for large data
 #'    sets; multicore processing via \code{n_cores} can help.
 #' @param n_cores Number of compute cores to use for parallel processing; only used if `method = "probable"`.
+#' @param summarize Logical: should summary statistics across reps (TRUE, default) or the reps themselves (FALSE) be returned? Only relevant
+#'    if `method = "probable"`.
+#' @param spatial Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE)?
+#' @param progress Logical: should a progress bar be displayed? Defualt is TRUE.
 #' @details This function uses the forward stepwise selection algorithm of Kling et al. (2019) to generate a ranked conservation prioritization.
-#'    Prioritization begins with the starting protected lands network identified in `protection`, if provided. At each iteration, the marginal
+#'    Prioritization begins with the starting protected lands network identified in `init`, if provided. At each iteration, the marginal
 #'    conservation value of fully protecting each site is calculated, and a site is selected to be added to the reserve network. Selection can
 #'    happen either in an "optimal" or "probable" fashion as described under the `method` argument. This process is repeated until all sites
-#'    are fully protected, with sites selected early in the process considered higher conservation priorities.
+#'    are fully protected or until \code{max_iter} has been reached, with sites selected early in the process considered higher conservation
+#'    priorities.
+#'
+#'    The benefit of the probabilistic approach is that it relaxes the potentially unrealistic assumption that protected land will actually be
+#'    added in the optimal order. Since the algorithm avoids compositional redundancy between high-priority sites, the optimal approach will
+#'    never place high priority on a site that has high marginal value but is redundant with a slightly higher-value site, whereas the
+#'    probabilistic approach will select them at similar frequencies (though never in the same randomized run).
 #'
 #'    Every time a new site is protected as the algorithm progresses, it changes the marginal conservation value of the other sites. Marginal
-#'    value is calculated as the increase in conservation benefit that would arise from fully protecting a given site. This is a function of
+#'    value is the increase in conservation benefit that would arise from fully protecting a given site. This is calculated as a function of
 #'    the site's current protection level, the quantitative presence probability or abundance of all terminal taxa and larger clades present
 #'    in the site, their evolutionary branch lengths on the phylogeny, the impact that protecting the site would have on their range-wide
 #'    protection levels, and the free parameter `lambda`. `lambda` determines the relative importance of protecting a small portion of every
-#'    taxon's range, versus fully protecting the ranges of more valuable taxa (those with longer evolutionary branches and smaller geogrpahic
+#'    taxon's range, versus fully protecting the ranges of more valuable taxa (those with longer evolutionary branches and smaller geographic
 #'    ranges).
-#'
+#' @seealso [benefit()], [plot_lambda()]
 #' @references Kling, M. M., Mishler, B. D., Thornhill, A. H., Baldwin, B. G., & Ackerly, D. D. (2019). Facets of phylodiversity: evolutionary
 #'    diversification, divergence and survival as conservation targets. Philosophical Transactions of the Royal Society B, 374(1763), 20170397.
-#' @return Matrix containing a ranking of conservation priorities, with low values representing higher priorities. If `method = "optimal"`,
-#'    the matrix contains a single column "priority" containing the ranking. If `method = "probable"`, the "priority" column gives the
-#'    mean rank across reps, columns labeled "pct_X" give the Xth percentile of the rank distribution for each site, and columns labled "top_X"
-#'    give the proportion of reps in which a site was in the top X highest-priority sites.
+#' @return Matrix or spatial object containing a ranking of conservation priorities. Lower rank values represent higher
+#'    conservation priorities. All sites with a lower priority than \code{max_iter} have a rank value equal to the number
+#'    of sites in the input data set (i.e. the lowest possible priority).
+#'  \itemize{
+#'    \item{If `method = "optimal"`. }{the result contains a single variable "priority" containing the ranking.}
+#'    \item{If `method = "probable"` and `summarize = TRUE`, }{the "priority" variable gives the average rank across reps,
+#'    variables labeled "pctX" give the Xth percentile of the rank distribution for each site, variables labeled "topX"
+#'    give the proportion of reps in which a site was in the top X highest-priority sites, and variables labeled "treX" give
+#'    a ratio representing "topX" relative to the null expectation of how often "topX" should occur by chance alone.}
+#'    \item{If `method = "probable"` and `summarize = FALSE`, }{the result contains the full set of \code{n_rep} solutions,
+#'    each representing the the ranking, with low values representing higher priorities.. }
+#' }
+#' @examples
+#' # simulate a toy `phylospatial` data set
+#' set.seed(123)
+#' ps <- ps_simulate()
+#'
+#' # basic prioritization
+#' ps_prioritize(ps)
+#'
+#' # specifying locations of initial protected areas
+#' # (can be binary, or continuous values between 0 and 1)
+#' # here we'll create an `init` raster with arbitrary values ranging from 0-1,
+#' # using the reference raster layer that's part of our `phylospatial` object
+#' protected <- terra::setValues(ps$spatial, seq(0, 1, length.out = terra::ncell(ps$spatial)))
+#' ps_prioritize(ps, init = protected)
+#'
+#' # using probabilistic prioritization (note: a real analysis would need more reps)
+#' ps_prioritize(ps, init = protected, method = "prob", n_reps = 10)
+#'
 #' @export
 ps_prioritize <- function(ps,
-                          protection = NULL,
+                          init = NULL,
                           lambda = 1,
-                          level = 1,
+                          protection = 1,
+                          max_iter = NULL,
                           method = c("optimal", "probable"),
-                          n_reps = 100, n_cores = 1){
+                          n_reps = 100, n_cores = 1, summarize = TRUE,
+                          spatial = TRUE,
+                          progress = TRUE){
 
       method <- match.arg(method)
       enforce_ps(ps)
@@ -96,14 +136,20 @@ ps_prioritize <- function(ps,
 
       e <- ps$tree$edge.length / sum(ps$tree$edge.length) # edges evolutionary value
 
-      if(is.null(protection)){
-            p <- rep(0, nrow(ps$comm))
+      n_sites <- nrow(ps$comm)
+
+      if(is.null(init)){
+            p <- rep(0, n_sites)
       }else{
-            p <- protection[] # protected
+            p <- init[] # p: initial protection
+            stopifnot("`init` may not contain NA values or values outside the 0-1 range." =
+                            all(is.finite(p)) & min(p) >= 0 & max(p) <= 1)
       }
 
-      ra <- rep(NA, length(p)) # prioritization rankings
-      m <- apply(ps$comm, 2, function(x) x / sum(x, na.rm = T)) # normalize to fraction of range
+      n_poss <- sum(rowSums(ps$comm, na.rm = TRUE) > 0 & p < 1)
+
+      ra <- rep(n_sites, n_sites) # prioritization rankings
+      m <- apply(ps$comm, 2, function(x) x / sum(x, na.rm = TRUE)) # normalize to fraction of range
 
       a <- occupied(ps)
       m <- m[a,]
@@ -111,10 +157,12 @@ ps_prioritize <- function(ps,
       r <- ra[a]
       rr <- ra
 
+      n_iter <- ifelse(is.null(max_iter), n_sites, min(max_iter, n_sites))
+
       ranks <- function(progress = TRUE){
 
             if(progress) pb <- utils::txtProgressBar(min = 0, max = sum(rowSums(m, na.rm = T) > 0), initial = 0, style = 3)
-            for(i in 1:length(p)){
+            for(i in 1:n_iter){
                   if(progress) utils::setTxtProgressBar(pb, i)
 
                   # value of current reserve network iteration
@@ -122,16 +170,17 @@ ps_prioritize <- function(ps,
                   v <- sum(e * benefit(b, lambda))
 
                   # marginal value of protecting each cell
-                  mp <- pmax(0, (level - p)) # marginal protection boost
+                  mp <- pmax(0, (protection - p)) # marginal protection boost
                   u <- apply(m, 2, function(x) x * mp) # unprotected value per taxon*cell
                   mv <- apply(u, 1, function(x) sum(e * benefit(x + b, lambda))) - v
+                  if(sum(mv) == 0) break()
 
                   # protect optimal site
-                  if(method == "optimal") o <- which(mv == max(mv, na.rm = T)) # identify optimal site(s)
+                  if(method == "optimal") o <- which(mv == max(mv, na.rm = TRUE)) # identify optimal site(s)
                   if(method == "probable") o <- sample(1:length(mv), 1, prob = mv)
                   if(length(o) > 1) o <- sample(o, 1) # random tiebreaker
                   if(mv[o] == 0) break()
-                  p[o] <- level # protect site
+                  p[o] <- protection # protect site
                   r[o] <- i # record ranking
             }
             if(progress) close(pb)
@@ -141,19 +190,19 @@ ps_prioritize <- function(ps,
 
 
       if(method == "optimal"){
-            ra <- ranks()
+            ra <- ranks(progress = progress)
             ra <- matrix(ra, ncol = 1)
             colnames(ra) <- "priority"
       }
       if(method == "probable"){
             ra <- matrix(NA, length(ra), n_reps)
             if(n_cores == 1){
-                  pb <- utils::txtProgressBar(min = 0, max = n_reps, initial = 0, style = 3)
+                  if(progress) pb <- utils::txtProgressBar(min = 0, max = n_reps, initial = 0, style = 3)
                   for(i in 1:n_reps){
-                        utils::setTxtProgressBar(pb, i)
+                        if(progress) utils::setTxtProgressBar(pb, i)
                         ra[,i] <- ranks(progress = FALSE)
                   }
-                  close(pb)
+                  if(progress) close(pb)
             }else{
                   if (!requireNamespace("furrr", quietly = TRUE)) {
                         stop("To use `n_cores` greater than 1, package `furrr` must be installed.", call. = FALSE)
@@ -161,23 +210,35 @@ ps_prioritize <- function(ps,
                   future::plan(future::multisession, workers = n_cores)
                   ra <- furrr::future_map(1:n_reps,
                                           function(i) ranks(progress = FALSE),
-                                          .progress = TRUE,
+                                          .progress = progress,
                                           .options = furrr::furrr_options(seed = TRUE))
                   future::plan(future::sequential)
                   ra <- do.call("cbind", ra)
             }
 
             # summarize ranks across reps
-            top <- c(1, 5, 10, 25, 50, 100)
-            prob <- c(.05, .25, .5, .75, .95)
-            ra <- t(apply(ra, 1, function(x) c(mean(x),
-                                               stats::quantile(x, prob, na.rm = TRUE),
-                                               sapply(top, function(q) mean(x <= q, na.rm = TRUE)))))
-            colnames(ra) <- c("priority", paste0("pct_", prob*100), paste0("top_", top))
+            if(summarize){
+                  top <- c(1, 5, 10, 25, 50, 100, 250, 500)
+                  top <- top[top <= n_poss & top <= n_iter]
+
+                  prob <- c(.05, .25, .5, .75, .95)
+                  ra <- t(apply(ra, 1, function(x) c(mean(x),
+                                                      as.vector(stats::quantile(x, prob, na.rm = TRUE)),
+                                                      sapply(top, function(q) mean(x <= q, na.rm = TRUE)),
+                                                      sapply(top, function(q) mean(x <= q, na.rm = TRUE) / q * n_poss ))))
+                  colnames(ra) <- c("priority",
+                                    paste0("pct", prob*100),
+                                    paste0("top", top),
+                                    paste0("tre", top))
+            }else{
+                  colnames(ra) <- paste("soln", 1:ncol(ra))
+            }
+
+
       }
 
       # return prioritization
-      if(!is.null(ps$spatial)){
+      if(spatial & !is.null(ps$spatial)){
             return(to_spatial(ra, ps$spatial))
       }else{
             return(ra)

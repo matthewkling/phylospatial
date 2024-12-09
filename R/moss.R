@@ -20,6 +20,9 @@
 #' @param spatial_type Either "raster" or "polygons".
 #' @return A \code{phylospatial} object with a phylogeny and modeled distributions of 443 species of mosses,
 #' from Kling et al. (2025) Sys. Bot.
+#' @examples
+#' moss_data("prob", "poly")
+#' moss_data("bin", "rast")
 #' @export
 moss_data <- function(data_type = c("probability", "binary"),
                       spatial_type = c("raster", "polygons")){

@@ -22,3 +22,7 @@ from Kling et al. (2025) Sys. Bot.
 This function returns the \link{moss} \code{phylospatial} data set, with options for raster vs polygon formatting
 and for probability vs binary community data type.
 }
+\examples{
+moss_data("prob", "poly")
+moss_data("bin", "rast")
+}

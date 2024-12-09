@@ -148,7 +148,7 @@ phylospatial <- function(tree, comm, spatial = NULL,
             if(min(comm, na.rm = T) >= 0 & max(comm, na.rm = T) <= 1) data_type <- "probability"
             if(max(comm, na.rm = T) > 1) data_type <- "abundance"
             if(is_binary(comm)) data_type <- "binary"
-            message(paste(data_type, "community data detected"))
+            message(paste("Community data type detected:", data_type))
             check <- FALSE
       }
       if(data_type == "binary"){
@@ -172,39 +172,3 @@ phylospatial <- function(tree, comm, spatial = NULL,
       new_phylospatial(tree, comm, spatial, dissim = NULL, data_type, clade_fun)
 }
 
-
-#' @method print phylospatial
-#' @export
-print.phylospatial <- function(x, ...){
-      cat("`phylospatial` object\n",
-          " -", ncol(x$comm), "clades across", nrow(x$comm), "sites\n",
-          " - community data type:", x$data_type, "\n",
-          " - spatial data class:", class(x$spatial)[1], "\n",
-          " - dissimilarity data:", ifelse(is.null(x$dissim), "none", x$dissim_method), "\n")
-}
-
-
-#' Plot a `phylospatial` object
-#'
-#' @param ps `phylospatial` object
-#' @param comp Either \code{"tree"} or \code{"comm"}, indicating which component to plot.
-#' @param max_taxa Integer giving the maximum number of taxon ranges to plot, if \code{comp = "tree"}.
-#' @param ... Additional arguments passed to plotting methods.
-#' @method plot phylospatial
-#' @export
-plot.phylospatial <- function(ps, comp = c("tree", "comm"),
-                              max_taxa = 12,
-                              ...){
-      comp <- match.arg(comp)
-      if(comp == "tree"){
-            plot(ps$tree, ...)
-      }
-      if(comp == "comm"){
-            enforce_spatial(ps)
-            n <- min(max_taxa, nrow(ps$comm))
-            comm <- ps_get_comm(ps, tips_only = FALSE)
-            i <- sample(ncol(ps$comm), n)
-            if(inherits(ps$spatial, "SpatRaster")) terra::plot(comm[[i]], ...)
-            if(inherits(ps$spatial, "sf")) terra::plot(comm[, i], max.plot = n, ...)
-      }
-}

@@ -4,7 +4,7 @@
 \alias{ps_rand}
 \title{Null model randomization analysis of alpha diversity metrics}
 \usage{
-ps_rand(ps, n_rand = 100, spatial = T, n_cores = 1, ...)
+ps_rand(ps, n_rand = 100, spatial = TRUE, n_cores = 1, progress = TRUE, ...)
 }
 \arguments{
 \item{ps}{\code{phylospatial} object.}
@@ -14,6 +14,8 @@ ps_rand(ps, n_rand = 100, spatial = T, n_cores = 1, ...)
 \item{spatial}{Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE).}
 
 \item{n_cores}{Integer giving the number of compute cores to use for parallel processing.}
+
+\item{progress}{Logical: should a progress bar be displayed? Defualt is TRUE.}
 
 \item{...}{Additional arguments passed to \link{quantize}, such as \code{algorithm}, \code{n_iter},
 \code{n_strata}, \code{jitter}, \code{transform}, \code{priority}, etc.}
@@ -27,4 +29,10 @@ the randomized metric.
 This function compares to diversity metrics calculated in \link{ps_diversity} to their null distributions
 computed by randomizing the community matrix. Randomization is done using the \link{quantize} method for
 community matrices containing continuous quantities such as occurrence probabilities or abundances.
+}
+\examples{
+ps <- ps_simulate()
+ps_rand(ps)
+
+ps_rand(ps, transform = sqrt, priority = "rows")
 }

@@ -7,7 +7,7 @@ enforce_ps <- function(x){
 enforce_spatial <- function(x) stopifnot("This function requires that the `phylospatial` object contain spatiald data." = !is.null(x$spatial))
 
 # this gives the position in the edge list, not the node INDEX per se (the number contained in edge list)
-tip_indices <- function(tree, invert = F) which(tree$edge[,2] %in% setdiff(tree$edge[,2], tree$edge[,1]) != invert)
+tip_indices <- function(tree, invert = FALSE) which(tree$edge[,2] %in% setdiff(tree$edge[,2], tree$edge[,1]) != invert)
 
 
 #' Convert a site-by-variable matrix into a SpatRaster or sf object
@@ -29,7 +29,7 @@ to_spatial <- function(m, template){
                   terra::values(y) <- x
                   return(y)
             }))
-            s <- setNames(s, colnames(m))
+            names(s) <- colnames(m)
             terra::varnames(s) <- colnames(m)
       }
       if(inherits(template, "sf")){

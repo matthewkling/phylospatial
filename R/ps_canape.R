@@ -17,6 +17,10 @@
 #' paleo, mixed, and super endemesim, respectively.
 #'
 #' @return A matrix or raster stack with a column or layer (respectively) for each metric.
+#' @examples
+#' ps <- ps_simulate(data_type = "binary")
+#' ps_canape(ps)
+#'
 #' @references
 #' Mishler, B. D., Knerr, N., González-Orozco, C. E., Thornhill, A. H., Laffan, S. W., & Miller, J. T. (2014).
 #' Phylogenetic measures of biodiversity and neo-and paleo-endemism in Australian Acacia. Nature Communications, 5(1), 4473.
@@ -24,7 +28,7 @@
 #' Nitta, J. H., Laffan, S. W., Mishler, B. D., & Iwasaki, W. (2023). canaper: categorical analysis
 #' of neo‐and paleo‐endemism in R. Ecography, 2023(9), e06638.
 #' @export
-ps_canape <- function(ps, null_model = "curveball", spatial = T, ...){
+ps_canape <- function(ps, null_model = "curveball", spatial = TRUE, ...){
 
       enforce_ps(ps)
       stopifnot("This function only works with binary community data; use `ps_rand()` for quantitative data." =

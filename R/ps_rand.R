@@ -54,7 +54,7 @@ quantize <- function(x, n_strata = 5, transform = identity, algorithm = "curveba
       for(i in 1:n_strata){
             # bb <- tf(cpr_rand_comm(b[i,,], algorithm, n_iterations = n_iter, ...))
             null <- vegan::nullmodel(b[i,,], method = algorithm)
-            bb <- tf(stats::simulate(null, nsim = 1, thin = 1, burnin = n_iter - 1, seed = NULL))
+            bb <- tf(stats::simulate(null, nsim = 1, thin = 1, burnin = n_iter - 1, seed = NULL)[,,1])
             bb[bb == 1] <- tf(r)[tf(s) == i]
             b[i,,] <- tf(bb)
       }
@@ -73,13 +73,19 @@ quantize <- function(x, n_strata = 5, transform = identity, algorithm = "curveba
 #' @param n_rand Integer giving the number of random communities to generate.
 #' @param spatial Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE).
 #' @param n_cores Integer giving the number of compute cores to use for parallel processing.
+#' @param progress Logical: should a progress bar be displayed? Defualt is TRUE.
 #' @param ... Additional arguments passed to \link{quantize}, such as \code{algorithm}, \code{n_iter},
 #'    \code{n_strata}, \code{jitter}, \code{transform}, \code{priority}, etc.
 #' @return A matrix with a row for every row of \code{x}, a column for every metric in \link{ps_diversity}, and
 #'    values indicating the proportion of randomizations in which the observed diversity metric was greater than
 #'    the randomized metric.
+#' @examples
+#' ps <- ps_simulate()
+#' ps_rand(ps)
+#'
+#' ps_rand(ps, transform = sqrt, priority = "rows")
 #' @export
-ps_rand <- function(ps, n_rand = 100, spatial = T, n_cores = 1, ...){
+ps_rand <- function(ps, n_rand = 100, spatial = TRUE, n_cores = 1, progress = TRUE, ...){
 
       enforce_ps(ps)
       phy <- ps$tree
@@ -98,12 +104,12 @@ ps_rand <- function(ps, n_rand = 100, spatial = T, n_cores = 1, ...){
       }
 
       if(n_cores == 1){
-            pb <- utils::txtProgressBar(min = 0, max = n_rand, initial = 0, style = 3)
+            if(progress) pb <- utils::txtProgressBar(min = 0, max = n_rand, initial = 0, style = 3)
             for(i in 1:n_rand){
                   rand[,,i+1] <- perm(tip_comm, phy, ...)
-                  utils::setTxtProgressBar(pb, i)
+                  if(progress) utils::setTxtProgressBar(pb, i)
             }
-            close(pb)
+            if(progress) close(pb)
       }else{
             if (!requireNamespace("furrr", quietly = TRUE)) {
                   stop("To use `n_cores` greater than 1, package `furrr` must be installed.", call. = FALSE)
@@ -111,9 +117,9 @@ ps_rand <- function(ps, n_rand = 100, spatial = T, n_cores = 1, ...){
             future::plan(future::multisession, workers = n_cores)
             rnd <- furrr::future_map(1:n_rand,
                               function(i) perm(tip_comm, phy, ...),
-                              .progress = TRUE,
+                              .progress = progress,
                               .options = furrr::furrr_options(seed = TRUE))
-            plan(sequential)
+            future::plan(future::sequential)
             for(i in 1:n_rand) rand[,,i+1] <- rnd[[i]]
       }
 

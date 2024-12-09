@@ -4,7 +4,7 @@
 \alias{ps_canape}
 \title{Binary randomization tests including CANAPE}
 \usage{
-ps_canape(ps, null_model = "curveball", spatial = T, ...)
+ps_canape(ps, null_model = "curveball", spatial = TRUE, ...)
 }
 \arguments{
 \item{ps}{phylospatial object}
@@ -29,6 +29,11 @@ This function runs \code{canaper::cpr_rand_test}; see the help for that function
 It also runs \code{canaper::cpr_classify_endem} on the result, and includes the resulting classification as an
 additional variable, 'endem_type', in the output. 'endem_type' values 0-4 correspond to not-significant, neo,
 paleo, mixed, and super endemesim, respectively.
+}
+\examples{
+ps <- ps_simulate(data_type = "binary")
+ps_canape(ps)
+
 }
 \references{
 Mishler, B. D., Knerr, N., González-Orozco, C. E., Thornhill, A. H., Laffan, S. W., & Miller, J. T. (2014).
