@@ -21,3 +21,13 @@ depending on which data type was used to create \code{ps}.
 \description{
 Get \code{phylospatial} community data
 }
+\examples{
+ps <- ps_simulate()
+
+# the defaults return a spatial object of terminal taxa distributions:
+ps_get_comm(ps)
+
+# get distributions for all taxa, as a matrix
+ps_get_comm(ps, tips_only = FALSE, spatial = FALSE)
+
+}

@@ -22,6 +22,14 @@
 #'    "neither", doesn't give precedence to either dimension.
 #' @param ... Ignored.
 #' @return A randomized version of \code{x}.
+#' @examples
+#' # example quantitative community matrix
+#' comm <- ps_get_comm(moss, tips_only = TRUE, spatial = FALSE)
+#'
+#' # examples
+#' quantize(comm)
+#' quantize(comm, n_strata = 4, transform = sqrt, priority = "rows")
+#'
 #' @export
 quantize <- function(x, n_strata = 5, transform = identity, algorithm = "curveball",
                    jitter = .99, priority = "neither", n_iter = 10000, ...){
@@ -88,6 +96,8 @@ quantize <- function(x, n_strata = 5, transform = identity, algorithm = "curveba
 ps_rand <- function(ps, n_rand = 100, spatial = TRUE, n_cores = 1, progress = TRUE, ...){
 
       enforce_ps(ps)
+      # if(ps$data_type == "binary") stop("These community data are binary, but `ps_rand()` only works with quantitative (e.g. probability or abundance) data.")
+
       phy <- ps$tree
       a <- occupied(ps)
       tip_comm <- ps_get_comm(ps, spatial = FALSE)[a, ]

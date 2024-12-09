@@ -31,3 +31,7 @@ circular geographic range with a random radius and location. The spatial referen
 This function generates a simple \code{phylospatial} object that can be used for testing other functions
 in the package. It is not intended to be realistic.
 }
+\examples{
+ps_simulate()
+plot(ps_simulate(n_tips = 50, n_x = 30, n_y = 40, data_type = "abundance"), "comm")
+}

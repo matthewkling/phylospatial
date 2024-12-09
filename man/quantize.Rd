@@ -48,3 +48,12 @@ of the input quantities, a separate binary randomization is done for each stratu
 combined to produce a randomized, quantitative community matrix. See \code{vegan::commsim()} for details about
 other binary and quantitative null models.
 }
+\examples{
+# example quantitative community matrix
+comm <- ps_get_comm(moss, tips_only = TRUE, spatial = FALSE)
+
+# examples
+quantize(comm)
+quantize(comm, n_strata = 4, transform = sqrt, priority = "rows")
+
+}

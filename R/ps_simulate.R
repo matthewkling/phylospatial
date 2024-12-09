@@ -9,9 +9,11 @@
 #' @param n_y Number of raster cells in y dimension of landscape.
 #' @param data_type Community data type for simulated ranges: either "probability" (default), "binary", or "abundance".
 #' @param seed Optional integer to seed random number generator.
-#'
 #' @return \code{phylospatial} object, comprising a random phylogeny and community matrix in which each terminal has a
 #' circular geographic range with a random radius and location. The spatial reference data is a SpatRaster.
+#' @examples
+#' ps_simulate()
+#' plot(ps_simulate(n_tips = 50, n_x = 30, n_y = 40, data_type = "abundance"), "comm")
 #' @export
 ps_simulate <- function(n_tips = 10,
                         n_x = 20,

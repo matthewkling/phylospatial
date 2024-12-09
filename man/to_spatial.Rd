@@ -19,3 +19,10 @@ a variable for every column in \code{m}, depending on the data type of \code{tem
 \description{
 Convert a site-by-variable matrix into a SpatRaster or sf object
 }
+\examples{
+# example using `sf` data set `moss`:
+to_spatial(moss$comm[, 1:5], moss$spatial)
+
+# and using a `SpatRaster`:
+to_spatial(moss_data()$comm[, 1:5], moss_data()$spatial)
+}
