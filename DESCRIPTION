@@ -22,7 +22,8 @@ Suggests:
     testthat (>= 3.0.0),
     betapart,
     knitr,
-    rmarkdown
+    rmarkdown,
+    tmap
 URL: https://matthewkling.github.io/phylospatial/
 Config/testthat/edition: 3
 Depends: 
