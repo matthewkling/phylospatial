@@ -1,0 +1,71 @@
+---
+title: "Phylogenetic beta diversity"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{beta-diversity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+fig.dim = c(6, 4)
+)
+```
+
+This vignette covers topics related to phylogenetic beta diversity, including calculation of pairwise dissimilarity between sites, and use of these dissimilarity values in ordination and regionalization analyses.
+
+To get started, let's load the `phylospatial` library, as well as `tmap` for visualization. Note that the functions covered here all require a `phylospatial` object as input; see `vignette("phylospatial-data")` for details on constructing data sets. We'll use `moss_data()` for the examples here.
+
+```{r setup}
+library(phylospatial); library(tmap); library(magrittr)
+ps <- moss_data("prob", "rast")
+```
+
+## Dissimilarity
+
+This package provides a range of methods for calculating pairwise community phylogenetic distances among locations. It can calculate phylogenetic versions of any quantitative community dissimilarity metric available trough the `vegan` package, including the various predefined indices provided through `vegan::vegdist` as well as custom indices specified through `vegan::designdist`. The default metric is Bray-Curtis distance, also known as quantitative Sorensen's dissimilarity. Additional choices allow for partitioning dissimilarity in to turnover and nestedness components. 
+
+Dissimilarity is computed using the function `ps_add_dissim()`, which adds a distance matrix to the `dissim` slot of your `phylospatial` data set. Or if you just want the matrix itself, you can use `ps_dissim()`. 
+
+In addition to specifying the dissimilarity index to use, these functions include options for different ways to scale the phylogenetic community matrix before calculating dissimilarity. Setting `endemism = TRUE` will scale every lineage's occurrence values to sum to 1 across all sites, giving greater weight to narrowly distributed taxa. Setting `normalize = TRUE` scales every site's total occurrence value to sum to 1 across taxa, which results in a distance matrix that emphasizes proportional differences in composition rather than alpha diversity gradients.
+
+Let's run an example using quantitative Sorensen's index, weighted by endemism. Printing the result, we can see it now contains dissimilarity data:
+
+```{r beta, message=FALSE, warning=FALSE}
+ps <- ps_add_dissim(ps, method = "sorensen", endemism = TRUE, normalize = TRUE)
+ps
+```
+
+
+
+## Ordination
+
+Having done this, we can then assess spatial turnover patterns in a couple ways. We can qualitatively visualize compositional differences by converting the distance matrix to a set of colors representing how similar two sites are to each other, using the `ps_rgb()` function. Various ordination methods are available; here we'll use `"nmds"` (nonmetric multidimensional scaling), and then plot the result using `tmap::tm_rgb()`:
+
+```{r rgb, message=FALSE, warning=FALSE}
+ps %>%
+      ps_rgb(method = "nmds") %>%
+      tm_shape() +
+      tm_rgb(max.value = 1, interpolate = FALSE) +
+      tm_layout(title = "Phylogenetic community ordination")
+```
+
+
+
+## Regionalization
+
+We can also perform a more formal cluster analysis that splits the landscape into a set of evolutionary bioregions, using the `ps_regions()` function. To do this, you need to specify the number of clusters (`k`), and the clustering `method`. Choices of method include k-means and various hierarchical clustering methods; note that results are sometimes highly sensitive to which method is selected. The hierarchical methods require a dissimilarity matrix calculated by first running `ps_add_dissim()`, while k-means does not.
+
+Let's ask for eight regions using the `"average"` hierarchical clustering method, and then make a map of the resulting regions:
+
+```{r regions, message=FALSE, warning=FALSE}
+ps %>%
+      ps_regions(k = 8, method = "average") %>%
+      tm_shape() +
+      tm_raster(style = "cat", palette = "Dark2",
+                title = "phylogenetic region") +
+      tm_layout(legend.outside = T)
+```

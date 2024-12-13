@@ -19,15 +19,16 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-`phylospatial` is an R package for spatial phylogentic analysis. The field of spatial phylogenetics focuses on accounting for evolutionary relationships among taxa when describing biodiversity patterns, an approach that has a number of advantages over species-based accounting. This library includes functions for computing:
 
--   diversity and endemism measures like phylogenetic diversity
--   statistical hypothesis testing using randomization-based null models
--   turnover measures like phylogenetic beta diversity
--   phylogenetic regionalization
--   phylogenetic conservation prioritization
+# phylospatial <a href="https://matthewkling.github.io/phylospatial/"><img src="man/figures/logo.png" align="right" height="139" /></a>
 
-A key difference between `phylospatial` and other spatial phylogenetic R libraries is that all functions in this package work not only with binary presence-absence data but also with continuous quantities such as occurrence probabilities or abundances. These quantities are treated as weights throughout all the analyses in the package, avoiding the need to discard information by thresholding the data.
+`phylospatial` is an R package for spatial phylogenetic analysis. The field of spatial phylogenetics focuses on accounting for evolutionary relationships among taxa when describing biodiversity patterns, an approach that has a number of advantages over species-based accounting. This library includes functions for computing:
+
+-   Alpha phylogenetic diversity and endemism measures, including statistical hypothesis testing using randomization-based null models, as described in `vignette("alpha-diversity")`
+-   Phylogenetic beta diversity measures including nestedness and turnover, as well as phylogenetic ordination and biotic regionalization, as described in `vignette("alpha-diversity")`
+-   Phylogenetic conservation prioritization, as described in `vignette("alpha-diversity")`
+
+A key difference between `phylospatial` and other spatial phylogenetic R libraries is that all functions in this package work not only with binary presence-absence data but also with continuous quantities such as occurrence probabilities or abundances. These quantities are treated as weights in all computations throughout the package, avoiding the need to discard information by thresholding continuous data. See `vignette("phylospatial-data")` for details about the constructing `phylospatial` datasets with different type of community data.
 
 
 ## Installation
@@ -38,101 +39,3 @@ This package is not yet on CRAN. You can install the development version of phyl
 # install.packages("remotes")
 remotes::install_github("matthewkling/phylospatial")
 ```
-
-## Examples
-
-Spatial phylogenetic analyses require two essential ingredients: data on the geographic distributions of a set of organisms, and a phylogeny representing their evolutionary relationships. All workflows in the phylospatial package involve creating a data set of class `'phylospatial'` containing these pieces. A user would normally define this object with their own data using the `phylospatial()` function, but we can also simulate a demonstration dataset using `ps_simulate()`.
-
-To get started, let's load the `phylospatial` library and simulate a toy data set. For the examples in this demo we'll use `"probability"` data of the form that might be generated using species distribution models, but `"binary"` and `"abundance"` data are also supported.
-
-```{r init, message=FALSE, warning=FALSE}
-library(phylospatial)
-library(tmap); library(magrittr)
-set.seed(123)
-# ps <- ps_simulate(n_tips = 20, n_x = 50, n_y = 50, data_type = "probability")
-ps <- moss_data("prob", "rast")
-
-ps
-plot(ps, "tree", show.tip.label = F, type = "fan")
-plot(ps, "comm")
-```
-
-To get a peek at the underlying spatial data, let's plot the geographic ranges of some terminal species. The spatial data for this particular data set are in raster format via the `terra` library, though the package also supports polygon data via the `sf` library.
-
-```{r comm, message=FALSE, warning=FALSE}
-comm <- ps_get_comm(ps)[[1:28]]
-comm %>%
-      tm_shape() + 
-      tm_raster(palette = "inferno", style = "cont", title = "occurrence\nprobability")
-```
-
-
-#### Alpha diversity
-
-We can pass this `phylospatial` object to various other functions in the library. The `ps_diversity()` function calculates a number of alpha diversity measures, including phylogenetic diversity (PD) and phylogenetic endemism (PE), among various others. Let's calculate the diversity metrics and make a plot of PD:
-
-```{r alpha, message=FALSE, warning=FALSE}
-div <- ps_diversity(ps)
-names(div)
-tm_shape(div$PD) + 
-      tm_raster(palette = "inferno", style = "cont") +
-      tm_layout(legend.outside = T)
-```
-
-
-We can also use randomization to calculate the statistical significance of these diversity metrics under a null model, using the `ps_rand()` function. The default null model uses a stratified randomization designed for use with continuous occurrence data. Let's run 100 randomizations (more would be necessary for a real analysis) and plot the results for PE. This is a quantile value that gives the proportion of randomizations in which observed PE was greater than randomized PE in a given grid cell (if you wanted to identify "statistically significant" grid cells in a one-tailed test with alpha = 0.05, these would be cells with values greater than 0.95).
-
-```{r rand, message=FALSE, warning=FALSE}
-rand <- ps_rand(ps, n_rand = 100)
-tm_shape(rand$qPE) + 
-      tm_raster(palette = "inferno", style = "cont") +
-      tm_layout(legend.outside = T)
-```
-
-
-#### Beta diversity (turnover)
-
-We can also look at patterns in the phylogenetic similarity among locations. The first step here is to compute the community phylogenetic distance between every pair of sites, using the `ps_add_dissim()` function to add a pairwise distance matrix as an additional component in our spatial phylogenetic data set. This function includes a range of scaling options and alternative dissimilarity indices; let's run an example using quantitative Sorensen's index (`method = "bray"`), weighting taxa by inverse range size (`endemism = TRUE`), and normalizing community sums to emphasize relative compositional differences (`normalize = TRUE`). Printing the result, we can see it now cotains dissimilarity data:
-
-```{r beta, message=FALSE, warning=FALSE}
-ps <- ps_add_dissim(ps, method = "bray", endemism = TRUE, normalize = TRUE)
-ps
-```
-
-Having done this, we can then assess spatial turnover patterns in a couple ways. We can qualitatively visualize compositional differences by converting the distance matrix to a set of colors representing how similar two sites are to each other, using the `ps_rgb()` function. Various ordination methods are available; here we'll use `"cmds"`:
-
-```{r rgb, message=FALSE, warning=FALSE}
-ps %>%
-      ps_rgb(method = "cmds") %>%
-      tm_shape() +
-      tm_rgb(max.value = 1) +
-      tm_layout(title = "Phylogenetic community ordination")
-```
-
-We can also perform a more formal cluster analysis that splits the landscape into a set of evolutionary bioregions, using the `ps_regions()` function. Let's ask for eight regions using the `"average"` hierarchical clustering method:
-
-```{r regions, message=FALSE, warning=FALSE}
-ps %>%
-      ps_regions(k = 8, method = "average") %>%
-      tm_shape() +
-      tm_raster(style = "cat", palette = "Dark2",
-                title = "phylogenetic region") +
-      tm_layout(legend.outside = T)
-```
-
-
-#### Conservation prioritization
-
-Finally, this package can perform a basic spatial conservation prioritization, identifying priority locations for the creation of new protected areas in order to maximize biodiversity protection. This is done using the `ps_prioritize()` function, which uses a greedy forward stepwise algorithm to produce a nested ranking of conservation priorities.
-
-In addition to the required spatial phylogenetic dataset, there is the option to supply a raster layer indicating the locations and effectiveness of existing protected areas. We could also modify parameters that specify the effective level of protection provided by new reserves, as well as the shape of the "benefit" function that determines the relative importance of protecting the initial populations of every taxon versus more populations of more phylogenetically distinct taxa. But for this example let's stick with the defaults. In the map below, the highest-priority sites are shown in yellow.
-
-```{r priorities, message=FALSE, warning=FALSE}
-ps %>%
-      ps_prioritize() %>%
-      tm_shape() + 
-      tm_raster(palette = "-inferno", style = "log10",
-                title = "conservation\npriorities") + 
-      tm_layout(legend.outside = T)
-```
-

@@ -20,9 +20,12 @@ Suggests:
     furrr,
     future,
     testthat (>= 3.0.0),
-    betapart
+    betapart,
+    knitr,
+    rmarkdown
 URL: https://matthewkling.github.io/phylospatial/
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
 LazyData: true
+VignetteBuilder: knitr

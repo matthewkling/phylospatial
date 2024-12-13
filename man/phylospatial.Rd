@@ -2,11 +2,11 @@
 % Please edit documentation in R/phylospatial.R
 \name{phylospatial}
 \alias{phylospatial}
-\title{Create a spatial phylogeny object}
+\title{Create a spatial phylogenetic object}
 \usage{
 phylospatial(
-  tree,
   comm,
+  tree = NULL,
   spatial = NULL,
   data_type = c("auto", "probability", "binary", "abundance"),
   clade_fun = NULL,
@@ -14,11 +14,13 @@ phylospatial(
 )
 }
 \arguments{
-\item{tree}{Phylogeny of class \link[ape]{phylo}. Terminals whose names do not match \code{comm} will be dropped with a warning.}
-
 \item{comm}{Community data representing the distribution of terminal taxa across sites. Can be a matrix with a column per terminal and
 a row per site, a \link[terra]{SpatRaster} with one layer per terminal, or a \code{sf} data with a column per terminal. Taxa whose names do
 not match between column/layer names in \code{comm} and tip labels in \code{tree} will be dropped with a warning.}
+
+\item{tree}{Phylogeny of class \link[ape]{phylo}. Terminals whose names do not match \code{comm} will be dropped with a warning. If
+this argument is not provided, terminals are assumed to follow a "star" tree with uniform branch lengths, which will lead to
+non-phylogenetic versions of any analyses done with the resulting \code{phylospatial} object.}
 
 \item{spatial}{An optional \code{SpatRaster} layer or \code{sf} object indicating site locations. The number of cells or rows must match \code{comm}.
 Ignored if \code{comm} is a \code{SpatRaster} or \code{sf} object.}
@@ -49,7 +51,7 @@ A \code{phylospatial} object, which is a list containing the following elements:
 }
 \description{
 This function creates a \code{phylospatial} object. This is the core data type in the phylospatial library, and
-is a required input to most other functions in the package. The two essential components of a spatial phylogeny object
+is a required input to most other functions in the package. The two essential components of a spatial phylogenetic object
 are a phylogenetic tree and an community data set.
 }
 \examples{
@@ -60,7 +62,12 @@ tree <- ape::read.tree(system.file("extdata", "moss_tree.nex", package = "phylos
 comm <- terra::rast(system.file("extdata", "moss_comm.tif", package = "phylospatial"))
 
 # construct `phylospatial` object
-ps <- phylospatial(tree, comm)
+ps <- phylospatial(comm, tree)
 ps
+
+# construct `phylospatial` object without a tree
+# (works but throws a warning)
+ps <- phylospatial(comm)
+
 
 }

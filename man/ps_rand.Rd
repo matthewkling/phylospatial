@@ -4,10 +4,34 @@
 \alias{ps_rand}
 \title{Null model randomization analysis of alpha diversity metrics}
 \usage{
-ps_rand(ps, n_rand = 100, spatial = TRUE, n_cores = 1, progress = TRUE, ...)
+ps_rand(
+  ps,
+  fun = "quantize",
+  method = "curveball",
+  n_rand = 100,
+  spatial = TRUE,
+  n_cores = 1,
+  progress = interactive(),
+  ...
+)
 }
 \arguments{
 \item{ps}{\code{phylospatial} object.}
+
+\item{fun}{Null model function to use. Must be either "quantize", "nullmodel", or a function:
+\itemize{
+\item{"nullmodel" }{ uses \link[vegan]{nullmodel} and \link[vegan]{simulate.nullmodel}, from the vegan
+package, which offer a wide range of randomization algorithms with different properties.}
+\item{"quantize"}{ (the default) deploys the function \link{quantize}, which is a routine that is itself
+a wrapper around \link[vegan]{nullmodel}, allowing the use of binary algorithms for quantitative data.}
+\item{Any other function}{ that accepts a community matrix as its first argument and returns a
+randomized version of the matrix.}
+}}
+
+\item{method}{One of the method options listed under \link[vegan]{commsim}. If \verb{fun = "quantize}, this must
+be one of the "binary" methods. If \code{fun = "nullmodel"}, be sure to select a method that is appropriate to
+your community \code{data_type} (binary, quantitative, abundance). This argument is ignored if a custom function
+is provided to \code{fun}.}
 
 \item{n_rand}{Integer giving the number of random communities to generate.}
 
@@ -15,10 +39,10 @@ ps_rand(ps, n_rand = 100, spatial = TRUE, n_cores = 1, progress = TRUE, ...)
 
 \item{n_cores}{Integer giving the number of compute cores to use for parallel processing.}
 
-\item{progress}{Logical: should a progress bar be displayed? Defualt is TRUE.}
+\item{progress}{Logical: should a progress bar be displayed?}
 
-\item{...}{Additional arguments passed to \link{quantize}, such as \code{algorithm}, \code{n_iter},
-\code{n_strata}, \code{jitter}, \code{transform}, \code{priority}, etc.}
+\item{...}{Additional arguments passed to \link{quantize}, \link[vegan]{simulate.nullmodel}, or custom function
+\code{fun}. Note that the \code{nsim} argument the former two functions should NOT be used here; specify \code{n_rand} instead.}
 }
 \value{
 A matrix with a row for every row of \code{x}, a column for every metric in \link{ps_diversity}, and
@@ -31,8 +55,19 @@ computed by randomizing the community matrix. Randomization is done using the \l
 community matrices containing continuous quantities such as occurrence probabilities or abundances.
 }
 \examples{
-ps <- ps_simulate()
+# simulate a `phylospatial` data set and run randomization with default settings
+ps <- ps_simulate(data_type = "prob")
 ps_rand(ps)
 
-ps_rand(ps, transform = sqrt, priority = "rows")
+# using the default `quantize` function, but with alternative arguments
+ps_rand(ps, transform = sqrt, n_strata = 4, priority = "rows")
+
+# using binary data
+ps2 <- ps_simulate(data_type = "binary")
+ps_rand(ps2, fun = "nullmodel", method = "r2")
+
+# using abundance data
+ps3 <- ps_simulate(data_type = "abund")
+ps_rand(ps3, fun = "nullmodel", method = "abuswap_c")
+
 }

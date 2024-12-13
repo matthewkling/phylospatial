@@ -4,7 +4,7 @@ enforce_ps <- function(x){
                                                     " Instead, an obect of class `", paste(class(x), collapse = "; "), "` was provided."))
 }
 
-enforce_spatial <- function(x) stopifnot("This function requires that the `phylospatial` object contain spatiald data." = !is.null(x$spatial))
+enforce_spatial <- function(x) stopifnot("This function only works with `phylospatial` objects that contain spatial data." = !is.null(x$spatial))
 
 # this gives the position in the edge list, not the node INDEX per se (the number contained in edge list)
 tip_indices <- function(tree, invert = FALSE) which(tree$edge[,2] %in% setdiff(tree$edge[,2], tree$edge[,1]) != invert)
@@ -78,4 +78,15 @@ ps_get_comm <- function(ps, tips_only = TRUE, spatial = TRUE){
 
 occupied <- function(ps){
       rowSums(ps$comm, na.rm = T) > 0
+}
+
+star_tree <- function(comm){
+      n <- ncol(comm)
+      edges <- matrix(NA, n, 2)
+      edges[,1] <- n + 1
+      edges[,2] <- 1:n
+      tree <- list(edge = edges, edge.length = rep(1/n, n),
+                   Nnode = 1, tip.label = colnames(comm))
+      class(tree) <- "phylo"
+      return(tree)
 }

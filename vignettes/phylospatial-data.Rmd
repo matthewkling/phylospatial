@@ -1,0 +1,116 @@
+---
+title: "Spatial phylogentic data"
+output: 
+   rmarkdown::html_vignette:
+      toc: true
+vignette: >
+  %\VignetteIndexEntry{phylospatial-data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+collapse = TRUE,
+comment = "#>",
+fig.dim = c(6, 4)
+)
+```
+
+## Introduction
+
+This vignette demonstrates the basic structure and creation of a spatial phylogenetic data set, which is the first step of any analysis using this R package. Spatial phylogenetic analyses require two essential ingredients: data on the geographic distributions of a set of organisms, and a phylogeny representing their evolutionary relationships. This package stores these data as objects of of class `'phylospatial'`.
+
+The core idea of spatial phylogenetics is that analyses account for every every single "lineage" on the phylogenetic tree, including terminals and larger clades. Each lineage has a geographic range comprising the collective ranges of all terminal(s) in the clade, and it has a single branch segment whose length represents the evolutionary history that is shared by those terminals and only those terminals. When calculating biodiversity metrics, every lineage's occurrence in a site gets weighted by its branch length.
+
+In this vignette, we'll create a lightweight example of a `phylospatial` object, look through its components to understand how it is structured, and then demonstrate some more nuanced use cases with real data. Finally, we'll show how `phylospatial` objects can also be used for traditional non-phylogenetic biodiversity data analyses, in cases when incorporating a phylogeny is impossible or undesirable.
+
+
+## A minimal example
+
+Let's begin by creating a simple `phylospatial` object. To do this, we use the `phylospatial()` function, which has two required arguments: `tree`, a phylogeny of class `phylo`, and `comm`, a community data set representing the geographic distributions of the terminal taxa (usually species). In the code below, we simulate a random tree with five terminal taxa, and a raster data set with 100 grid cells containing occurrence probabilities for each terminal, with layer names corresponding to species on the tree. (A differentiating feature of the `phylospatial` library is that it supports quantitative data types like probabilities or abundances, in addition to binary community data.) Then we pass them to `phylospatial()`:
+
+```{r setup, message=FALSE, warning=FALSE}
+library(phylospatial); library(terra); library(ape); library(sf)
+
+# simulate data
+set.seed(1234)
+n_taxa <- 5
+x <- y <- 10
+tree <- rtree(n_taxa)
+comm <- rast(array((sin(seq(0, pi*12, length.out = n_taxa * x * y)) + 1)/2, 
+                   dim = c(x, y, n_taxa)))
+names(comm) <- tree$tip.label
+
+# create phylospatial object
+ps <- phylospatial(comm, tree)
+ps
+```
+
+
+## Structure of a `phylospatial` object
+
+#### Phylogeny
+
+Our `phylospatial` object is a list with six elements. Let's look at each of these in turn, starting with the `tree`. This is the phylogeney we simulated, a tree of class `phylo` with `r n_taxa` tips and `r n_taxa - 2` larger clades. Note that the branch lengths of the input tree are scaled to sum to 1. We can use `plot()` function to view the tree.
+
+```{r tree, message=FALSE, warning=FALSE}
+names(ps)
+
+ps$tree
+
+plot(ps, "tree")
+```
+
+#### Community matrix
+
+The other key component is `comm`, which is a `matrix` containing occurrence data. Although we supplied community data as a raster, it's stored here as a matrix, with a row for each grid cell and a column for each taxon. Let's take a look at the matrix. We can also `plot` the community data, which re-casts it as a spatial data set (a raster, in this case).
+
+```{r comm, message=FALSE, warning=FALSE}
+head(ps$comm)
+
+plot(ps, "comm")
+```
+
+We can see that in addition to our `r n_taxa` terminal taxa, the data set also includes geographic ranges for the `r n_taxa - 2` larger clades. Internally, the `phylospatial()` function constructs ranges for every multi-tip clade on the tree, based on the topology of the tree and the community data for the tips. 
+
+The specific way that these clade ranges are constructed depends on the type of community data being used. The package supports three data types: `"probability"`, `"abundance"`, and `"binary"`. Recall that our data were probabilities; we could have specified that explicitly by setting `data_type = "probability"` when we constructed our phylospatial object, but the function detected this based on the values in our data set, and we can confirm that it did so correctly by checking `ps$data_type`. For probabilities, the default function used to calculate clade occurrence values gives the probability that at least one member of the clade is present in a given site. Abundance and binary data have their own default functions. (You can also override the defaults by supplying your own `clade_fun`, though this should be done with caution.) The function that was used for a given data set can be accessed at `ps$clade_fun`.
+
+
+#### Spatial data
+
+The `spatial` component is the last key piece of our phylospatial object. (The only other element we haven't mentioned here is `dissim`, which is covered in the vignette on beta diversity.) The spatial component of the object contains spatial reference data on the geogrpahic locations of the communities found in each row of the community matrix. Spatial data isn't used in any `phylospatial` computations; it only gets used to format results. 
+
+In this example, the spatial data is a raster layer inherited from the `SpatRaster` data we supplied as our `comm`. You can also supply vector data (points, lines, or polygons) as an `sf` object. Note also that spatial data isn't required; community data provided as a matrix works just fine.
+
+
+## Example data
+
+As we saw in above, example data sets can be useful for exploring package functionality. This package includes one example empirical data set, and a function for simulating toy `phylospatial` data sets akin to the one we manually constructed above. These are used throughout the other vignettes, and may be useful for your own experimentation.
+
+#### `moss` 
+
+The package ships with one example `phylospatial` data set, `moss`, that contains spatial phylogenetic data for several hundred species of moss across California, based on species distribution models and a bryophyte phylogeny. This is an occurrence probability data set with `sf` polygon spatial data, as shown in the first plot below. These same data are also available in different spatial formats (raster vs. polygon) and data formats (binary vs. probability) via the function `moss_data()`; the second plot below shows binary occurrence data in raster format.
+
+```{r moss, message=FALSE, warning=FALSE}
+plot(moss, "comm")
+plot(moss_data("binary", "raster"), "comm")
+```
+
+#### Simulated data
+
+`phylospatial` data can also be simulated using the function `ps_simulate()`. This function is intended to produce simplistic data for examples and testing, not to produce realistic data. While the moss data is only available in binary and probability format due to the nature of the data, abundance data can be simulated. 
+
+
+#### Non-phylogenetic data
+
+While the `phylospatial` library is obviously designed for phylogenetic analyses, it's worth noting that it also supports non-phylogenetic analyses. In cases where a phylogeny is unavailable or where a traditional species-based biodiversity analysis is desired, you can create a data set by calling `phylospatial()` without providing a tree. All major functions in the package will still work, and will assume that the taxa in `comm` are independent and equally weighted.
+
+In fact, traditional species-based methods can actually be considered a specific case of more general phylogenetic methods, in which species are assumed to be connected on a "star" phylogeny with a single polytomy and equal branch lengths. In `phylospatial`, support for non-phylogenetic data is implemented by creating a star phylogeny if no phylogeny is provided by the user. Here's how this looks for the simple community data we created above:
+
+```{r species, message=FALSE, warning=FALSE}
+ps <- phylospatial(comm)
+plot(ps, "tree", type = "fan")
+```
+
+

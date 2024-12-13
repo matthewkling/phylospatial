@@ -2,3 +2,41 @@ url: https://matthewkling.github.io/phylospatial/
 template:
   bootstrap: 5
 
+articles:
+- title: Articles
+  navbar: ~
+  contents:
+  - phylospatial-data
+  - alpha-diversity
+  - beta-diversity
+  - prioritization
+
+reference:
+- title: Data
+- contents:
+  - phylospatial
+  - ps_simulate
+  - moss
+  - moss_data
+- title: Alpha diversity
+- contents:
+  - ps_diversity
+  - ps_rand
+  - quantize
+  - ps_canape
+- title: Beta diversity
+- contents:
+  - ps_dissim
+  - ps_add_dissim
+  - ps_rgb
+  - ps_regions
+- title: Conservation prioritization
+- contents:
+  - ps_prioritize
+  - plot_lambda
+  - benefit
+- title: Utilities
+- contents:
+  - plot.phylospatial
+  - ps_get_comm
+  - to_spatial

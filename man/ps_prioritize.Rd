@@ -15,7 +15,7 @@ ps_prioritize(
   n_cores = 1,
   summarize = TRUE,
   spatial = TRUE,
-  progress = TRUE
+  progress = interactive()
 )
 }
 \arguments{
@@ -54,7 +54,7 @@ if \code{method = "probable"}.}
 
 \item{spatial}{Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE)?}
 
-\item{progress}{Logical: should a progress bar be displayed? Defualt is TRUE.}
+\item{progress}{Logical: should a progress bar be displayed?}
 }
 \value{
 Matrix or spatial object containing a ranking of conservation priorities. Lower rank values represent higher

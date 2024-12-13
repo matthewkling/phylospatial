@@ -38,5 +38,5 @@ ps_simulate <- function(n_tips = 10,
       if(data_type == "binary") tip_ranges <- tip_ranges > 0
       if(data_type == "abundance") tip_ranges <- round(tip_ranges * 100)
 
-      phylospatial(tree, tip_ranges, data_type = data_type)
+      phylospatial(tip_ranges, tree, data_type = data_type)
 }

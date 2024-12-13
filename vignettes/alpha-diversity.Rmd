@@ -1,0 +1,77 @@
+---
+title: "Alpha phylogenetic diversity"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{alpha-diversity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+fig.dim = c(6, 4)
+)
+```
+
+
+This vignette covers topics related to alpha diversity and endemism, including calculation of basic diversity metrics as well as statistical significance testing using null randomization.
+
+To get started, let's load the `phylospatial` library, as well as `tmap` for visualization. Note that the functions covered here all require a `phylospatial` object as input; see `vignette("phylospatial-data")` for details on constructing data sets. We'll use `moss_data()` for the examples here.
+
+```{r setup}
+library(phylospatial); library(tmap)
+ps <- moss_data("prob", "rast")
+```
+
+
+## Diversity measures
+
+The `ps_diversity()` function calculates the following alpha diversity measures. All measures use quantitative community data if provided:
+
+- TR: Terminal richness, i.e. richness of terminal taxa (in many cases these are species). For binary data this is the total number of terminals in a site, while for quantitative data it is the sum of probability or abundance values. 
+- CR: Clade richness, i.e. richness of taxa at all levels (equivalent to PD on a cladogram)
+- PD: Phylogenetic diversity
+- TE: Terminal endemism, i.e. total endemism-weighted diversity of terminal taxa (a.k.a. "weighted endemism")
+- CE: Clade endemism, i.e. total endemism-weighted diversity of taxa at all levels (equivalent to PE on a cladrogram)
+- PE: Phylogenetic endemism, i.e. endemism-weighted PD
+- Em: Mean endemism (equivalent to CE / CR)
+- RPD: Relative phylogenetic diversity, i.e. branch length of mean resident (equivalent to PD / CR)
+- PEm: Mean phylogenetic endemism, i.e. branch length / range size of mean resident (equivalent to PE / CR)
+- RPE: Relative phylogenetic endemism, i.e. mean endemism-weighted branch length (equivalent to PE / CE)
+
+Let's compute these metrics for our phylospatial data set. Since our data is raster-based, by default the function will return a `SpatRaster` with a layer for each metric. Here we'll make plots of PD and PE:
+
+```{r alpha, message=FALSE, warning=FALSE}
+div <- ps_diversity(ps)
+tm_shape(div$PD) + 
+      tm_raster(palette = "inferno", style = "cont") +
+      tm_layout(legend.outside = T)
+tm_shape(div$PE) + 
+      tm_raster(palette = "inferno", style = "cont") +
+      tm_layout(legend.outside = T)
+```
+
+
+## Null model randomization
+
+We can also use randomization to calculate the statistical significance of these diversity metrics under a null model, using the `ps_rand()` function. By default, this function uses `quantize()`, a stratified randomization scheme designed for use with continuous occurrence data, in combination with the `"curveball"` algorithm. 
+
+Let's run 100 randomizations (more would be necessary for a real analysis) and plot the results for PE. This is a quantile value that gives the proportion of randomizations in which observed PE was greater than randomized PE in a given grid cell. (If you wanted to identify "statistically significant" grid cells in a one-tailed test with alpha = 0.05, these would be cells with values greater than 0.95.)
+
+```{r rand, message=FALSE, warning=FALSE}
+rand <- ps_rand(ps, n_rand = 10, progress = FALSE)
+tm_shape(rand$qPE) + 
+      tm_raster(palette = "inferno", style = "cont") +
+      tm_layout(legend.outside = T)
+```
+
+There are numerous alternative options for randomization algorithms to use, depending on the type of occurrence data you have (probability, binary, or abundance) and depending on which attributes of the terminal community matrix (fill, row and column sums, etc.) you want to hold fixed. For example, here's a randomization with an abundance data set, using the `"abuswap_c"` algorithm provided by `vegan::nullmodel`:
+
+```{r rand2, message=FALSE, warning=FALSE}
+ps2 <- ps_simulate(data_type = "abundance")
+rand <- ps_rand(ps2, fun = "nullmodel", method = "abuswap_c", progress = FALSE)
+```
+
+

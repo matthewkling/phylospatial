@@ -20,7 +20,7 @@ colnames(comm) <- str_remove_all(colnames(comm), "-")
 xcom <- comm[, colnames(comm) %in% tree$tip.label]
 tree <- drop.tip(tree, setdiff(tree$tip.label, colnames(comm)))
 xcom <- xcom[, tree$tip.label]
-xcom[is.na(xcom)] <- 0 # NA values not allowed in sphy functions
+# xcom[is.na(xcom)] <- 0 # NA values not allowed in sphy functions
 
 ## raster ##
 
@@ -31,7 +31,7 @@ rr <- r <- to_spatial(xcom, template)
 r <- terra::aggregate(r, 4, na.rm = T)
 
 # construct spatial phylo object
-moss <- phylospatial(tree, r)
+moss <- phylospatial(r, tree)
 
 # save version with raster spatial data (since this can't be exported as rda)
 saveRDS(moss, "inst/extdata/moss.rds")
@@ -59,7 +59,7 @@ p <- left_join(p, pts) %>%
 p <- p[!is.na(rowSums(st_drop_geometry(p))), ]
 p <- p[rowSums(st_drop_geometry(p)) > 0, ]
 
-moss <- phylospatial(tree, p)
+moss <- phylospatial(p, tree)
 
 # save data
 usethis::use_data(moss, overwrite = TRUE)

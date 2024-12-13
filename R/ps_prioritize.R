@@ -10,7 +10,8 @@
 #' @export
 benefit <- function(x, lambda = 1){
       lambda <- 2^lambda
-      (1-(1-x)^lambda)^(1/lambda)
+      (1-(1-pmin(x, 1))^lambda)^(1/lambda)
+      # (pmin needed in cases where numerical rounding results in values slightly >1)
 }
 
 
@@ -22,15 +23,20 @@ benefit <- function(x, lambda = 1){
 #' whereas negative values place a higher priority on protecting additional populations of relatively well-protected taxa. The
 #' default value used by \link{ps_prioritize} is 1.
 #'
+#' @param lambda A vector of lambda values to plot
+#' @return Plots a figure
+#' @examples
+#' plot_lambda()
+#' plot_lambda(seq(0, 3, .1))
+#'
 #' @export
-plot_lambda <- function(){
+plot_lambda <- function(lambda = c(-1, -.5, 0, .5, 2, 1)){
       x <- seq(0, 1, .01)
-      lambda <- c(-1, -.5, 0, .5, 2, 1)
       d <- sapply(lambda, function(l) benefit(x, lambda = l))
       graphics::matplot(x, d, type = "l", lty = 1, col = 1:ncol(d),
                         xlab = "proportion of taxon range protected",
                         ylab = "conservation benefit",
-                        main = "Examples of alternative `labmda` values")
+                        main = "Examples of how `labmda` affects\nthe conservation benefit function")
       graphics::legend("bottomright", legend = lambda,
                        col = 1:ncol(d), pch = 1, title = "lambda")
 }
@@ -65,7 +71,7 @@ plot_lambda <- function(){
 #' @param summarize Logical: should summary statistics across reps (TRUE, default) or the reps themselves (FALSE) be returned? Only relevant
 #'    if `method = "probable"`.
 #' @param spatial Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE)?
-#' @param progress Logical: should a progress bar be displayed? Defualt is TRUE.
+#' @param progress Logical: should a progress bar be displayed?
 #' @details This function uses the forward stepwise selection algorithm of Kling et al. (2019) to generate a ranked conservation prioritization.
 #'    Prioritization begins with the starting protected lands network identified in `init`, if provided. At each iteration, the marginal
 #'    conservation value of fully protecting each site is calculated, and a site is selected to be added to the reserve network. Selection can
@@ -127,7 +133,7 @@ ps_prioritize <- function(ps,
                           method = c("optimal", "probable"),
                           n_reps = 100, n_cores = 1, summarize = TRUE,
                           spatial = TRUE,
-                          progress = TRUE){
+                          progress = interactive()){
 
       method <- match.arg(method)
       enforce_ps(ps)
@@ -136,30 +142,30 @@ ps_prioritize <- function(ps,
 
       e <- ps$tree$edge.length / sum(ps$tree$edge.length) # edges evolutionary value
 
+      a <- occupied(ps)
+      n_ranks <- sum(a)
       n_sites <- nrow(ps$comm)
 
       if(is.null(init)){
             p <- rep(0, n_sites)
       }else{
             p <- init[] # p: initial protection
-            stopifnot("`init` may not contain NA values or values outside the 0-1 range." =
-                            all(is.finite(p)) & min(p) >= 0 & max(p) <= 1)
+            stopifnot("`init` may not contain NA values, or values outside the 0-1 range, for sites that contain taxa." =
+                            all(is.finite(p[a])) & min(p[a]) >= 0 & max(p[a]) <= 1)
       }
 
-      n_poss <- sum(rowSums(ps$comm, na.rm = TRUE) > 0 & p < 1)
+      n_poss <- sum(a & p < 1)
 
-      ra <- rep(n_sites, n_sites) # prioritization rankings
+      y <- rep(NA, n_sites) # prioritization rankings
+      r <- rep(n_ranks, n_ranks)
+
       m <- apply(ps$comm, 2, function(x) x / sum(x, na.rm = TRUE)) # normalize to fraction of range
-
-      a <- occupied(ps)
       m <- m[a,]
       p <- p[a]
-      r <- ra[a]
-      rr <- ra
 
-      n_iter <- ifelse(is.null(max_iter), n_sites, min(max_iter, n_sites))
+      n_iter <- ifelse(is.null(max_iter), n_ranks, min(max_iter, n_ranks))
 
-      ranks <- function(progress = TRUE){
+      ranks <- function(y, progress = TRUE){
 
             if(progress) pb <- utils::txtProgressBar(min = 0, max = sum(rowSums(m, na.rm = T) > 0), initial = 0, style = 3)
             for(i in 1:n_iter){
@@ -184,23 +190,23 @@ ps_prioritize <- function(ps,
                   r[o] <- i # record ranking
             }
             if(progress) close(pb)
-            rr[a] <- r
-            return(rr)
+            y[a] <- r
+            return(y)
       }
 
 
       if(method == "optimal"){
-            ra <- ranks(progress = progress)
-            ra <- matrix(ra, ncol = 1)
-            colnames(ra) <- "priority"
+            y <- ranks(y, progress = progress)
+            ym <- matrix(y, ncol = 1)
+            colnames(ym) <- "priority"
       }
       if(method == "probable"){
-            ra <- matrix(NA, length(ra), n_reps)
             if(n_cores == 1){
+                  ym <- matrix(NA, length(y), n_reps)
                   if(progress) pb <- utils::txtProgressBar(min = 0, max = n_reps, initial = 0, style = 3)
                   for(i in 1:n_reps){
                         if(progress) utils::setTxtProgressBar(pb, i)
-                        ra[,i] <- ranks(progress = FALSE)
+                        ym[, i] <- ranks(y, progress = FALSE)
                   }
                   if(progress) close(pb)
             }else{
@@ -208,12 +214,12 @@ ps_prioritize <- function(ps,
                         stop("To use `n_cores` greater than 1, package `furrr` must be installed.", call. = FALSE)
                   }
                   future::plan(future::multisession, workers = n_cores)
-                  ra <- furrr::future_map(1:n_reps,
-                                          function(i) ranks(progress = FALSE),
+                  ym <- furrr::future_map(1:n_reps,
+                                          function(i) ranks(y, progress = FALSE),
                                           .progress = progress,
                                           .options = furrr::furrr_options(seed = TRUE))
                   future::plan(future::sequential)
-                  ra <- do.call("cbind", ra)
+                  ym <- do.call("cbind", ym)
             }
 
             # summarize ranks across reps
@@ -222,25 +228,23 @@ ps_prioritize <- function(ps,
                   top <- top[top <= n_poss & top <= n_iter]
 
                   prob <- c(.05, .25, .5, .75, .95)
-                  ra <- t(apply(ra, 1, function(x) c(mean(x),
+                  ym <- t(apply(ym, 1, function(x) c(mean(x),
                                                       as.vector(stats::quantile(x, prob, na.rm = TRUE)),
                                                       sapply(top, function(q) mean(x <= q, na.rm = TRUE)),
                                                       sapply(top, function(q) mean(x <= q, na.rm = TRUE) / q * n_poss ))))
-                  colnames(ra) <- c("priority",
+                  colnames(ym) <- c("priority",
                                     paste0("pct", prob*100),
                                     paste0("top", top),
                                     paste0("tre", top))
             }else{
-                  colnames(ra) <- paste("soln", 1:ncol(ra))
+                  colnames(ym) <- paste("soln", 1:ncol(ym))
             }
-
-
       }
 
       # return prioritization
       if(spatial & !is.null(ps$spatial)){
-            return(to_spatial(ra, ps$spatial))
+            return(to_spatial(ym, ps$spatial))
       }else{
-            return(ra)
+            return(ym)
       }
 }

@@ -8,3 +8,6 @@
 ^\.github$
 ^\.DS_Store$
 ^data-raw$
+^doc$
+^Meta$
+^notes$

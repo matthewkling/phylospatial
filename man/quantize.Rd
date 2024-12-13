@@ -4,38 +4,27 @@
 \alias{quantize}
 \title{Stratified randomization of community matrix}
 \usage{
-quantize(
-  x,
-  n_strata = 5,
-  transform = identity,
-  algorithm = "curveball",
-  jitter = 0.99,
-  priority = "neither",
-  n_iter = 10000,
-  ...
-)
+quantize(x, method = "curveball", ...)
 }
 \arguments{
 \item{x}{Community matrix with species in rows, sites in columns, and nonnegative quantities in cells.}
 
-\item{n_strata}{Integer giving the number of strata to split the data into. Must be 2 or greater. Larger values
-will result in randomizations with less mixing but higher fidelity to marginal distributions.}
-
-\item{transform}{A function used to transform the values in \code{x} before assigning them to \code{n_strata}
-equal intervals. Examples include \code{sqrt}, \code{log}, \code{rank}, etc.; the default is \code{identity}.}
-
-\item{algorithm}{Null model algorithm, passed to \code{vegan::nullmodel}. Testing has only been done with the
+\item{method}{Null model algorithm, passed to \code{vegan::nullmodel}. Testing has only been done with the
 "curveball" algorithm, so other options should be use with caution. Only binary methods should be used.}
 
-\item{jitter}{Number between 0 and 1, indicating how much to randomly jitter the location of stratum boundaries.}
-
-\item{priority}{Either "rows", "cols", or "neither", indicating whether randomization within strata should
+\item{...}{Additional arguments, including:
+\itemize{
+\item{\code{n_strata}: }{Integer giving the number of strata to split the data into. Must be 2 or greater. Larger values
+will result in randomizations with less mixing but higher fidelity to marginal distributions. The default is \code{5}.}
+\item{\code{transform}: }{A function used to transform the values in \code{x} before assigning them to \code{n_strata}
+equal intervals. Examples include \code{sqrt}, \code{log}, \code{rank}, etc.; the default is \code{identity}.}
+\item{\code{jitter}: }{Number between 0 and 1, indicating how much to randomly jitter the location of stratum boundaries.}
+\item{\code{priority}: }{Either \code{"rows"}, \code{"cols"}, or \code{"neither"}, indicating whether randomization within strata should
 prioritize maintaining the marginal distributions of the rows or columns of the input matrix. The default,
-"neither", doesn't give precedence to either dimension.}
-
-\item{n_iter}{Positive integer giving the number of iterations to use for stepwise algorithms.}
-
-\item{...}{Ignored.}
+\code{"neither"}, doesn't give precedence to either dimension. Note that this interacts with \code{method}, and methods
+differ in which margins are fixed.}
+\item{Other arguments}{ to be passed to \link[vegan]{simulate.nullmodel}, such as \code{seed} or \code{burnin}.}
+}}
 }
 \value{
 A randomized version of \code{x}.

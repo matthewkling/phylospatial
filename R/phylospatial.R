@@ -21,14 +21,6 @@ build_clade_range <- function(e, phylo, sxt, fun){
       return(name = prob)
 }
 
-#' Derive ranges for the internal nodes of a tree
-#'
-#' @param tree Phylogeny (object of class "phylo").
-#' @param tip_comm Site-by-taxon community matrix for terminal taxa.
-#' @param fun Function used to calculate the community quantity for a clade based on the community quantities
-#' for the set of tips in the clade that are present in a given site.
-#'
-#' @return A site-by-taxon matrix with a column for every branch, including terminals and internal edges.
 build_tree_ranges <- function(tree, tip_comm, fun = NULL){
       ntaxa <- nrow(tree$edge)
       comm <- sapply(1:ntaxa, build_clade_range, phylo = tree, sxt = tip_comm, fun = fun)
@@ -41,29 +33,31 @@ build_tree_ranges <- function(tree, tip_comm, fun = NULL){
 
 
 
-new_phylospatial <- function(tree, comm, spatial, dissim = NULL, data_type, clade_fun){
+new_phylospatial <- function(comm, tree, spatial, dissim = NULL, data_type, clade_fun){
       stopifnot(inherits(tree, "phylo"))
       stopifnot(is.character(data_type))
-      structure(list(data_type = data_type,
+      structure(list(comm = comm,
                      tree = tree,
-                     comm = comm,
-                     clade_fun = clade_fun,
                      spatial = spatial,
+                     data_type = data_type,
+                     clade_fun = clade_fun,
                      dissim = NULL),
                 class = "phylospatial")
 }
 
 
-#' Create a spatial phylogeny object
+#' Create a spatial phylogenetic object
 #'
 #' This function creates a \code{phylospatial} object. This is the core data type in the phylospatial library, and
-#' is a required input to most other functions in the package. The two essential components of a spatial phylogeny object
+#' is a required input to most other functions in the package. The two essential components of a spatial phylogenetic object
 #' are a phylogenetic tree and an community data set.
 #'
-#' @param tree Phylogeny of class \link[ape]{phylo}. Terminals whose names do not match \code{comm} will be dropped with a warning.
 #' @param comm Community data representing the distribution of terminal taxa across sites. Can be a matrix with a column per terminal and
 #' a row per site, a \link[terra]{SpatRaster} with one layer per terminal, or a `sf` data with a column per terminal. Taxa whose names do
 #' not match between column/layer names in \code{comm} and tip labels in \code{tree} will be dropped with a warning.
+#' @param tree Phylogeny of class \link[ape]{phylo}. Terminals whose names do not match \code{comm} will be dropped with a warning. If
+#' this argument is not provided, terminals are assumed to follow a "star" tree with uniform branch lengths, which will lead to
+#' non-phylogenetic versions of any analyses done with the resulting `phylospatial` object.
 #' @param spatial An optional `SpatRaster` layer or `sf` object indicating site locations. The number of cells or rows must match \code{comm}.
 #' Ignored if \code{comm} is a `SpatRaster` or `sf` object.
 #' @param data_type Character giving the data type of \code{comm}. Must be "binary", "probability", "abundance", or "auto" (the default).
@@ -95,18 +89,23 @@ new_phylospatial <- function(tree, comm, spatial, dissim = NULL, data_type, clad
 #' comm <- terra::rast(system.file("extdata", "moss_comm.tif", package = "phylospatial"))
 #'
 #' # construct `phylospatial` object
-#' ps <- phylospatial(tree, comm)
+#' ps <- phylospatial(comm, tree)
 #' ps
 #'
+#' # construct `phylospatial` object without a tree
+#' # (works but throws a warning)
+#' ps <- phylospatial(comm)
+#'
+#'
 #' @export
-phylospatial <- function(tree, comm, spatial = NULL,
+phylospatial <- function(comm, tree = NULL, spatial = NULL,
                          data_type = c("auto", "probability", "binary", "abundance"),
                          clade_fun = NULL, check = TRUE){
 
       # checks
       data_type <- match.arg(data_type)
-      stopifnot("Tree must be an object of class 'phylo'." = inherits(tree, "phylo"))
-      stopifnot("community data must be a `matrix`, `SpatRaster`, or `sf`." = inherits(comm, c("matrix", "SpatRaster", "sf")))
+      stopifnot("Tree must be an object of class 'phylo'." = inherits(tree, c("phylo", "NULL")))
+      stopifnot("Community data must be a `matrix`, `SpatRaster`, or `sf`." = inherits(comm, c("matrix", "SpatRaster", "sf")))
       stopifnot("Spatial reference must be a `SpatRaster` or `sf` object." = inherits(spatial, c("NULL", "SpatRaster", "sf")))
       if(inherits(spatial, "SpatRaster")) stopifnot("`spatial` must have the same number of grid cells as rows in `comm` data matrix." =
                                                            terra::ncell(spatial) == nrow(comm))
@@ -121,6 +120,11 @@ phylospatial <- function(tree, comm, spatial = NULL,
       if(inherits(comm, "sf")){
             spatial <- sf::st_as_sf(sf::st_geometry(comm))
             comm <- as.matrix(sf::st_drop_geometry(comm))
+      }
+
+      if(is.null(tree)){
+            warning("No phylogenetic tree was provided; any analyses using this `phylospatial` object will be non-phylogenetic.")
+            tree <- star_tree(comm)
       }
 
       # harmonize terminal taxa in tree and community
@@ -169,6 +173,6 @@ phylospatial <- function(tree, comm, spatial = NULL,
       tree$edge.length <- tree$edge.length / sum(tree$edge.length)
 
       # create phylospatial object
-      new_phylospatial(tree, comm, spatial, dissim = NULL, data_type, clade_fun)
+      new_phylospatial(comm, tree, spatial, dissim = NULL, data_type, clade_fun)
 }
 
