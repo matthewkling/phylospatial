@@ -141,7 +141,7 @@ data.) Then we pass them to <code><a href="../reference/phylospatial.html">phylo
 </h4>
 <p>Our <code>phylospatial</code> object is a list with six elements.
 Let’s look at each of these in turn, starting with the
-<code>tree</code>. This is the phylogeney we simulated, a tree of class
+<code>tree</code>. This is the phylogeny we simulated, a tree of class
 <code>phylo</code> with 5 tips and 3 larger clades. Note that the branch
 lengths of the input tree are scaled to sum to 1. We can use
 <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code> function to view the tree.</p>
@@ -156,7 +156,7 @@ lengths of the input tree are scaled to sum to 1. We can use
 <span><span class="co">#&gt; Tip labels:</span></span>
 <span><span class="co">#&gt;   t5, t4, t3, t1, t2</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Rooted; includes branch lengths.</span></span>
+<span><span class="co">#&gt; Rooted; includes branch length(s).</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ps</span>, <span class="st">"tree"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="phylospatial-data_files/figure-html/tree-1.png" width="576"></p>
@@ -206,9 +206,14 @@ in our data set, and we can confirm that it did so correctly by checking
 to calculate clade occurrence values gives the probability that at least
 one member of the clade is present in a given site. Abundance and binary
 data have their own default functions. (You can also override the
-defaults by supplying your own <code>clade_fun</code>, though this
-should be done with caution.) The function that was used for a given
-data set can be accessed at <code>ps$clade_fun</code>.</p>
+defaults by supplying your own <code>clade_fun</code>.) The function
+that was used for a given data set can be accessed at
+<code>ps$clade_fun</code>.</p>
+<p>Note that you can also specify your own clade ranges to
+<code><a href="../reference/phylospatial.html">phylospatial()</a></code> rather than letting it build them for you,
+by setting <code>build = FALSE</code>. You might want to do this if, for
+example, you have modeled the distributions of every clade in addition
+to every terminal species in your data set.</p>
 </div>
 <div class="section level4">
 <h4 id="spatial-data">Spatial data<a class="anchor" aria-label="anchor" href="#spatial-data"></a>
@@ -217,10 +222,8 @@ data set can be accessed at <code>ps$clade_fun</code>.</p>
 phylospatial object. (The only other element we haven’t mentioned here
 is <code>dissim</code>, which is covered in the vignette on beta
 diversity.) The spatial component of the object contains spatial
-reference data on the geogrpahic locations of the communities found in
-each row of the community matrix. Spatial data isn’t used in any
-<code>phylospatial</code> computations; it only gets used to format
-results.</p>
+reference data on the geographic locations of the communities found in
+each row of the community matrix.</p>
 <p>In this example, the spatial data is a raster layer inherited from
 the <code>SpatRaster</code> data we supplied as our <code>comm</code>.
 You can also supply vector data (points, lines, or polygons) as an

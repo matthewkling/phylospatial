@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Tools for spatial phylogenetic analysis • phylospatial</title>
+<title>Spatial Phylogenetic Analysis • phylospatial</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
@@ -16,9 +16,9 @@
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tools for spatial phylogenetic analysis">
-<meta name="description" content="This package computes a variety of spatial phylogenetic metrics, using data on a phylogenetic tree and the geographic distributions of the terminal taxa. Functionality includes diversity and endemism metrics, turnover and biotic regionalization analyses, null model randomizations, and spatial conservation prioritization. All functions support quantitative community data in addition to binary data.">
-<meta property="og:description" content="This package computes a variety of spatial phylogenetic metrics, using data on a phylogenetic tree and the geographic distributions of the terminal taxa. Functionality includes diversity and endemism metrics, turnover and biotic regionalization analyses, null model randomizations, and spatial conservation prioritization. All functions support quantitative community data in addition to binary data.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Spatial Phylogenetic Analysis">
+<meta name="description" content="Conduct a variety of spatial phylogenetic analyses, using data on a phylogenetic tree and the geographic distributions of the terminal taxa. Package functionality includes diversity and endemism metrics, turnover and biotic regionalization analyses, null model randomizations, and spatial conservation prioritization. All functions support quantitative community data in addition to binary data.">
+<meta property="og:description" content="Conduct a variety of spatial phylogenetic analyses, using data on a phylogenetic tree and the geographic distributions of the terminal taxa. Package functionality includes diversity and endemism metrics, turnover and biotic regionalization analyses, null model randomizations, and spatial conservation prioritization. All functions support quantitative community data in addition to binary data.">
 <meta property="og:image" content="https://matthewkling.github.io/phylospatial/logo.png">
 </head>
 <body>
@@ -62,36 +62,55 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="phylospatial">phylospatial<a class="anchor" aria-label="anchor" href="#phylospatial"></a>
-</h1>
-</div>
-<!-- badges: start -->
-<!-- badges: end -->
-</div>
-<div class="section level1">
-<h1 id="phylospatial-">phylospatial 
+<img src="logo.png" class="logo" alt=""><h1 id="phylospatial-">phylospatial 
 <a class="anchor" aria-label="anchor" href="#phylospatial-"></a>
 </h1>
-<p><code>phylospatial</code> is an R package for spatial phylogenetic analysis. The field of spatial phylogenetics focuses on accounting for evolutionary relationships among taxa when describing biodiversity patterns, an approach that has a number of advantages over species-based accounting. This library includes functions for computing:</p>
+</div>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p><code>phylospatial</code> is an R package for spatial phylogenetic analysis. The field of spatial phylogenetics focuses on accounting for evolutionary relationships among taxa when describing biodiversity patterns, an approach that has a number of advantages over species-based accounting. This package provides a set of functions to build and analyze phylospatial data:</p>
 <ul>
-<li>Alpha phylogenetic diversity and endemism measures, including statistical hypothesis testing using randomization-based null models, as described in <code><a href="articles/alpha-diversity.html">vignette("alpha-diversity")</a></code>
-</li>
-<li>Phylogenetic beta diversity measures including nestedness and turnover, as well as phylogenetic ordination and biotic regionalization, as described in <code><a href="articles/alpha-diversity.html">vignette("alpha-diversity")</a></code>
-</li>
-<li>Phylogenetic conservation prioritization, as described in <code><a href="articles/alpha-diversity.html">vignette("alpha-diversity")</a></code>
-</li>
+<li>
+<code><a href="reference/phylospatial.html">phylospatial()</a></code> constructs a spatial phylogenetic data set from community data and a tree.</li>
+<li>
+<code><a href="reference/ps_diversity.html">ps_diversity()</a></code> calculates a range of phylogenetic diversity and endemism metrics.</li>
+<li>
+<code><a href="reference/ps_rand.html">ps_rand()</a></code> computes significance values for diversity metrics using null model randomizations.</li>
+<li>
+<code><a href="reference/ps_dissim.html">ps_dissim()</a></code> calculates a pairwise community phylogenetic beta diversity matrix.</li>
+<li>
+<code><a href="reference/ps_regions.html">ps_regions()</a></code> clusters sites into phylogenetically similar biogeographic regions.</li>
+<li>
+<code><a href="reference/ps_prioritize.html">ps_prioritize()</a></code> performs a spatial optimization to identify conservation priorities.</li>
 </ul>
-<p>A key difference between <code>phylospatial</code> and other spatial phylogenetic R libraries is that all functions in this package work not only with binary presence-absence data but also with continuous quantities such as occurrence probabilities or abundances. These quantities are treated as weights in all computations throughout the package, avoiding the need to discard information by thresholding continuous data. See <code><a href="articles/phylospatial-data.html">vignette("phylospatial-data")</a></code> for details about the constructing <code>phylospatial</code> datasets with different type of community data.</p>
+<p>A key difference between <code>phylospatial</code> and other spatial phylogenetic R libraries is that all functions in this package work not only with binary presence-absence data but also with continuous community data types such as occurrence probabilities or abundances. These quantities are treated as weights in all computations throughout the package, avoiding the need to discard information by thresholding continuous data.</p>
+</div>
+<div class="section level2">
+<h2 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
+</h2>
+<ul>
+<li>
+<code><a href="articles/phylospatial-data.html">vignette("phylospatial-data")</a></code> gives details about constructing <code>phylospatial</code> datasets with different types of data.</li>
+<li>
+<code><a href="articles/alpha-diversity.html">vignette("alpha-diversity")</a></code> demonstrates calculation of alpha phylogenetic diversity and endemism measures, including statistical hypothesis testing using randomization-based null models.</li>
+<li>
+<code><a href="articles/alpha-diversity.html">vignette("alpha-diversity")</a></code> shows how to calculate phylogenetic beta diversity measures including nestedness and turnover, as well as phylogenetic ordination and regionalization to visualize phylogenetic community structure.</li>
+<li>
+<code><a href="articles/prioritization.html">vignette("prioritization")</a></code> explains how to perform a phylogenetic conservation prioritization.</li>
+</ul>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>This package is not yet on CRAN. You can install the development version of phylospatial like so:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<code class="sourceCode R"><span><span class="co"># you can install the package from CRAN:</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"phylospatial"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># or you can install the development version from GitHub:</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"matthewkling/phylospatial"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
-
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
@@ -111,7 +130,7 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Matthew Kling <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-9073-4240" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Matthew Kling <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0001-9073-4240" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 </ul>
 </div>
 

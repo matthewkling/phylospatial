@@ -158,7 +158,24 @@ using the <code>"abuswap_c"</code> algorithm provided by
 <code><a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">vegan::nullmodel</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"abundance"</span><span class="op">)</span></span>
-<span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"abuswap_c"</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">rand2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"abuswap_c"</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="canape">CANAPE<a class="anchor" aria-label="anchor" href="#canape"></a>
+</h2>
+<p>Many things can be done with randomization results like the ones we
+generated above. One thing you can do is use them to classify
+significant endemism hotspots in a “categorical analysis of neo- and
+paleo-endemism” (CANAPE, <a href="https://doi.org/10.1038/ncomms5473" class="external-link">Mishler et al. 2014</a>). The
+function <code><a href="../reference/ps_canape.html">ps_canape()</a></code> uses significance values for PE, RPE,
+and CE, which are returned by <code><a href="../reference/ps_rand.html">ps_rand()</a></code>, to categorize
+sites into five endemism cateogories. Here’s an example with the moss
+data; in this case, only three of the five categories occur in the
+result (no areas of significant neo- or mixed-endemism are present):</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_canape.html">ps_canape</a></span><span class="op">(</span><span class="va">rand</span>, alpha <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span></span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cp</span><span class="op">)</span></span></code></pre></div>
+<p><img src="alpha-diversity_files/figure-html/canape-1.png" width="576"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

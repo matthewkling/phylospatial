@@ -70,7 +70,7 @@ community matrices containing continuous quantities such as occurrence probabili
 
 
 <dt id="arg-fun">fun<a class="anchor" aria-label="anchor" href="#arg-fun"></a></dt>
-<dd><p>Null model function to use. Must be either "quantize", "nullmodel", or a function:</p><ul><li><p>"nullmodel"  uses <a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">nullmodel</a> and <a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">simulate.nullmodel</a>, from the vegan
+<dd><p>Null model function to use. Must be either "quantize", "nullmodel", or an actual function:</p><ul><li><p>"nullmodel"  uses <a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">nullmodel</a> and <a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">simulate.nullmodel</a>, from the vegan
 package, which offer a wide range of randomization algorithms with different properties.</p></li>
 <li><p>"quantize" (the default) deploys the function <a href="quantize.html">quantize</a>, which is a routine that is itself
 a wrapper around <a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">nullmodel</a>, allowing the use of binary algorithms for quantitative data.</p></li>
@@ -104,7 +104,7 @@ is provided to <code>fun</code>.</p></dd>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments passed to <a href="quantize.html">quantize</a>, <a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">simulate.nullmodel</a>, or custom function
-<code>fun</code>. Note that the <code>nsim</code> argument the former two functions should NOT be used here; specify <code>n_rand</code> instead.</p></dd>
+<code>fun</code>. Note that the <code>nsim</code> argument the former two functions should not be used here; specify <code>n_rand</code> instead.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -118,71 +118,21 @@ the randomized metric.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># simulate a `phylospatial` data set and run randomization with default settings</span></span></span>
 <span class="r-in"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dimensions  : 20, 20, 10  (nrow, ncol, nlyr)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 1, 1  (x, y)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 0, 20, 0, 20  (xmin, xmax, ymin, ymax)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. :  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> varnames    : qTR </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               qCR </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               qPD </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       :  qTR,  qCR,        qPD, qTE,  qCE,  qPE, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 0.06, 0.04, 0.06185567,   0, 0.01, 0.01, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 0.83, 0.89, 0.96000000,   1, 1.00, 1.00, ... </span>
+<span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># using the default `quantize` function, but with alternative arguments</span></span></span>
-<span class="r-in"><span><span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps</span>, transform <span class="op">=</span> <span class="va">sqrt</span>, n_strata <span class="op">=</span> <span class="fl">4</span>, priority <span class="op">=</span> <span class="st">"rows"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dimensions  : 20, 20, 10  (nrow, ncol, nlyr)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 1, 1  (x, y)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 0, 20, 0, 20  (xmin, xmax, ymin, ymax)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. :  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> varnames    : qTR </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               qCR </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               qPD </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       :  qTR,  qCR, qPD, qTE, qCE,  qPE, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 0.00, 0.06, 0.1,   0,   0, 0.02, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 0.66, 0.96, 1.0,   1,   1, 1.00, ... </span>
+<span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps</span>, transform <span class="op">=</span> <span class="va">sqrt</span>, n_strata <span class="op">=</span> <span class="fl">4</span>, priority <span class="op">=</span> <span class="st">"rows"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># using binary data</span></span></span>
 <span class="r-in"><span><span class="va">ps2</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"binary"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"r2"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dimensions  : 20, 20, 10  (nrow, ncol, nlyr)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 1, 1  (x, y)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 0, 20, 0, 20  (xmin, xmax, ymin, ymax)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. :  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> varnames    : qTR </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               qCR </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               qPD </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       : qTR,  qCR, qPD,  qTE,  qCE,  qPE, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  :   0, 0.00,   0, 0.00, 0.00, 0.00, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  :   0, 0.96,   1, 0.93, 0.93, 0.98, ... </span>
+<span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"r2"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># using abundance data</span></span></span>
 <span class="r-in"><span><span class="va">ps3</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"abund"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps3</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"abuswap_c"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dimensions  : 20, 20, 10  (nrow, ncol, nlyr)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 1, 1  (x, y)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 0, 20, 0, 20  (xmin, xmax, ymin, ymax)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. :  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> varnames    : qTR </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               qCR </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               qPD </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       :  qTR,  qCR,  qPD,  qTE,  qCE,  qPE, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, ... </span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps3</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"abuswap_c"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">rand</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
