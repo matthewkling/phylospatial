@@ -3,11 +3,11 @@
 \docType{package}
 \name{phylospatial-package}
 \alias{phylospatial-package}
-\title{phylospatial: Tools for spatial phylogenetic analysis}
+\title{phylospatial: Spatial Phylogenetic Analysis}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-This package computes a variety of spatial phylogenetic metrics, using data on a phylogenetic tree and the geographic distributions of the terminal taxa. Functionality includes diversity and endemism metrics, turnover and biotic regionalization analyses, null model randomizations, and spatial conservation prioritization. All functions support quantitative community data in addition to binary data.
+Conduct a variety of spatial phylogenetic analyses, using data on a phylogenetic tree and the geographic distributions of the terminal taxa. Package functionality includes diversity and endemism metrics, turnover and biotic regionalization analyses, null model randomizations, and spatial conservation prioritization. All functions support quantitative community data in addition to binary data.
 }
 \seealso{
 Useful links:
@@ -17,7 +17,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Matthew Kling \email{mkling@uvm.edu} (\href{https://orcid.org/0000-0001-9073-4240}{ORCID})
+\strong{Maintainer}: Matthew Kling \email{mattkling@berkeley.edu} (\href{https://orcid.org/0000-0001-9073-4240}{ORCID}) [copyright holder]
 
 }
 \keyword{internal}

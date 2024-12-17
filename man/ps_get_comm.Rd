@@ -28,6 +28,6 @@ ps <- ps_simulate()
 ps_get_comm(ps)
 
 # get distributions for all taxa, as a matrix
-ps_get_comm(ps, tips_only = FALSE, spatial = FALSE)
+pcomm <- ps_get_comm(ps, tips_only = FALSE, spatial = FALSE)
 
 }

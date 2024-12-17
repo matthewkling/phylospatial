@@ -71,7 +71,15 @@ There are numerous alternative options for randomization algorithms to use, depe
 
 ```{r rand2, message=FALSE, warning=FALSE}
 ps2 <- ps_simulate(data_type = "abundance")
-rand <- ps_rand(ps2, fun = "nullmodel", method = "abuswap_c", progress = FALSE)
+rand2 <- ps_rand(ps2, fun = "nullmodel", method = "abuswap_c", progress = FALSE)
 ```
 
 
+## CANAPE
+
+Many things can be done with randomization results like the ones we generated above. One thing you can do is use them to classify significant endemism hotspots in a "categorical analysis of neo- and paleo-endemism" (CANAPE, [Mishler et al. 2014](https://doi.org/10.1038/ncomms5473)). The function `ps_canape()` uses significance values for PE, RPE, and CE, which are returned by `ps_rand()`, to categorize sites into five endemism cateogories. Here's an example with the moss data; in this case, only three of the five categories occur in the result (no areas of significant neo- or mixed-endemism are present):
+
+```{r canape, message=FALSE, warning=FALSE}
+cp <- ps_canape(rand, alpha = .05)
+terra::plot(cp)
+```

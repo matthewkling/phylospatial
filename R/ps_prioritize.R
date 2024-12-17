@@ -44,7 +44,7 @@ plot_lambda <- function(lambda = c(-1, -.5, 0, .5, 2, 1)){
 
 #' Phylogenetic conservation prioritization
 #'
-#' Create a ranking of conservation priorities using greedy forward stepwise optimization.
+#' Create a ranking of conservation priorities using optimal or probabilistic forward stepwise selection.
 #'
 #' @param ps phylospatial object.
 #' @param init Starting protection status. If this argument is not specified, it is assumed that no existing reserves are present.
@@ -112,18 +112,20 @@ plot_lambda <- function(lambda = c(-1, -.5, 0, .5, 2, 1)){
 #' ps <- ps_simulate()
 #'
 #' # basic prioritization
-#' ps_prioritize(ps)
+#' p <- ps_prioritize(ps)
 #'
+#' \dontrun{
 #' # specifying locations of initial protected areas
-#' # (can be binary, or continuous values between 0 and 1)
+#' # (can be binary, or can be continuous values between 0 and 1)
 #' # here we'll create an `init` raster with arbitrary values ranging from 0-1,
 #' # using the reference raster layer that's part of our `phylospatial` object
 #' protected <- terra::setValues(ps$spatial, seq(0, 1, length.out = terra::ncell(ps$spatial)))
-#' ps_prioritize(ps, init = protected)
+#' p <- ps_prioritize(ps, init = protected)
 #'
 #' # using probabilistic prioritization (note: a real analysis would need more reps)
-#' ps_prioritize(ps, init = protected, method = "prob", n_reps = 10)
-#'
+#' p <- ps_prioritize(ps, init = protected, method = "prob", n_reps = 1000)
+#' terra::plot(p$top10)
+#' }
 #' @export
 ps_prioritize <- function(ps,
                           init = NULL,
@@ -137,7 +139,6 @@ ps_prioritize <- function(ps,
 
       method <- match.arg(method)
       enforce_ps(ps)
-      enforce_spatial(ps)
       if(lambda < 0) warning("choosing a negative value for `lambda` is not generally recommended.")
 
       e <- ps$tree$edge.length / sum(ps$tree$edge.length) # edges evolutionary value
@@ -242,7 +243,7 @@ ps_prioritize <- function(ps,
       }
 
       # return prioritization
-      if(spatial & !is.null(ps$spatial)){
+      if(spatial){
             return(to_spatial(ym, ps$spatial))
       }else{
             return(ym)

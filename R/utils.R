@@ -41,6 +41,9 @@ to_spatial <- function(m, template){
       if(inherits(template, "sf")){
             s <- cbind(template, as.data.frame(m))
       }
+      if(inherits(template, "NULL")){
+            s <- m
+      }
       s
 }
 
@@ -61,7 +64,7 @@ to_spatial <- function(m, template){
 #' ps_get_comm(ps)
 #'
 #' # get distributions for all taxa, as a matrix
-#' ps_get_comm(ps, tips_only = FALSE, spatial = FALSE)
+#' pcomm <- ps_get_comm(ps, tips_only = FALSE, spatial = FALSE)
 #'
 #' @export
 ps_get_comm <- function(ps, tips_only = TRUE, spatial = TRUE){

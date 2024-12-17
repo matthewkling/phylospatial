@@ -17,10 +17,13 @@
 of \code{x$spatial}. For \code{y = "tree"}, see \link[ape]{plot.phylo}; for \code{y = "comm"},
 see \link[terra]{plot} or \link[sf]{plot.sf}.}
 }
+\value{
+A plot of the tree or community data.
+}
 \description{
 Plot a \code{phylospatial} object
 }
 \examples{
-print(moss, "tree")
-print(moss, "comm")
+plot(moss, "tree")
+plot(moss, "comm")
 }

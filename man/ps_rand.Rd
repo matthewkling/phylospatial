@@ -18,7 +18,7 @@ ps_rand(
 \arguments{
 \item{ps}{\code{phylospatial} object.}
 
-\item{fun}{Null model function to use. Must be either "quantize", "nullmodel", or a function:
+\item{fun}{Null model function to use. Must be either "quantize", "nullmodel", or an actual function:
 \itemize{
 \item{"nullmodel" }{ uses \link[vegan]{nullmodel} and \link[vegan]{simulate.nullmodel}, from the vegan
 package, which offer a wide range of randomization algorithms with different properties.}
@@ -42,7 +42,7 @@ is provided to \code{fun}.}
 \item{progress}{Logical: should a progress bar be displayed?}
 
 \item{...}{Additional arguments passed to \link{quantize}, \link[vegan]{simulate.nullmodel}, or custom function
-\code{fun}. Note that the \code{nsim} argument the former two functions should NOT be used here; specify \code{n_rand} instead.}
+\code{fun}. Note that the \code{nsim} argument the former two functions should not be used here; specify \code{n_rand} instead.}
 }
 \value{
 A matrix with a row for every row of \code{x}, a column for every metric in \link{ps_diversity}, and
@@ -57,17 +57,19 @@ community matrices containing continuous quantities such as occurrence probabili
 \examples{
 # simulate a `phylospatial` data set and run randomization with default settings
 ps <- ps_simulate(data_type = "prob")
-ps_rand(ps)
+rand <- ps_rand(ps)
 
+\dontrun{
 # using the default `quantize` function, but with alternative arguments
-ps_rand(ps, transform = sqrt, n_strata = 4, priority = "rows")
+rand <- ps_rand(ps, transform = sqrt, n_strata = 4, priority = "rows")
 
 # using binary data
 ps2 <- ps_simulate(data_type = "binary")
-ps_rand(ps2, fun = "nullmodel", method = "r2")
+rand <- ps_rand(ps2, fun = "nullmodel", method = "r2")
 
 # using abundance data
 ps3 <- ps_simulate(data_type = "abund")
-ps_rand(ps3, fun = "nullmodel", method = "abuswap_c")
-
+rand <- ps_rand(ps3, fun = "nullmodel", method = "abuswap_c")
+rand
+}
 }

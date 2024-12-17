@@ -37,7 +37,7 @@
 #' Rosauer, D. A. N., Laffan, S. W., Crisp, M. D., Donnellan, S. C., & Cook, L. G. (2009). Phylogenetic endemism:
 #' a new approach for identifying geographical concentrations of evolutionary history. Molecular Ecology, 18(19), 4061-4072.
 #' @examples
-#' div <- ps_diversity(ps_simulate())
+#' div <- ps_diversity(ps_simulate(n_tips = 25))
 #' terra::plot(div)
 #'
 #' @export
@@ -65,7 +65,7 @@ ps_diversity <- function(ps, spatial = T){
 
       div[!occupied(ps), ] <- NA
 
-      if(spatial & !is.null(ps$spatial)) div <- to_spatial(div, ps$spatial)
+      if(spatial) div <- to_spatial(div, ps$spatial)
       return(div)
 }
 

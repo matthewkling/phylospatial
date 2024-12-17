@@ -1,5 +1,6 @@
 
 #' @method print phylospatial
+#' @return prints a summary of the phylospatial object
 #' @examples print(moss)
 #' @export
 print.phylospatial <- function(x, ...){
@@ -19,10 +20,11 @@ print.phylospatial <- function(x, ...){
 #' @param ... Additional arguments passed to plotting methods, depending on \code{y} and the class
 #'    of \code{x$spatial}. For \code{y = "tree"}, see \link[ape]{plot.phylo}; for \code{y = "comm"},
 #'    see \link[terra]{plot} or \link[sf]{plot.sf}.
+#' @return A plot of the tree or community data.
 #' @method plot phylospatial
 #' @examples
-#' print(moss, "tree")
-#' print(moss, "comm")
+#' plot(moss, "tree")
+#' plot(moss, "comm")
 #' @export
 plot.phylospatial <- function(x, y = c("tree", "comm"),
                               max_taxa = 12,

@@ -8,44 +8,50 @@ phylospatial(
   comm,
   tree = NULL,
   spatial = NULL,
-  data_type = c("auto", "probability", "binary", "abundance"),
+  data_type = c("auto", "probability", "binary", "abundance", "other"),
   clade_fun = NULL,
+  build = TRUE,
   check = TRUE
 )
 }
 \arguments{
 \item{comm}{Community data representing the distribution of terminal taxa across sites. Can be a matrix with a column per terminal and
 a row per site, a \link[terra]{SpatRaster} with one layer per terminal, or a \code{sf} data with a column per terminal. Taxa whose names do
-not match between column/layer names in \code{comm} and tip labels in \code{tree} will be dropped with a warning.}
+not match between column/layer names in \code{comm} and tip labels in \code{tree} will be dropped with a warning (unless \code{build = FALSE}).}
 
-\item{tree}{Phylogeny of class \link[ape]{phylo}. Terminals whose names do not match \code{comm} will be dropped with a warning. If
-this argument is not provided, terminals are assumed to follow a "star" tree with uniform branch lengths, which will lead to
-non-phylogenetic versions of any analyses done with the resulting \code{phylospatial} object.}
+\item{tree}{Phylogeny of class \link[ape]{phylo}. Terminals whose names do not match \code{comm} will be dropped with a warning (unless
+\code{build = FALSE}). If this argument is not provided, terminals are assumed to follow a "star" tree with uniform branch lengths, which
+will lead to non-phylogenetic versions of any analyses done with the resulting \code{phylospatial} object.}
 
 \item{spatial}{An optional \code{SpatRaster} layer or \code{sf} object indicating site locations. The number of cells or rows must match \code{comm}.
 Ignored if \code{comm} is a \code{SpatRaster} or \code{sf} object.}
 
-\item{data_type}{Character giving the data type of \code{comm}. Must be "binary", "probability", "abundance", or "auto" (the default).
+\item{data_type}{Character giving the data type of \code{comm}. Must be "binary", "probability", "abundance", "auto" (the default), or "other".
 This determines how community values for clades are calculated from the values for terminal taxa. If "binary" (presence-absence),
 a clade is considered present in a site if any terminal in the clade is present. If "probability," clade probabilities are calculated
 as the probability that at least one terminal is present in a site. If "abundance," clade abundances are calculated as the sum of
 abundances for terminals in the clade in a site. If "auto," an attempt is made to guess which of these three data types was provided.
-Ignored if \code{comm} already includes clade ranges.}
+This argument is ignored if \code{clade_fun} is provided, or if \code{build = FALSE}. If "other", a custom \code{clade_fun} must be supplied.}
 
 \item{clade_fun}{Function to calculate the local community weight for a clade based on community weights for tips found in a given location.
 Must be either NULL (the default, in which case the default function for the selected \code{data_type} is used) or a summary function that
 takes a numeric vector and returns a single numeric output. Ignored if \code{comm} already includes clade ranges.}
+
+\item{build}{Logical indicating whether \code{comm} already includes clade ranges that should be used instead of building new ones.
+Default is \code{TRUE}. If \code{FALSE}, \code{clade_fun} is ignored, no checks are performed to harmonize the tip labels and the community data, and
+the columns of \code{comm} must exactly match the order of \code{tree} edges including tips and larger clades. If clade ranges are included in
+\code{comm} but \code{build = TRUE}, they will be dropped and new clade ranges will be built.}
 
 \item{check}{Logical indicating whether community data should be validated. Default is TRUE.}
 }
 \value{
 A \code{phylospatial} object, which is a list containing the following elements:
 \itemize{
-\item{"data_type"}{Character indicating the community data type}
-\item{"tree}{Phylogeny of class \code{phylo}}
-\item{"comm"}{Community matrix of community data}
-\item{"spatial"}{A \code{SpatRaster} or \code{sf} providing spatial coordinates for the rows in \code{comm}. May be missing if no spatial data was supplied.}
-\item{"dissim"}{A community dissimilary matrix of class \code{dist} indicating pairwise phylogenetic dissimilarity between sites. Missing unless
+\item{"data_type":}{ Character indicating the community data type}
+\item{"tree":}{ Phylogeny of class \code{phylo}}
+\item{"comm":}{ Community matrix, including a column for every terminal taxon and every larger clade. Column order corresponds to tree edge order.}
+\item{"spatial":}{ A \code{SpatRaster} or \code{sf} providing spatial coordinates for the rows in \code{comm}. May be missing if no spatial data was supplied.}
+\item{"dissim":}{ A community dissimilary matrix of class \code{dist} indicating pairwise phylogenetic dissimilarity between sites. Missing unless
 \code{ps_dissim(..., add = T)} is called.}
 }
 }
@@ -54,20 +60,29 @@ This function creates a \code{phylospatial} object. This is the core data type i
 is a required input to most other functions in the package. The two essential components of a spatial phylogenetic object
 are a phylogenetic tree and an community data set.
 }
-\examples{
-# load phylogeny
-tree <- ape::read.tree(system.file("extdata", "moss_tree.nex", package = "phylospatial"))
+\details{
+This function formats the input data as a \code{phylospatial} object. Beyond validating, cleaning, and restructing the data, the main operation
+it performs is to compute community occurrence data for every internal clade on the tree. For a given clade and site, community data for
+all the terminals in the clade are used to calculate the clade's occurrence value in the site. As described above, this calculation can
+happen in various ways, depending on what type of community data you have (e.g. binary, probability, or abundance) and how you want to
+summarize them. By default, the function tries to detect your \code{data_type} and use it to automatically select an appropriate summary
+function as described above, but you can override this by providing your own function to \code{clade_fun}.
 
-# load species distribution rasters
+You can also disable construction of the clade community matrix columns altogether by setting \code{build = FALSE}). This is atypical, but you
+might want to use this option if you have your own distribution data data on all clades (e.g. from modeling occurrence probabilities for
+clades in addition to terminal species), or if your community data comes from a previously-constructed \code{phylospatial} object.
+}
+\examples{
+# load species distribution data and phylogeny
 comm <- terra::rast(system.file("extdata", "moss_comm.tif", package = "phylospatial"))
+tree <- ape::read.tree(system.file("extdata", "moss_tree.nex", package = "phylospatial"))
 
 # construct `phylospatial` object
 ps <- phylospatial(comm, tree)
 ps
 
 # construct `phylospatial` object without a tree
-# (works but throws a warning)
+# (works, with a warning)
 ps <- phylospatial(comm)
-
 
 }

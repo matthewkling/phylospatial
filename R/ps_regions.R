@@ -20,7 +20,11 @@
 #' patterns of phylogenetic regionalization. Trends in Ecology & Evolution, 32(11), 845-860.
 #' @examples
 #' library(sf)
+#'
+#' # moss example data, using defaults including kmeans clustering algorithm
 #' plot(ps_regions(moss))
+#'
+#' # to use a hierarchical clustering method, first we have to `ps_add_dissim()`
 #' plot(ps_regions(ps_add_dissim(moss), k = 7, method = "average"))
 #'
 #' @export

@@ -52,7 +52,7 @@ ps
 
 #### Phylogeny
 
-Our `phylospatial` object is a list with six elements. Let's look at each of these in turn, starting with the `tree`. This is the phylogeney we simulated, a tree of class `phylo` with `r n_taxa` tips and `r n_taxa - 2` larger clades. Note that the branch lengths of the input tree are scaled to sum to 1. We can use `plot()` function to view the tree.
+Our `phylospatial` object is a list with six elements. Let's look at each of these in turn, starting with the `tree`. This is the phylogeny we simulated, a tree of class `phylo` with `r n_taxa` tips and `r n_taxa - 2` larger clades. Note that the branch lengths of the input tree are scaled to sum to 1. We can use `plot()` function to view the tree.
 
 ```{r tree, message=FALSE, warning=FALSE}
 names(ps)
@@ -74,12 +74,14 @@ plot(ps, "comm")
 
 We can see that in addition to our `r n_taxa` terminal taxa, the data set also includes geographic ranges for the `r n_taxa - 2` larger clades. Internally, the `phylospatial()` function constructs ranges for every multi-tip clade on the tree, based on the topology of the tree and the community data for the tips. 
 
-The specific way that these clade ranges are constructed depends on the type of community data being used. The package supports three data types: `"probability"`, `"abundance"`, and `"binary"`. Recall that our data were probabilities; we could have specified that explicitly by setting `data_type = "probability"` when we constructed our phylospatial object, but the function detected this based on the values in our data set, and we can confirm that it did so correctly by checking `ps$data_type`. For probabilities, the default function used to calculate clade occurrence values gives the probability that at least one member of the clade is present in a given site. Abundance and binary data have their own default functions. (You can also override the defaults by supplying your own `clade_fun`, though this should be done with caution.) The function that was used for a given data set can be accessed at `ps$clade_fun`.
+The specific way that these clade ranges are constructed depends on the type of community data being used. The package supports three data types: `"probability"`, `"abundance"`, and `"binary"`. Recall that our data were probabilities; we could have specified that explicitly by setting `data_type = "probability"` when we constructed our phylospatial object, but the function detected this based on the values in our data set, and we can confirm that it did so correctly by checking `ps$data_type`. For probabilities, the default function used to calculate clade occurrence values gives the probability that at least one member of the clade is present in a given site. Abundance and binary data have their own default functions. (You can also override the defaults by supplying your own `clade_fun`.) The function that was used for a given data set can be accessed at `ps$clade_fun`.
+
+Note that you can also specify your own clade ranges to `phylospatial()` rather than letting it build them for you, by setting `build = FALSE`. You might want to do this if, for example, you have modeled the distributions of every clade in addition to every terminal species in your data set.
 
 
 #### Spatial data
 
-The `spatial` component is the last key piece of our phylospatial object. (The only other element we haven't mentioned here is `dissim`, which is covered in the vignette on beta diversity.) The spatial component of the object contains spatial reference data on the geogrpahic locations of the communities found in each row of the community matrix. Spatial data isn't used in any `phylospatial` computations; it only gets used to format results. 
+The `spatial` component is the last key piece of our phylospatial object. (The only other element we haven't mentioned here is `dissim`, which is covered in the vignette on beta diversity.) The spatial component of the object contains spatial reference data on the geographic locations of the communities found in each row of the community matrix.
 
 In this example, the spatial data is a raster layer inherited from the `SpatRaster` data we supplied as our `comm`. You can also supply vector data (points, lines, or polygons) as an `sf` object. Note also that spatial data isn't required; community data provided as a matrix works just fine.
 

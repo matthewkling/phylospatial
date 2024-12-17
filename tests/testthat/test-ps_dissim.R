@@ -4,6 +4,7 @@ test_that("`ps_dissim` runs without error on example data", {
       expect_no_error(ps_dissim(moss, method = "sorensen_turnover"))
       expect_no_error(ps_dissim(moss, method = "sorensen_nestedness"))
       expect_no_error(ps_dissim(moss, method = "(b+c)/(2*a+b+c)", fun = "designdist", terms = "minimum", abcd = TRUE))
+      expect_no_error(ps_dissim(ps_simulate(spatial_type = "none")))
 })
 
 test_that("`ps_dissim` matches `betapart` when using binary data", {

@@ -71,7 +71,7 @@ each representing the the ranking, with low values representing higher prioritie
 }
 }
 \description{
-Create a ranking of conservation priorities using greedy forward stepwise optimization.
+Create a ranking of conservation priorities using optimal or probabilistic forward stepwise selection.
 }
 \details{
 This function uses the forward stepwise selection algorithm of Kling et al. (2019) to generate a ranked conservation prioritization.
@@ -100,18 +100,20 @@ set.seed(123)
 ps <- ps_simulate()
 
 # basic prioritization
-ps_prioritize(ps)
+p <- ps_prioritize(ps)
 
+\dontrun{
 # specifying locations of initial protected areas
-# (can be binary, or continuous values between 0 and 1)
+# (can be binary, or can be continuous values between 0 and 1)
 # here we'll create an `init` raster with arbitrary values ranging from 0-1,
 # using the reference raster layer that's part of our `phylospatial` object
 protected <- terra::setValues(ps$spatial, seq(0, 1, length.out = terra::ncell(ps$spatial)))
-ps_prioritize(ps, init = protected)
+p <- ps_prioritize(ps, init = protected)
 
 # using probabilistic prioritization (note: a real analysis would need more reps)
-ps_prioritize(ps, init = protected, method = "prob", n_reps = 10)
-
+p <- ps_prioritize(ps, init = protected, method = "prob", n_reps = 1000)
+terra::plot(p$top10)
+}
 }
 \references{
 Kling, M. M., Mishler, B. D., Thornhill, A. H., Baldwin, B. G., & Ackerly, D. D. (2019). Facets of phylodiversity: evolutionary

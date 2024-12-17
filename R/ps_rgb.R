@@ -50,9 +50,5 @@ ps_rgb <- function(ps, method = c("nmds", "cmds", "pca"), trans = identity){
       b[a,] <- rgb
       b[!a,] <- NA
 
-      if(!is.null(ps$spatial)){
-            return(to_spatial(b, ps$spatial))
-      }else{
-            return(b)
-      }
+      return(to_spatial(b, ps$spatial))
 }

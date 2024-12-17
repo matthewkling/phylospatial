@@ -2,43 +2,47 @@
 % Please edit documentation in R/ps_canape.R
 \name{ps_canape}
 \alias{ps_canape}
-\title{Binary randomization tests including CANAPE}
+\title{Categorical Analysis of Neo- and Paleo-Endemism (CANAPE)}
 \usage{
-ps_canape(ps, null_model = "curveball", spatial = TRUE, ...)
+ps_canape(rand, alpha = 0.05)
 }
 \arguments{
-\item{ps}{phylospatial object}
+\item{rand}{An object returned by \code{ps_rand}.}
 
-\item{null_model}{see \code{canaper::cpr_rand_test}}
-
-\item{spatial}{Logical: should the function return a spatial object (TRUE, default) or a vector (FALSE).}
-
-\item{...}{further arguments passed to \code{canaper::cpr_rand_test}}
+\item{alpha}{Numeric value between 0 and 1 giving the one-tailed p-value threshold to use when
+determining significance.}
 }
 \value{
-A matrix or raster stack with a column or layer (respectively) for each metric.
+An object of the same class as \code{rand} containing a variable called \code{"canape"}, with values 0-4
+corresponding to not-significant, mixed-, super-, neo-, and paleo-endemism, respectively.
 }
 \description{
-This function is a wrapper around the \code{cpr_rand_test} function from the \code{canaper} package.
-In keeping with CANAPE, it requires a binary community matrix and uses a hard significance threshold (for an
-alternative that utilizes continuous community values and retains a significance gradient, see \code{ps_rand}).
+This function classifies sites into areas of significant endemism according to the scheme of Mishler et al. (2014).
+Categorization is based on randomization quantile values for PE, RPE, and CE (which Mishler et al. call "PE on
+the comparison tree").
 }
 \details{
-This function runs \code{canaper::cpr_rand_test}; see the help for that function for details.
-
-It also runs \code{canaper::cpr_classify_endem} on the result, and includes the resulting classification as an
-additional variable, 'endem_type', in the output. 'endem_type' values 0-4 correspond to not-significant, neo,
-paleo, mixed, and super endemesim, respectively.
+Endemism significance categories are defined as follows:
+\itemize{
+\item{Endemism not significant: }{neither PE nor CE are significantly high at \code{alpha}.}
+\item{Significant neoendemism: }{PE or CE are significantly high at \code{alpha}; RPE significantly low at \code{alpha / 2} (two-tailed test).}
+\item{Significant paleoendemism: }{PE or CE are significantly high at \code{alpha}; RPE significantly high at \code{alpha / 2} (two-tailed test).}
+\item{Significant mixed-endemism: }{PE or CE are significantly high at \code{alpha}; RPE not significant.}
+\item{Significant super-endemism: }{PE or CE are significantly high at \code{alpha / 5}; RPE not significant.}
+}
 }
 \examples{
-ps <- ps_simulate(data_type = "binary")
-ps_canape(ps)
+# classic CANAPE using binary data and the curveball algorithm
+# (note that a real analysis would require a much higher `n_rand`)
+set.seed(123456)
+ps <- ps_simulate(n_tips = 50, data_type = "binary")
+rand <- ps_rand(ps, fun = "nullmodel", method = "curveball",
+                n_rand = 25, burnin = 10000, progress = FALSE)
+canape <- ps_canape(rand)
+terra::plot(canape)
 
 }
 \references{
 Mishler, B. D., Knerr, N., González-Orozco, C. E., Thornhill, A. H., Laffan, S. W., & Miller, J. T. (2014).
 Phylogenetic measures of biodiversity and neo-and paleo-endemism in Australian Acacia. Nature Communications, 5(1), 4473.
-
-Nitta, J. H., Laffan, S. W., Mishler, B. D., & Iwasaki, W. (2023). canaper: categorical analysis
-of neo‐and paleo‐endemism in R. Ecography, 2023(9), e06638.
 }

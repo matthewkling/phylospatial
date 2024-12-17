@@ -1,10 +1,10 @@
 Package: phylospatial
-Title: Tools for spatial phylogenetic analysis
+Title: Spatial Phylogenetic Analysis
 Version: 0.0.0.9000
 Authors@R: 
-    person("Matthew", "Kling", , "mkling@uvm.edu", role = c("aut", "cre"),
+    person("Matthew", "Kling", , "mattkling@berkeley.edu", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0001-9073-4240"))
-Description: This package computes a variety of spatial phylogenetic metrics, using data on a phylogenetic tree and the geographic distributions of the terminal taxa. Functionality includes diversity and endemism metrics, turnover and biotic regionalization analyses, null model randomizations, and spatial conservation prioritization. All functions support quantitative community data in addition to binary data.
+Description: Conduct a variety of spatial phylogenetic analyses, using data on a phylogenetic tree and the geographic distributions of the terminal taxa. Package functionality includes diversity and endemism metrics, turnover and biotic regionalization analyses, null model randomizations, and spatial conservation prioritization. All functions support quantitative community data in addition to binary data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -23,7 +23,8 @@ Suggests:
     betapart,
     knitr,
     rmarkdown,
-    tmap
+    tmap,
+    magrittr
 URL: https://matthewkling.github.io/phylospatial/
 Config/testthat/edition: 3
 Depends: 

@@ -24,6 +24,7 @@ reference:
   - ps_rand
   - quantize
   - ps_canape
+  - ps_canaper
 - title: Beta diversity
 - contents:
   - ps_dissim

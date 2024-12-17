@@ -16,6 +16,12 @@ test_that("taxa are not scrambled during data transformations", {
       expect_equal(ps$comm[, species], comm2[, species])
 })
 
+test_that("disabling `build` works", {
+      expect_no_error(phylospatial(ps_get_comm(moss, tips_only = FALSE, spatial = FALSE),
+                                   moss$tree,
+                                   build = FALSE))
+})
+
 
 test_that("functions work without a phylogeny", {
       comm <- ps_get_comm(moss)

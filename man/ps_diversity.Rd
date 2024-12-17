@@ -36,7 +36,7 @@ The function calculates the following metrics:
 }
 }
 \examples{
-div <- ps_diversity(ps_simulate())
+div <- ps_diversity(ps_simulate(n_tips = 25))
 terra::plot(div)
 
 }

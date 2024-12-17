@@ -9,6 +9,7 @@ ps_simulate(
   n_x = 20,
   n_y = 20,
   data_type = c("probability", "binary", "abundance"),
+  spatial_type = c("raster", "none"),
   seed = NULL
 )
 }
@@ -21,6 +22,8 @@ ps_simulate(
 
 \item{data_type}{Community data type for simulated ranges: either "probability" (default), "binary", or "abundance".}
 
+\item{spatial_type}{Either "raster" or "none".}
+
 \item{seed}{Optional integer to seed random number generator.}
 }
 \value{
@@ -32,6 +35,9 @@ This function generates a simple \code{phylospatial} object that can be used for
 in the package. It is not intended to be realistic.
 }
 \examples{
+# using all the defaults
 ps_simulate()
+
+# specifying some arguments
 plot(ps_simulate(n_tips = 50, n_x = 30, n_y = 40, data_type = "abundance"), "comm")
 }

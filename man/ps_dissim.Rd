@@ -53,14 +53,14 @@ on proportional differences in community composition. The results from this func
 \examples{
 # The default arguments give Sorensen's quantitative dissimilarity index
 # (a.k.a. Bray-Curtis distance):
-ps_dissim(moss)
+d <- ps_dissim(moss)
 
 # This is equivalent to specifying to the formula explicitly via `designdist`:
-ps_dissim(moss, method = "(b+c)/(2*a+b+c)", fun = "designdist", terms = "minimum", abcd = TRUE)
+d <- ps_dissim(moss, method = "(b+c)/(2*a+b+c)", fun = "designdist", terms = "minimum", abcd = TRUE)
 
 # Alternative arguments can specify a wide range of dissimilarity measures;
 # here's endemism-weighted Jaccard's dissimilarity:
-ps_dissim(moss, method = "jaccard", endemism = TRUE)
+d <- ps_dissim(moss, method = "jaccard", endemism = TRUE)
 
 }
 \references{
