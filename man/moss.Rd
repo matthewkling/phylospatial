@@ -11,7 +11,7 @@ A \code{phylospatial} data object
 }
 }
 \source{
-Kling et al. (2025) Sys. Bot.
+This is a spatially coarser version of the data published in: Kling et al. (2024) arXiv.
 }
 \usage{
 moss

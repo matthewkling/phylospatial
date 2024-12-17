@@ -16,7 +16,7 @@ moss_data(
 }
 \value{
 A \code{phylospatial} object with a phylogeny and modeled distributions of 443 species of mosses,
-from Kling et al. (2025) Sys. Bot.
+representing a spatially coarser version of data published by Kling et al. (2024).
 }
 \description{
 This function returns the \link{moss} \code{phylospatial} data set, with options for raster vs polygon formatting
@@ -25,4 +25,7 @@ and for probability vs binary community data type.
 \examples{
 moss_data("prob", "poly")
 moss_data("bin", "rast")
+}
+\references{
+Kling et al. (2024) arXiv.
 }
