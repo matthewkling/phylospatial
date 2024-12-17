@@ -15,7 +15,7 @@
 #' @examples
 #' ps <- ps_add_dissim(moss_data(spatial_type = "raster"))
 #' RGB <- ps_rgb(ps, method = "cmds")
-#' terra::plotRGB(RGB, scale = 1, alpha = 1)
+#' terra::plotRGB(RGB * 255, smooth = FALSE)
 #'
 #' @export
 ps_rgb <- function(ps, method = c("nmds", "cmds", "pca"), trans = identity){
