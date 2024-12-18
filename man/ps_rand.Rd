@@ -20,12 +20,12 @@ ps_rand(
 
 \item{fun}{Null model function to use. Must be either "quantize", "nullmodel", or an actual function:
 \itemize{
-\item{"nullmodel" }{ uses \link[vegan]{nullmodel} and \link[vegan]{simulate.nullmodel}, from the vegan
-package, which offer a wide range of randomization algorithms with different properties.}
-\item{"quantize"}{ (the default) deploys the function \link{quantize}, which is a routine that is itself
-a wrapper around \link[vegan]{nullmodel}, allowing the use of binary algorithms for quantitative data.}
-\item{Any other function}{ that accepts a community matrix as its first argument and returns a
-randomized version of the matrix.}
+\item "nullmodel": uses \link[vegan]{nullmodel} and \link[vegan]{simulate.nullmodel}, from the vegan
+package, which offer a wide range of randomization algorithms with different properties.
+\item "quantize": (the default) deploys the function \link{quantize}, which is a routine that is itself
+a wrapper around \link[vegan]{nullmodel}, allowing the use of binary algorithms for quantitative data.
+\item Any other function that accepts a community matrix as its first argument and returns a
+randomized version of the matrix.
 }}
 
 \item{method}{One of the method options listed under \link[vegan]{commsim}. If \verb{fun = "quantize}, this must

@@ -36,11 +36,11 @@ rather than partially protecting all taxa. See the function \link{plot_lambda} f
 
 \item{method}{Procedure for selecting which site to add to the reserve network at each iteration:
 \itemize{
-\item{"optimal": }{The default, this selects the site with the highest marginal value at each iteration. This is a
-optimal approach that gives the same result each time.}
-\item{"probable": }{This option selects a site randomly, with selection probabilities proportional to sites' marginal values. This
+\item "optimal": The default, this selects the site with the highest marginal value at each iteration. This is a
+optimal approach that gives the same result each time.
+\item "probable": This option selects a site randomly, with selection probabilities proportional to sites' marginal values. This
 approach gives a different prioritization ranking each time an optimization is performed, so \code{n_reps} optimizations are performed,
-and ranks for each site are summarized across repetitions.}
+and ranks for each site are summarized across repetitions.
 }}
 
 \item{n_reps}{Number of random repetitions to do; only used if \code{method = "probable"}. Depending on the data set, a large number of reps
@@ -60,7 +60,7 @@ if \code{method = "probable"}.}
 Matrix or spatial object containing a ranking of conservation priorities. Lower rank values represent higher
 conservation priorities. All sites with a lower priority than \code{max_iter} have a rank value equal to the number
 of sites in the input data set (i.e. the lowest possible priority).
-\itemize{
+\describe{
 \item{If \code{method = "optimal"}. }{the result contains a single variable "priority" containing the ranking.}
 \item{If \code{method = "probable"} and \code{summarize = TRUE}, }{the "priority" variable gives the average rank across reps,
 variables labeled "pctX" give the Xth percentile of the rank distribution for each site, variables labeled "topX"
