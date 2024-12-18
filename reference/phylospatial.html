@@ -109,13 +109,24 @@ the columns of <code>comm</code> must exactly match the order of <code>tree</cod
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>phylospatial</code> object, which is a list containing the following elements:</p><ul><li><p>"data_type": Character indicating the community data type</p></li>
-<li><p>"tree": Phylogeny of class <code>phylo</code></p></li>
-<li><p>"comm": Community matrix, including a column for every terminal taxon and every larger clade. Column order corresponds to tree edge order.</p></li>
-<li><p>"spatial": A <code>SpatRaster</code> or <code>sf</code> providing spatial coordinates for the rows in <code>comm</code>. May be missing if no spatial data was supplied.</p></li>
-<li><p>"dissim": A community dissimilary matrix of class <code>dist</code> indicating pairwise phylogenetic dissimilarity between sites. Missing unless
-<code>ps_dissim(..., add = T)</code> is called.</p></li>
-</ul></div>
+    <p>A <code>phylospatial</code> object, which is a list containing the following elements:</p><dl><dt>"data_type":</dt>
+<dd><p>Character indicating the community data type</p></dd>
+
+<dt>"tree":</dt>
+<dd><p>Phylogeny of class <code>phylo</code></p></dd>
+
+<dt>"comm":</dt>
+<dd><p>Community matrix, including a column for every terminal taxon and every larger clade. Column order corresponds to tree edge order.</p></dd>
+
+<dt>"spatial":</dt>
+<dd><p>A <code>SpatRaster</code> or <code>sf</code> providing spatial coordinates for the rows in <code>comm</code>. May be missing if no spatial data was supplied.</p></dd>
+
+<dt>"dissim":</dt>
+<dd><p>A community dissimilary matrix of class <code>dist</code> indicating pairwise phylogenetic dissimilarity between sites. Missing unless
+<code>ps_dissim(..., add = T)</code> is called.</p></dd>
+
+
+</dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function formats the input data as a <code>phylospatial</code> object. Beyond validating, cleaning, and restructing the data, the main operation
