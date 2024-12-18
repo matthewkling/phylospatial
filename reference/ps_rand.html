@@ -70,9 +70,9 @@ community matrices containing continuous quantities such as occurrence probabili
 
 
 <dt id="arg-fun">fun<a class="anchor" aria-label="anchor" href="#arg-fun"></a></dt>
-<dd><p>Null model function to use. Must be either "quantize", "nullmodel", or an actual function:</p><ul><li><p>"nullmodel"  uses <a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">nullmodel</a> and <a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">simulate.nullmodel</a>, from the vegan
+<dd><p>Null model function to use. Must be either "quantize", "nullmodel", or an actual function:</p><ul><li><p>"nullmodel": uses <a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">nullmodel</a> and <a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">simulate.nullmodel</a>, from the vegan
 package, which offer a wide range of randomization algorithms with different properties.</p></li>
-<li><p>"quantize" (the default) deploys the function <a href="quantize.html">quantize</a>, which is a routine that is itself
+<li><p>"quantize": (the default) deploys the function <a href="quantize.html">quantize</a>, which is a routine that is itself
 a wrapper around <a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">nullmodel</a>, allowing the use of binary algorithms for quantitative data.</p></li>
 <li><p>Any other function that accepts a community matrix as its first argument and returns a
 randomized version of the matrix.</p></li>

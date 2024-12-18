@@ -123,14 +123,21 @@ if <code>method = "probable"</code>.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Matrix or spatial object containing a ranking of conservation priorities. Lower rank values represent higher
 conservation priorities. All sites with a lower priority than <code>max_iter</code> have a rank value equal to the number
-of sites in the input data set (i.e. the lowest possible priority).</p><ul><li><p>If <code>method = "optimal"</code>. the result contains a single variable "priority" containing the ranking.</p></li>
-<li><p>If <code>method = "probable"</code> and <code>summarize = TRUE</code>, the "priority" variable gives the average rank across reps,
+of sites in the input data set (i.e. the lowest possible priority).</p><dl><dt>If <code>method = "optimal"</code>. </dt>
+<dd><p>the result contains a single variable "priority" containing the ranking.</p></dd>
+
+<dt>If <code>method = "probable"</code> and <code>summarize = TRUE</code>, </dt>
+<dd><p>the "priority" variable gives the average rank across reps,
 variables labeled "pctX" give the Xth percentile of the rank distribution for each site, variables labeled "topX"
 give the proportion of reps in which a site was in the top X highest-priority sites, and variables labeled "treX" give
-a ratio representing "topX" relative to the null expectation of how often "topX" should occur by chance alone.</p></li>
-<li><p>If <code>method = "probable"</code> and <code>summarize = FALSE</code>, the result contains the full set of <code>n_rep</code> solutions,
-each representing the the ranking, with low values representing higher priorities..</p></li>
-</ul></div>
+a ratio representing "topX" relative to the null expectation of how often "topX" should occur by chance alone.</p></dd>
+
+<dt>If <code>method = "probable"</code> and <code>summarize = FALSE</code>, </dt>
+<dd><p>the result contains the full set of <code>n_rep</code> solutions,
+each representing the the ranking, with low values representing higher priorities..</p></dd>
+
+
+</dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function uses the forward stepwise selection algorithm of Kling et al. (2019) to generate a ranked conservation prioritization.
