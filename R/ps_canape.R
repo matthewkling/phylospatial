@@ -11,11 +11,11 @@
 #' @details
 #' Endemism significance categories are defined as follows:
 #' \itemize{
-#'    \item{Endemism not significant: }{neither PE nor CE are significantly high at `alpha`.}
-#'    \item{Significant neoendemism: }{PE or CE are significantly high at `alpha`; RPE significantly low at `alpha / 2` (two-tailed test).}
-#'    \item{Significant paleoendemism: }{PE or CE are significantly high at `alpha`; RPE significantly high at `alpha / 2` (two-tailed test).}
-#'    \item{Significant mixed-endemism: }{PE or CE are significantly high at `alpha`; RPE not significant.}
-#'    \item{Significant super-endemism: }{PE or CE are significantly high at `alpha / 5`; RPE not significant.}
+#'    \item Endemism not significant: neither PE nor CE are significantly high at `alpha`.
+#'    \item Significant neoendemism: PE or CE are significantly high at `alpha`; RPE significantly low at `alpha / 2` (two-tailed test).
+#'    \item Significant paleoendemism: PE or CE are significantly high at `alpha`; RPE significantly high at `alpha / 2` (two-tailed test)..
+#'    \item Significant mixed-endemism: PE or CE are significantly high at `alpha`; RPE not significant.
+#'    \item Significant super-endemism: PE or CE are significantly high at `alpha / 5`; RPE not significant.
 #' }
 #'
 #' @return An object of the same class as `rand` containing a variable called `"canape"`, with values 0-4

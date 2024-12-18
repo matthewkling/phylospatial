@@ -24,11 +24,11 @@ the comparison tree").
 \details{
 Endemism significance categories are defined as follows:
 \itemize{
-\item{Endemism not significant: }{neither PE nor CE are significantly high at \code{alpha}.}
-\item{Significant neoendemism: }{PE or CE are significantly high at \code{alpha}; RPE significantly low at \code{alpha / 2} (two-tailed test).}
-\item{Significant paleoendemism: }{PE or CE are significantly high at \code{alpha}; RPE significantly high at \code{alpha / 2} (two-tailed test).}
-\item{Significant mixed-endemism: }{PE or CE are significantly high at \code{alpha}; RPE not significant.}
-\item{Significant super-endemism: }{PE or CE are significantly high at \code{alpha / 5}; RPE not significant.}
+\item Endemism not significant: neither PE nor CE are significantly high at \code{alpha}.
+\item Significant neoendemism: PE or CE are significantly high at \code{alpha}; RPE significantly low at \code{alpha / 2} (two-tailed test).
+\item Significant paleoendemism: PE or CE are significantly high at \code{alpha}; RPE significantly high at \code{alpha / 2} (two-tailed test)..
+\item Significant mixed-endemism: PE or CE are significantly high at \code{alpha}; RPE not significant.
+\item Significant super-endemism: PE or CE are significantly high at \code{alpha / 5}; RPE not significant.
 }
 }
 \examples{

@@ -46,7 +46,7 @@ the columns of \code{comm} must exactly match the order of \code{tree} edges inc
 }
 \value{
 A \code{phylospatial} object, which is a list containing the following elements:
-\itemize{
+\describe{
 \item{"data_type":}{ Character indicating the community data type}
 \item{"tree":}{ Phylogeny of class \code{phylo}}
 \item{"comm":}{ Community matrix, including a column for every terminal taxon and every larger clade. Column order corresponds to tree edge order.}

@@ -7,8 +7,6 @@
 
 # phylospatial <a href="https://matthewkling.github.io/phylospatial/"><img src="man/figures/logo.png" align="right" height="139" /></a>
 
-## Overview
-
 `phylospatial` is an R package for spatial phylogenetic analysis. The
 field of spatial phylogenetics focuses on accounting for evolutionary
 relationships among taxa when describing biodiversity patterns, an
@@ -57,6 +55,6 @@ data.
 # you can install the package from CRAN:
 install.packages("phylospatial")
 
-# or you can install the development version from GitHub:
+# or the development version from GitHub:
 remotes::install_github("matthewkling/phylospatial")
 ```

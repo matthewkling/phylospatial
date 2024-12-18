@@ -21,8 +21,6 @@ knitr::opts_chunk$set(
 
 # phylospatial <a href="https://matthewkling.github.io/phylospatial/"><img src="man/figures/logo.png" align="right" height="139" /></a>
 
-## Overview
-
 `phylospatial` is an R package for spatial phylogenetic analysis. The field of spatial phylogenetics focuses on accounting for evolutionary relationships among taxa when describing biodiversity patterns, an approach that has a number of advantages over species-based accounting. This package provides a set of functions to build and analyze phylospatial data:
 
 - `phylospatial()` constructs a spatial phylogenetic data set from community data and a tree.
@@ -48,6 +46,6 @@ A key difference between `phylospatial` and other spatial phylogenetic R librari
 # you can install the package from CRAN:
 install.packages("phylospatial")
 
-# or you can install the development version from GitHub:
+# or the development version from GitHub:
 remotes::install_github("matthewkling/phylospatial")
 ```

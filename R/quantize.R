@@ -15,17 +15,17 @@
 #'    "curveball" algorithm, so other options should be use with caution. Only binary methods should be used.
 #' @param ... Additional arguments, including:
 #' \itemize{
-#'    \item{\code{n_strata}: }{Integer giving the number of strata to split the data into. Must be 2 or greater. Larger values
-#'    will result in randomizations with less mixing but higher fidelity to marginal distributions. The default is `5`.}
-#'    \item{\code{transform}: }{A function used to transform the values in \code{x} before assigning them to \code{n_strata}
-#'    equal intervals. Examples include \code{sqrt}, \code{log}, \code{rank}, etc.; the default is \code{identity}.}
-#'    \item{\code{jitter}: }{Number between 0 and 1, indicating how much to randomly jitter the location of stratum boundaries.}
-#'    \item{\code{priority}: }{Either `"rows"`, `"cols"`, or `"neither"`, indicating whether randomization within strata should
+#'    \item \code{n_strata}: Integer giving the number of strata to split the data into. Must be 2 or greater. Larger values
+#'    will result in randomizations with less mixing but higher fidelity to marginal distributions. The default is `5`.
+#'    \item \code{transform}: A function used to transform the values in \code{x} before assigning them to \code{n_strata}
+#'    equal intervals. Examples include \code{sqrt}, \code{log}, \code{rank}, etc.; the default is \code{identity}.
+#'    \item \code{jitter}: Number between 0 and 1, indicating how much to randomly jitter the location of stratum boundaries.
+#'    \item \code{priority}: Either `"rows"`, `"cols"`, or `"neither"`, indicating whether randomization within strata should
 #'    prioritize maintaining the marginal distributions of the rows or columns of the input matrix. The default,
 #'    `"neither"`, doesn't give precedence to either dimension. Note that this interacts with `method`, and methods
-#'    differ in which margins are fixed.}
-#'    \item{Other arguments}{ to be passed to \link[vegan]{simulate.nullmodel}, such as \code{seed} or \code{burnin}. The default
-#'    for `burnin` is `10000`. Note that `nsim` and `thin` are ignored, as they're internally set to 1.}
+#'    differ in which margins are fixed.
+#'    \item Other arguments to be passed to \link[vegan]{simulate.nullmodel}, such as \code{seed} or \code{burnin}. The default
+#'    for `burnin` is `10000`. Note that `nsim` and `thin` are ignored, as they're internally set to 1.
 #' }
 #' @return A randomized version of \code{x}.
 #' @examples

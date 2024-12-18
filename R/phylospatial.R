@@ -88,7 +88,7 @@ new_phylospatial <- function(comm, tree, spatial, dissim = NULL, data_type, clad
 #' clades in addition to terminal species), or if your community data comes from a previously-constructed `phylospatial` object.
 #'
 #' @return A `phylospatial` object, which is a list containing the following elements:
-#' \itemize{
+#' \describe{
 #'  \item{"data_type":}{ Character indicating the community data type}
 #'  \item{"tree":}{ Phylogeny of class `phylo`}
 #'  \item{"comm":}{ Community matrix, including a column for every terminal taxon and every larger clade. Column order corresponds to tree edge order.}

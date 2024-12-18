@@ -8,12 +8,12 @@
 #' @param ps `phylospatial` object.
 #' @param fun Null model function to use. Must be either "quantize", "nullmodel", or an actual function:
 #' \itemize{
-#'    \item{"nullmodel" }{ uses \link[vegan]{nullmodel} and \link[vegan]{simulate.nullmodel}, from the vegan
-#'    package, which offer a wide range of randomization algorithms with different properties.}
-#'    \item{"quantize"}{ (the default) deploys the function \link{quantize}, which is a routine that is itself
-#'    a wrapper around \link[vegan]{nullmodel}, allowing the use of binary algorithms for quantitative data.}
-#'    \item{Any other function}{ that accepts a community matrix as its first argument and returns a
-#'    randomized version of the matrix.}
+#'    \item "nullmodel": uses \link[vegan]{nullmodel} and \link[vegan]{simulate.nullmodel}, from the vegan
+#'    package, which offer a wide range of randomization algorithms with different properties.
+#'    \item "quantize": (the default) deploys the function \link{quantize}, which is a routine that is itself
+#'    a wrapper around \link[vegan]{nullmodel}, allowing the use of binary algorithms for quantitative data.
+#'    \item Any other function that accepts a community matrix as its first argument and returns a
+#'    randomized version of the matrix.
 #' }
 #' @param method One of the method options listed under \link[vegan]{commsim}. If `fun = "quantize`, this must
 #'    be one of the "binary" methods. If `fun = "nullmodel"`, be sure to select a method that is appropriate to

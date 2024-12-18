@@ -12,10 +12,10 @@
 #' @param ps phylospatial object.
 #' @param method Character indicating the dissimilarity index to use:
 #'  \itemize{
-#'  \item{"sorensen": }{Sorensen's dissimilarity, a.k.a. Bray-Curtis distance (the default)}
-#'  \item{"sorensen_turnover": }{The turnover component of Sorensen's dissimilarity, a.k.a. Simpson's.}
-#'  \item{"sorensen_nestedness": }{The nestedness component of Sorensen's dissimilarity.}
-#'  \item{Any other valid `method` passed to \code{fun}. }{For options, see the documentation for those functions.}
+#'    \item "sorensen": Sorensen's dissimilarity, a.k.a. Bray-Curtis distance (the default)
+#'    \item "sorensen_turnover": The turnover component of Sorensen's dissimilarity, a.k.a. Simpson's.
+#'    \item "sorensen_nestedness": The nestedness component of Sorensen's dissimilarity.
+#'    \item Any other valid `method` passed to \code{fun}. For options, see the documentation for those functions.
 #' }
 #' @param fun Character indicating which general distance function from the `vegan` library to use: "\link[vegan]{vegdist}"
 #'    (the default), "\link[vegan]{designdist}", or "\link[vegan]{chaodist}". (While these functions are not explicitly
