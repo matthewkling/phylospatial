@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,6 +100,7 @@ which represent their unique evolutionary heritage</li>
 range-wide protection levels</li>
 <li>the compositional complementarity between the site, other
 high-priority sites, and existing protected areas</li>
+<li>the relative cost of protecting the site</li>
 <li>lambda, a free parameter determining the shape of the conservation
 benefit function (see below)</li>
 </ul>
@@ -121,18 +122,26 @@ value is marked as protected, marginal values are re-calculated, and
 this process is repeated until all sites (or <code>max_iter</code>
 sites) are protected. Sites selected earlier in the process are
 considered higher priority.</p>
-<p>In addition to the required spatial phylogenetic data set, the other
-input data that one might want to provide is the location and
-effectiveness of existing protected areas, which are specified via the
-<code>init</code> argument. This can be binary data representing
-protected versus unprotected sites, or continuous data with values
-between 0 and 1 representing the degree of protection (for example,
-perhaps because a given spatial unit is only partially covered by
-protected land, or because land management in sites like national
-forests is only partly oriented toward biodiversity protection). For
-this example, we’ll just specify an initial protection gradient from
-north to south. For simplicity we’ll just provide a vector of initial
-values, but we could also provide a raster layer matching the
+<p>In addition to the required spatial phylogenetic data set, there are
+two other optional data inputs that one might want to provide. The first
+is <code>init</code>, the location and effectiveness of existing
+protected areas. This can be binary data representing protected versus
+unprotected sites, or continuous data with values between 0 and 1
+representing the degree of protection (for example, perhaps because a
+given spatial unit is only partially covered by protected land, or
+because land management in sites like national forests is only partly
+oriented toward biodiversity protection). During the conservation
+optimization, the protection level for newly protected sites is raised
+to 1 (or to an alternative level specified by the parameter
+<code>level</code>), with greater benefit resulting from sites with
+lower initial values.</p>
+<p>The second optional variable is <code>cost</code>, representing the
+relative cost of protecting different sites across the study area. Sites
+with high benefit-to-cost ratios are prioritized. For this example,
+we’ll just specify an arbitrary initial protection gradient from north
+to south and a cost gradient from east to west, though of course a real
+analysis would require actual data. For simplicity we’ll provide these
+as vectors, but we could also provide raster layers matching the
 <code>spatial</code> element of our data set.</p>
 <p>First let’s load the libraries we’ll need, and initialize a
 <code>phylospatial</code> data set using the example data for California
@@ -144,17 +153,16 @@ our spatial phylogenetic data. Plotting the result, the highest-priority
 sites are those with low rank values, shown in yellow.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://matthewkling.github.io/phylospatial/">phylospatial</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-tmap.github.io/tmap/" class="external-link">tmap</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Breaking News: tmap 3.x is retiring. Please test v4, e.g. with</span></span>
-<span><span class="co">#&gt; remotes::install_github('r-tmap/tmap')</span></span>
 <span></span>
 <span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/moss_data.html">moss_data</a></span><span class="op">(</span><span class="st">"prob"</span>, <span class="st">"rast"</span><span class="op">)</span></span>
-<span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ps</span><span class="op">$</span><span class="va">comm</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">con</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ps</span><span class="op">$</span><span class="va">comm</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">cost</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ps</span><span class="op">$</span><span class="va">comm</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">init</span>, cost <span class="op">=</span> <span class="va">cost</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">priority</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"-inferno"</span>, style <span class="op">=</span> <span class="st">"log10"</span>,</span>
 <span>                title <span class="op">=</span> <span class="st">"conservation\npriorities"</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="prioritization_files/figure-html/optim-1.png" width="576"></p>
 </div>
 <div class="section level2">
@@ -192,16 +200,16 @@ reduce run times by almost two orders of magnitude. While you won’t get
 a full rank prioritization of all sites from any individual rep, you
 will get the proportion of reps in which a site is in the top 10, which
 is arguably even more informative.</p>
-<p>Let’s demonstrate that here. Comparing this to the optim:</p>
+<p>Let’s demonstrate that here; we’ll use 1000 reps for expediency, but
+10000 or more would be better for a real analysis:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">con</span>, n_reps <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>                          method <span class="op">=</span> <span class="st">"prob"</span>, max_iter <span class="op">=</span> <span class="fl">10</span>, </span>
-<span>                          progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">init</span>, cost <span class="op">=</span> <span class="va">cost</span>, n_reps <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>                          method <span class="op">=</span> <span class="st">"prob"</span>, max_iter <span class="op">=</span> <span class="fl">10</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">priority</span><span class="op">$</span><span class="va">top10</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"inferno"</span>, style <span class="op">=</span> <span class="st">"cont"</span>,</span>
 <span>                title <span class="op">=</span> <span class="st">"proporiton of runs\nin which site was\ntop-10 priority"</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="prioritization_files/figure-html/prob-1.png" width="576"></p>
 </div>
 <div class="section level2">
@@ -241,16 +249,16 @@ using lambda values of -1, 0, 1, and 2:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span></span>
 <span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lambda</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span></span>
-<span>      <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">con</span>, lambda <span class="op">=</span> <span class="va">x</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>      <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">init</span>, lambda <span class="op">=</span> <span class="va">x</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in ps_prioritize(ps, init = con, lambda = x, progress = FALSE):</span></span>
+<span><span class="co">#&gt; Warning in ps_prioritize(ps, init = init, lambda = x, progress = FALSE):</span></span>
 <span><span class="co">#&gt; choosing a negative value for `lambda` is not generally recommended.</span></span>
 <span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">priority</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"lambda ="</span>, <span class="va">lambda</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">priority</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"-inferno"</span>, style <span class="op">=</span> <span class="st">"log10"</span>,</span>
 <span>                title <span class="op">=</span> <span class="st">"conservation\npriorities"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="prioritization_files/figure-html/lambda2-1.png" width="576"></p>
 <p>In this case, as we increase the value of lambda, we can see
 priorities shifting away from the core area in the center of the map and
@@ -263,7 +271,7 @@ right-hand panels above (lambda of 0 versus 2):</p>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">diff</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"-PRGn"</span>, style <span class="op">=</span> <span class="st">"cont"</span>,</span>
 <span>                title <span class="op">=</span> <span class="st">"change in log rank when\nchanging lambda from 0 to 2"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Variable(s) "NA" contains positive and negative values, so midpoint is set to 0. Set midpoint = NA to show the full spectrum of the color palette.</span></span></code></pre></div>
 <p><img src="prioritization_files/figure-html/diff-1.png" width="576"></p>
 </div>

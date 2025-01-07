@@ -11,7 +11,7 @@ are a phylogenetic tree and an community data set."><meta property="og:image" co
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,7 +56,8 @@ are a phylogenetic tree and an community data set.</p>
 <span>  data_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"probability"</span>, <span class="st">"binary"</span>, <span class="st">"abundance"</span>, <span class="st">"other"</span><span class="op">)</span>,</span>
 <span>  clade_fun <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  build <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  check <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  check <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  area_tol <span class="op">=</span> <span class="fl">0.01</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -73,7 +74,7 @@ not match between column/layer names in <code>comm</code> and tip labels in <cod
 <dt id="arg-tree">tree<a class="anchor" aria-label="anchor" href="#arg-tree"></a></dt>
 <dd><p>Phylogeny of class <a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">phylo</a>. Terminals whose names do not match <code>comm</code> will be dropped with a warning (unless
 <code>build = FALSE</code>). If this argument is not provided, terminals are assumed to follow a "star" tree with uniform branch lengths, which
-will lead to non-phylogenetic versions of any analyses done with the resulting <code>phylospatial</code> object.</p></dd>
+will lead to non-phylogenetic versions of any analyses done with the resulting <code>phylospatial</code> object. Must be a rooted tree.</p></dd>
 
 
 <dt id="arg-spatial">spatial<a class="anchor" aria-label="anchor" href="#arg-spatial"></a></dt>
@@ -106,6 +107,12 @@ the columns of <code>comm</code> must exactly match the order of <code>tree</cod
 <dt id="arg-check">check<a class="anchor" aria-label="anchor" href="#arg-check"></a></dt>
 <dd><p>Logical indicating whether community data should be validated. Default is TRUE.</p></dd>
 
+
+<dt id="arg-area-tol">area_tol<a class="anchor" aria-label="anchor" href="#arg-area-tol"></a></dt>
+<dd><p>Numeric value giving tolerance for variation in the area of sites. Default is <code>0.01</code>. If the coefficient of variation in
+the area or length of spatial units (e.g. grid cells) exceeds this value, an error will result. This check is performed because various
+other functions in the library assume that sites are equal area. This argument is ignored if <code>check = FALSE</code> or if no spatial data is provided.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -123,7 +130,7 @@ the columns of <code>comm</code> must exactly match the order of <code>tree</cod
 
 <dt>"dissim":</dt>
 <dd><p>A community dissimilary matrix of class <code>dist</code> indicating pairwise phylogenetic dissimilarity between sites. Missing unless
-<code>ps_dissim(..., add = T)</code> is called.</p></dd>
+<code>ps_dissim(..., add = TRUE)</code> is called.</p></dd>
 
 
 </dl></div>

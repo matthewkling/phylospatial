@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,50 +82,52 @@ constructing data sets. We’ll use <code><a href="../reference/moss_data.html">
 examples here.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://matthewkling.github.io/phylospatial/">phylospatial</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-tmap.github.io/tmap/" class="external-link">tmap</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Breaking News: tmap 3.x is retiring. Please test v4, e.g. with</span></span>
-<span><span class="co">#&gt; remotes::install_github('r-tmap/tmap')</span></span>
 <span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/moss_data.html">moss_data</a></span><span class="op">(</span><span class="st">"prob"</span>, <span class="st">"rast"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="diversity-measures">Diversity measures<a class="anchor" aria-label="anchor" href="#diversity-measures"></a>
 </h2>
 <p>The <code><a href="../reference/ps_diversity.html">ps_diversity()</a></code> function calculates the following
-alpha diversity measures. All measures use quantitative community data
-if provided:</p>
+alpha diversity measures:</p>
 <ul>
 <li>TR: Terminal richness, i.e. richness of terminal taxa (in many cases
 these are species). For binary data this is the total number of
 terminals in a site, while for quantitative data it is the sum of
 probability or abundance values.</li>
-<li>CR: Clade richness, i.e. richness of taxa at all levels (equivalent
-to PD on a cladogram)</li>
-<li>PD: Phylogenetic diversity</li>
 <li>TE: Terminal endemism, i.e. total endemism-weighted diversity of
 terminal taxa (a.k.a. “weighted endemism”)</li>
+<li>CR: Clade richness, i.e. richness of taxa at all levels (equivalent
+to PD on a cladogram)</li>
 <li>CE: Clade endemism, i.e. total endemism-weighted diversity of taxa
 at all levels (equivalent to PE on a cladrogram)</li>
+<li>PD: Phylogenetic diversity</li>
 <li>PE: Phylogenetic endemism, i.e. endemism-weighted PD</li>
-<li>Em: Mean endemism (equivalent to CE / CR)</li>
 <li>RPD: Relative phylogenetic diversity, i.e. branch length of mean
 resident (equivalent to PD / CR)</li>
-<li>PEm: Mean phylogenetic endemism, i.e. branch length / range size of
-mean resident (equivalent to PE / CR)</li>
 <li>RPE: Relative phylogenetic endemism, i.e. mean endemism-weighted
 branch length (equivalent to PE / CE)</li>
+<li>ShPD: Shannon’s pylogenetic diversity, a.k.a “phylogenetic
+entropy”</li>
+<li>ShPE: Shannon’s pylogenetic diversity, weighted by endemism</li>
+<li>SiPD: Simpson’s phylogenetic diversity</li>
+<li>SiPE: Simpson’s phylogenetic diversity, weighted by endemism</li>
 </ul>
-<p>Let’s compute these metrics for our phylospatial data set. Since our
-data is raster-based, by default the function will return a
-<code>SpatRaster</code> with a layer for each metric. Here we’ll make
+<p>All measures use quantitative community data if provided. See
+<code><a href="../reference/ps_diversity.html">?ps_diversity</a></code> for equations giving the derivation of each
+metric.</p>
+<p>Let’s compute the full set of metrics for our phylospatial data set.
+Since our data is raster-based, by default the function will return a
+<code>SpatRaster</code> with a layer for each measure. Here we’ll make
 plots of PD and PE:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">div</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_diversity.html">ps_diversity</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">div</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_diversity.html">ps_diversity</a></span><span class="op">(</span><span class="va">ps</span>, metric <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">div</span><span class="op">$</span><span class="va">PD</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"inferno"</span>, style <span class="op">=</span> <span class="st">"cont"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="alpha-diversity_files/figure-html/alpha-1.png" width="576"></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">div</span><span class="op">$</span><span class="va">PE</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"inferno"</span>, style <span class="op">=</span> <span class="st">"cont"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="alpha-diversity_files/figure-html/alpha-2.png" width="576"></p>
 </div>
 <div class="section level2">
@@ -138,16 +140,17 @@ significance of these diversity metrics under a null model, using the
 use with continuous occurrence data, in combination with the
 <code>"curveball"</code> algorithm.</p>
 <p>Let’s run 100 randomizations (more would be necessary for a real
-analysis) and plot the results for PE. This is a quantile value that
-gives the proportion of randomizations in which observed PE was greater
-than randomized PE in a given grid cell. (If you wanted to identify
-“statistically significant” grid cells in a one-tailed test with alpha =
-0.05, these would be cells with values greater than 0.95.)</p>
+analysis) for all metrics, and plot the results for PE. This is a
+quantile value that gives the proportion of randomizations in which
+observed PE was greater than randomized PE in a given grid cell. (If you
+wanted to identify “statistically significant” grid cells in a
+one-tailed test with alpha = 0.05, these would be cells with values
+greater than 0.95.)</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">10</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">rand</span><span class="op">$</span><span class="va">qPE</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"inferno"</span>, style <span class="op">=</span> <span class="st">"cont"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="alpha-diversity_files/figure-html/rand-1.png" width="576"></p>
 <p>There are numerous alternative options for randomization algorithms
 to use, depending on the type of occurrence data you have (probability,

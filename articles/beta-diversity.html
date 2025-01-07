@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,8 +83,6 @@ constructing data sets. We’ll use <code><a href="../reference/moss_data.html">
 examples here.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://matthewkling.github.io/phylospatial/">phylospatial</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-tmap.github.io/tmap/" class="external-link">tmap</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Breaking News: tmap 3.x is retiring. Please test v4, e.g. with</span></span>
-<span><span class="co">#&gt; remotes::install_github('r-tmap/tmap')</span></span>
 <span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/moss_data.html">moss_data</a></span><span class="op">(</span><span class="st">"prob"</span>, <span class="st">"rast"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="dissimilarity">Dissimilarity<a class="anchor" aria-label="anchor" href="#dissimilarity"></a>
@@ -128,13 +126,26 @@ data:</p>
 <h2 id="ordination">Ordination<a class="anchor" aria-label="anchor" href="#ordination"></a>
 </h2>
 <p>Having done this, we can then assess spatial turnover patterns in a
-couple ways. We can qualitatively visualize compositional differences by
-converting the distance matrix to a set of colors representing how
-similar two sites are to each other, using the <code><a href="../reference/ps_rgb.html">ps_rgb()</a></code>
-function. Various ordination methods are available; here we’ll use
-<code>"nmds"</code> (nonmetric multidimensional scaling), and then plot
-the result using <code><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tmap::tm_rgb()</a></code>:</p>
+couple ways: ordination or clustering. Ordination, which is implemented
+in the function <code><a href="../reference/ps_ordinate.html">ps_ordinate()</a></code>, reduces the dimensionality
+of the phylogenetic community matrix, making it possible to visualize or
+analyze the dominant axes of variation. Various ordination algorithms
+can be selected. Let’s perform a PCA, and make maps of the first four
+dimensions:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ps</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>      <span class="fu"><a href="../reference/ps_ordinate.html">ps_ordinate</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"pca"</span>, k <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"PiYG"</span>, style <span class="op">=</span> <span class="st">"cont"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Phylogenetic community ordination"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="beta-diversity_files/figure-html/ordinate-1.png" width="576"></p>
+<p>We can also qualitatively visualize compositional patterns by
+converting ordination axes to a set of colors representing how similar
+two sites are to each other, using the <code><a href="../reference/ps_rgb.html">ps_rgb()</a></code> function.
+Let’s do that here, using the <code>"nmds"</code> (nonmetric
+multidimensional scaling) ordination algorithm, and then plot the result
+using <code><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tmap::tm_rgb()</a></code>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>      <span class="fu"><a href="../reference/ps_rgb.html">ps_rgb</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"nmds"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -147,23 +158,38 @@ the result using <code><a href="https://r-tmap.github.io/tmap/reference/tm_raste
 </h2>
 <p>We can also perform a more formal cluster analysis that splits the
 landscape into a set of evolutionary bioregions, using the
-<code><a href="../reference/ps_regions.html">ps_regions()</a></code> function. To do this, you need to specify the
-number of clusters (<code>k</code>), and the clustering
-<code>method</code>. Choices of method include k-means and various
+<code><a href="../reference/ps_regions.html">ps_regions()</a></code> function. To do this, we need to specify the
+clustering <code>method</code> and the number of clusters
+(<code>k</code>). Choices of method include k-means and various
 hierarchical clustering methods; note that results are sometimes highly
 sensitive to which method is selected. The hierarchical methods require
 a dissimilarity matrix calculated by first running
 <code><a href="../reference/ps_add_dissim.html">ps_add_dissim()</a></code>, while k-means does not.</p>
-<p>Let’s ask for eight regions using the <code>"average"</code>
-hierarchical clustering method, and then make a map of the resulting
-regions:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>Choosing <code>k</code> is usually subjective. Many alternative
+methods have been proposed in the literature to identify the “optimal”
+number of clusters in a data set, but ecological data are often
+inherently characterized by continuous gradients rather than discrete
+provinces, in which case no value of <code>k</code> may clearly fit
+best. You can use the function <code><a href="../reference/ps_regions_eval.html">ps_regions_eval()</a></code> to help
+evaluate how well different choices for <code>k</code> fit the data by
+comparing the variance explained by different numbers of clusters. Let’s
+do that here, using the <code>"average"</code> hierarchical clustering
+method:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/ps_regions_eval.html">ps_regions_eval</a></span><span class="op">(</span><span class="va">ps</span>, k <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">15</span>, plot <span class="op">=</span> <span class="cn">TRUE</span>, method <span class="op">=</span> <span class="st">"average"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="beta-diversity_files/figure-html/k-1.png" width="576">
+From the evaluation plot, it looks like a value of <code>k = 3</code>
+stands out as the most distinct “elbow” in explained variance, with the
+most negative curvature and the greatest distance to the 1:1 line,
+though other choices could also be reasonable. Let’s generate results
+for three regions, and then make a map of these zones:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>      <span class="fu"><a href="../reference/ps_regions.html">ps_regions</a></span><span class="op">(</span>k <span class="op">=</span> <span class="fl">8</span>, method <span class="op">=</span> <span class="st">"average"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>      <span class="fu"><a href="../reference/ps_regions.html">ps_regions</a></span><span class="op">(</span>k <span class="op">=</span> <span class="fl">3</span>, method <span class="op">=</span> <span class="st">"average"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>style <span class="op">=</span> <span class="st">"cat"</span>, palette <span class="op">=</span> <span class="st">"Dark2"</span>,</span>
 <span>                title <span class="op">=</span> <span class="st">"phylogenetic region"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="beta-diversity_files/figure-html/regions-1.png" width="576"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

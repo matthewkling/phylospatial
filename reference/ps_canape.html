@@ -11,7 +11,7 @@ the comparison tree").'><meta property="og:image" content="https://matthewkling.
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@ the comparison tree").</p>
 
 
 <dl><dt id="arg-rand">rand<a class="anchor" aria-label="anchor" href="#arg-rand"></a></dt>
-<dd><p>An object returned by <code>ps_rand</code>.</p></dd>
+<dd><p>An object returned by running <code>ps_rand</code> with .</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
@@ -90,7 +90,9 @@ Phylogenetic measures of biodiversity and neo-and paleo-endemism in Australian A
 <span class="r-in"><span><span class="co"># (note that a real analysis would require a much higher `n_rand`)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123456</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_simulate.html">ps_simulate</a></span><span class="op">(</span>n_tips <span class="op">=</span> <span class="fl">50</span>, data_type <span class="op">=</span> <span class="st">"binary"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"curveball"</span>,</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Raster data has no CRS, so can't check that cells are equal-area; it will be assumed that they are.</span>
+<span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PE"</span>, <span class="st">"RPE"</span>, <span class="st">"CE"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"curveball"</span>,</span></span>
 <span class="r-in"><span>                n_rand <span class="op">=</span> <span class="fl">25</span>, burnin <span class="op">=</span> <span class="fl">10000</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">canape</span> <span class="op">&lt;-</span> <span class="fu">ps_canape</span><span class="op">(</span><span class="va">rand</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">canape</span><span class="op">)</span></span></span>
