@@ -11,7 +11,8 @@ phylospatial(
   data_type = c("auto", "probability", "binary", "abundance", "other"),
   clade_fun = NULL,
   build = TRUE,
-  check = TRUE
+  check = TRUE,
+  area_tol = 0.01
 )
 }
 \arguments{
@@ -21,7 +22,7 @@ not match between column/layer names in \code{comm} and tip labels in \code{tree
 
 \item{tree}{Phylogeny of class \link[ape]{phylo}. Terminals whose names do not match \code{comm} will be dropped with a warning (unless
 \code{build = FALSE}). If this argument is not provided, terminals are assumed to follow a "star" tree with uniform branch lengths, which
-will lead to non-phylogenetic versions of any analyses done with the resulting \code{phylospatial} object.}
+will lead to non-phylogenetic versions of any analyses done with the resulting \code{phylospatial} object. Must be a rooted tree.}
 
 \item{spatial}{An optional \code{SpatRaster} layer or \code{sf} object indicating site locations. The number of cells or rows must match \code{comm}.
 Ignored if \code{comm} is a \code{SpatRaster} or \code{sf} object.}
@@ -43,6 +44,10 @@ the columns of \code{comm} must exactly match the order of \code{tree} edges inc
 \code{comm} but \code{build = TRUE}, they will be dropped and new clade ranges will be built.}
 
 \item{check}{Logical indicating whether community data should be validated. Default is TRUE.}
+
+\item{area_tol}{Numeric value giving tolerance for variation in the area of sites. Default is \code{0.01}. If the coefficient of variation in
+the area or length of spatial units (e.g. grid cells) exceeds this value, an error will result. This check is performed because various
+other functions in the library assume that sites are equal area. This argument is ignored if \code{check = FALSE} or if no spatial data is provided.}
 }
 \value{
 A \code{phylospatial} object, which is a list containing the following elements:
@@ -52,7 +57,7 @@ A \code{phylospatial} object, which is a list containing the following elements:
 \item{"comm":}{ Community matrix, including a column for every terminal taxon and every larger clade. Column order corresponds to tree edge order.}
 \item{"spatial":}{ A \code{SpatRaster} or \code{sf} providing spatial coordinates for the rows in \code{comm}. May be missing if no spatial data was supplied.}
 \item{"dissim":}{ A community dissimilary matrix of class \code{dist} indicating pairwise phylogenetic dissimilarity between sites. Missing unless
-\code{ps_dissim(..., add = T)} is called.}
+\code{ps_dissim(..., add = TRUE)} is called.}
 }
 }
 \description{

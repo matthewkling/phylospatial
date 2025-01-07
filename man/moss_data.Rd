@@ -24,8 +24,11 @@ and for probability vs binary community data type.
 }
 \examples{
 moss_data("prob", "poly")
+
+\donttest{
 moss_data("bin", "rast")
 }
+}
 \references{
-Kling et al. (2024) arXiv.
+Kling, Gonzalez-Ramirez, et al. (2024) bioRxiv, https://doi.org/10.1101/2024.12.16.628580.
 }

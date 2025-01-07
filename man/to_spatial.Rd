@@ -7,7 +7,7 @@
 to_spatial(m, template)
 }
 \arguments{
-\item{m}{Matrix.}
+\item{m}{Matrix or vector.}
 
 \item{template}{\code{SpatRaster} layer with number of cells equal to the number of rows in m,
 or \code{sf} data frame with same number of rows as m.}

@@ -4,7 +4,12 @@ Version: 1.0.0
 Authors@R: 
     person("Matthew", "Kling", , "mattkling@berkeley.edu", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0001-9073-4240"))
-Description: Conduct various spatial phylogenetic analyses, beginning with data on a phylogenetic tree and the geographic distributions of the terminal taxa. Package functionality includes diversity and endemism metrics, turnover and biotic regionalization analyses, null model randomizations, and spatial conservation prioritization. All functions support quantitative community data in addition to binary data.
+Description: Conduct various analyses on spatial phylogenetics. Use your data
+    on an evolutionary tree and geographic distributions of the terminal taxa
+    to compute diversity and endemism metrics, test significance with null 
+    model randomization, analyze community turnover and biotic regionalization,
+    and perform spatial conservation prioritizations. All functions support
+    quantitative community data in addition to binary data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

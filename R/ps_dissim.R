@@ -48,8 +48,8 @@ ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", 
                       endemism = FALSE, normalize = FALSE, ...){
       enforce_ps(ps)
       comm <- ps$comm
-      if(endemism) comm <- apply(comm, 2, function(x) x / sum(x, na.rm = T))
-      if(normalize) comm <- t(apply(comm, 1, function(x) x / sum(x, na.rm = T)))
+      if(endemism) comm <- apply(comm, 2, function(x) x / sum(x, na.rm = TRUE))
+      if(normalize) comm <- t(apply(comm, 1, function(x) x / sum(x, na.rm = TRUE)))
       comm[!is.finite(comm)] <- 0
       comm <- t(apply(comm, 1, function(x) x * ps$tree$edge.length)) # scale by branch length
 

@@ -7,6 +7,7 @@
 ps_prioritize(
   ps,
   init = NULL,
+  cost = NULL,
   lambda = 1,
   protection = 1,
   max_iter = NULL,
@@ -21,9 +22,13 @@ ps_prioritize(
 \arguments{
 \item{ps}{phylospatial object.}
 
-\item{init}{Starting protection status. If this argument is not specified, it is assumed that no existing reserves are present.
-Otherwise, must be a numeric vector or \code{SpatRaster} with dimensionality matching the number of sites in \code{ps} and values between
-0 and 1 representing the existing level of conservation effectiveness in each site.}
+\item{init}{Optional numeric vector or spatial object giving the starting protection status of each site across the study area.
+Values should be between 0 and 1 and represent the existing level of conservation effectiveness in each site. If this argument
+is not specified, it is assumed that no existing reserves are present.}
+
+\item{cost}{Optional numeric vector or spatial object giving the relative cost of protecting each site. Values should be positive,
+with greater values indicating higher cost of conserving a site. If this argument is not specified, cost is assumed to be uniform
+across sites.}
 
 \item{lambda}{Shape parameter for taxon conservation benefit function. This can be any real number. Positive values, such as the default
 value \code{1}, place higher priority on conserving the first part of the range of a given species or clade, while negative values
@@ -71,7 +76,12 @@ each representing the the ranking, with low values representing higher prioritie
 }
 }
 \description{
-Create a ranking of conservation priorities using optimal or probabilistic forward stepwise selection.
+Create a ranking of conservation priorities using optimal or probabilistic forward stepwise selection. Prioritization accounts for
+the occurrence quantities for all lineages present in the site, including terminal taxa and larger clades; the evolutionary branch
+lengths of these lineages on the phylogeny, which represent their unique evolutionary heritage; the impact that protecting the site
+would have on these lineages' range-wide protection levels; the compositional complementarity between the site, other high-priority
+sites, and existing protected areas; the site's initial protection level; the relative cost of protecting the site; and a free
+parameter "lambda" determining the shape of the conservation benefit function.
 }
 \details{
 This function uses the forward stepwise selection algorithm of Kling et al. (2019) to generate a ranked conservation prioritization.
@@ -87,12 +97,12 @@ never place high priority on a site that has high marginal value but is redundan
 probabilistic approach will select them at similar frequencies (though never in the same randomized run).
 
 Every time a new site is protected as the algorithm progresses, it changes the marginal conservation value of the other sites. Marginal
-value is the increase in conservation benefit that would arise from fully protecting a given site. This is calculated as a function of
-the site's current protection level, the quantitative presence probability or abundance of all terminal taxa and larger clades present
-in the site, their evolutionary branch lengths on the phylogeny, the impact that protecting the site would have on their range-wide
-protection levels, and the free parameter \code{lambda}. \code{lambda} determines the relative importance of protecting a small portion of every
-taxon's range, versus fully protecting the ranges of more valuable taxa (those with longer evolutionary branches and smaller geographic
-ranges).
+value is the increase in conservation benefit that would arise from fully protecting a given site, divided by the cost of protecting the
+site. This is calculated as a function of the site's current protection level, the quantitative presence probability or abundance of all
+terminal taxa and larger clades present in the site, their evolutionary branch lengths on the phylogeny, the impact that protecting the
+site would have on their range-wide protection levels, and the free parameter \code{lambda}. \code{lambda} determines the relative importance of
+protecting a small portion of every taxon's range, versus fully protecting the ranges of more valuable taxa (those with longer
+evolutionary branches and smaller geographic ranges).
 }
 \examples{
 # simulate a toy `phylospatial` data set
@@ -102,16 +112,18 @@ ps <- ps_simulate()
 # basic prioritization
 p <- ps_prioritize(ps)
 
-\dontrun{
+\donttest{
 # specifying locations of initial protected areas
 # (can be binary, or can be continuous values between 0 and 1)
 # here we'll create an `init` raster with arbitrary values ranging from 0-1,
 # using the reference raster layer that's part of our `phylospatial` object
-protected <- terra::setValues(ps$spatial, seq(0, 1, length.out = terra::ncell(ps$spatial)))
-p <- ps_prioritize(ps, init = protected)
+protected <- terra::setValues(ps$spatial, seq(0, 1, length.out = 400))
+cost <- terra::setValues(ps$spatial, rep(seq(100, 20, length.out = 20), 20))
+p <- ps_prioritize(ps, init = protected, cost = cost)
 
-# using probabilistic prioritization (note: a real analysis would need more reps)
-p <- ps_prioritize(ps, init = protected, method = "prob", n_reps = 1000)
+# using probabilistic prioritization
+p <- ps_prioritize(ps, init = protected, cost = cost,
+      method = "prob", n_reps = 1000, max_iter = 10)
 terra::plot(p$top10)
 }
 }

@@ -6,6 +6,7 @@
 \usage{
 ps_rand(
   ps,
+  metric = "all",
   fun = "quantize",
   method = "curveball",
   n_rand = 100,
@@ -17,6 +18,9 @@ ps_rand(
 }
 \arguments{
 \item{ps}{\code{phylospatial} object.}
+
+\item{metric}{Character vector giving one or more diversity metrics to calculate; see \link{ps_diversity}
+for options. Can also specify \code{"all"} (the default) to calculate all available metrics.}
 
 \item{fun}{Null model function to use. Must be either "quantize", "nullmodel", or an actual function:
 \itemize{
@@ -45,9 +49,9 @@ is provided to \code{fun}.}
 \code{fun}. Note that the \code{nsim} argument the former two functions should not be used here; specify \code{n_rand} instead.}
 }
 \value{
-A matrix with a row for every row of \code{x}, a column for every metric in \link{ps_diversity}, and
+A matrix with a row for every row of \code{x}, a column for every metric specified in \code{metric}, and
 values indicating the proportion of randomizations in which the observed diversity metric was greater than
-the randomized metric.
+the randomized metric. Or if \code{spatial = TRUE}, a \code{sf} or \code{SpatRaster} object containing these data.
 }
 \description{
 This function compares to diversity metrics calculated in \link{ps_diversity} to their null distributions
@@ -55,11 +59,11 @@ computed by randomizing the community matrix. Randomization is done using the \l
 community matrices containing continuous quantities such as occurrence probabilities or abundances.
 }
 \examples{
+\donttest{
 # simulate a `phylospatial` data set and run randomization with default settings
 ps <- ps_simulate(data_type = "prob")
 rand <- ps_rand(ps)
 
-\dontrun{
 # using the default `quantize` function, but with alternative arguments
 rand <- ps_rand(ps, transform = sqrt, n_strata = 4, priority = "rows")
 
@@ -67,9 +71,12 @@ rand <- ps_rand(ps, transform = sqrt, n_strata = 4, priority = "rows")
 ps2 <- ps_simulate(data_type = "binary")
 rand <- ps_rand(ps2, fun = "nullmodel", method = "r2")
 
-# using abundance data
+# using abundance data, and demonstrating alternative metric choices
 ps3 <- ps_simulate(data_type = "abund")
-rand <- ps_rand(ps3, fun = "nullmodel", method = "abuswap_c")
+rand <- ps_rand(ps3, metric = c("ShPD", "SiPD"), fun = "nullmodel", method = "abuswap_c")
 rand
 }
+}
+\seealso{
+\code{\link[=ps_diversity]{ps_diversity()}}
 }

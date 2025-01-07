@@ -19,7 +19,7 @@ This vignette covers topics related to phylogenetic beta diversity, including ca
 
 To get started, let's load the `phylospatial` library, as well as `tmap` for visualization. Note that the functions covered here all require a `phylospatial` object as input; see `vignette("phylospatial-data")` for details on constructing data sets. We'll use `moss_data()` for the examples here.
 
-```{r setup}
+```{r setup, message=FALSE}
 library(phylospatial); library(tmap); library(magrittr)
 ps <- moss_data("prob", "rast")
 ```
@@ -43,7 +43,17 @@ ps
 
 ## Ordination
 
-Having done this, we can then assess spatial turnover patterns in a couple ways. We can qualitatively visualize compositional differences by converting the distance matrix to a set of colors representing how similar two sites are to each other, using the `ps_rgb()` function. Various ordination methods are available; here we'll use `"nmds"` (nonmetric multidimensional scaling), and then plot the result using `tmap::tm_rgb()`:
+Having done this, we can then assess spatial turnover patterns in a couple ways: ordination or clustering. Ordination, which is implemented in the function `ps_ordinate()`, reduces the dimensionality of the phylogenetic community matrix, making it possible to visualize or analyze the dominant axes of variation. Various ordination algorithms can be selected. Let's perform a PCA, and make maps of the first four dimensions:
+
+```{r ordinate, message=FALSE, warning=FALSE}
+ps %>%
+      ps_ordinate(method = "pca", k = 4) %>%
+      tm_shape() +
+      tm_raster(palette = "PiYG", style = "cont") +
+      tm_layout(title = "Phylogenetic community ordination")
+```
+
+We can also qualitatively visualize compositional patterns by converting ordination axes to a set of colors representing how similar two sites are to each other, using the `ps_rgb()` function. Let's do that here, using the `"nmds"` (nonmetric multidimensional scaling) ordination algorithm, and then plot the result using `tmap::tm_rgb()`:
 
 ```{r rgb, message=FALSE, warning=FALSE}
 ps %>%
@@ -57,15 +67,20 @@ ps %>%
 
 ## Regionalization
 
-We can also perform a more formal cluster analysis that splits the landscape into a set of evolutionary bioregions, using the `ps_regions()` function. To do this, you need to specify the number of clusters (`k`), and the clustering `method`. Choices of method include k-means and various hierarchical clustering methods; note that results are sometimes highly sensitive to which method is selected. The hierarchical methods require a dissimilarity matrix calculated by first running `ps_add_dissim()`, while k-means does not.
+We can also perform a more formal cluster analysis that splits the landscape into a set of evolutionary bioregions, using the `ps_regions()` function. To do this, we need to specify the clustering `method` and the number of clusters (`k`). Choices of method include k-means and various hierarchical clustering methods; note that results are sometimes highly sensitive to which method is selected. The hierarchical methods require a dissimilarity matrix calculated by first running `ps_add_dissim()`, while k-means does not.
 
-Let's ask for eight regions using the `"average"` hierarchical clustering method, and then make a map of the resulting regions:
+Choosing `k` is usually subjective. Many alternative methods have been proposed in the literature to identify the "optimal" number of clusters in a data set, but ecological data are often inherently characterized by continuous gradients rather than discrete provinces, in which case no value of `k` may clearly fit best. You can use the function `ps_regions_eval()` to help evaluate how well different choices for `k` fit the data by comparing the variance explained by different numbers of clusters. Let's do that here, using the `"average"` hierarchical clustering method:
+
+```{r k, message=FALSE, warning=FALSE}
+ps_regions_eval(ps, k = 1:15, plot = TRUE, method = "average")
+```
+From the evaluation plot, it looks like a value of `k = 3` stands out as the most distinct "elbow" in explained variance, with the most negative curvature and the greatest distance to the 1:1 line, though other choices could also be reasonable. Let's generate results for three regions, and then make a map of these zones:
 
 ```{r regions, message=FALSE, warning=FALSE}
 ps %>%
-      ps_regions(k = 8, method = "average") %>%
+      ps_regions(k = 3, method = "average") %>%
       tm_shape() +
       tm_raster(style = "cat", palette = "Dark2",
                 title = "phylogenetic region") +
-      tm_layout(legend.outside = T)
+      tm_layout(legend.outside = TRUE)
 ```

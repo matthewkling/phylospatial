@@ -11,7 +11,8 @@ A \code{phylospatial} data object
 }
 }
 \source{
-This is a spatially coarser version of the data published in: Kling et al. (2024) arXiv.
+This is a spatially coarser version of data published in: Kling, Gonzalez-Ramirez, et al. (2024)
+bioRxiv, https://doi.org/10.1101/2024.12.16.628580.
 }
 \usage{
 moss

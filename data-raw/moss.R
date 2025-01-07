@@ -28,7 +28,7 @@ xcom <- xcom[, tree$tip.label]
 rr <- r <- to_spatial(xcom, template)
 
 # aggregate
-r <- terra::aggregate(r, 4, na.rm = T)
+r <- terra::aggregate(r, 4, na.rm = TRUE)
 
 # construct spatial phylo object
 moss <- phylospatial(r, tree)
@@ -47,7 +47,7 @@ p <- st_make_grid(st_as_sf(as.polygons(r)), n = dim(r)[2:1], square = FALSE) %>%
       st_as_sf() %>%
       mutate(hexid = 1:nrow(.))
 pts <- pts %>%
-      mutate(hexid = st_within(pts, p, sparse = F) %>% apply(1, which)) %>%
+      mutate(hexid = st_within(pts, p, sparse = FALSE) %>% apply(1, which)) %>%
       st_drop_geometry() %>%
       group_by(hexid) %>%
       summarize_all(mean)

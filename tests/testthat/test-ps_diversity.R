@@ -1,14 +1,14 @@
 
 test_that("ps_diversity runs without error on example data", {
-      expect_no_error(ps_diversity(moss))
-      expect_no_error(ps_diversity(moss_data()))
+      expect_no_error(ps_diversity(moss, "all"))
+      expect_no_error(ps_diversity(moss_data(), "all"))
 })
 
 test_that("ps_diversity runs without error on simulated data of various types", {
-      expect_no_error(ps_diversity(ps_simulate(data_type = "probability")))
-      expect_no_error(ps_diversity(ps_simulate(data_type = "binary")))
-      expect_no_error(ps_diversity(ps_simulate(data_type = "abundance")))
-      expect_no_error(ps_diversity(ps_simulate(spatial_type = "none")))
+      expect_no_error(ps_diversity(ps_simulate(data_type = "probability"), "all"))
+      expect_no_error(ps_diversity(ps_simulate(data_type = "binary"), "all"))
+      expect_no_error(ps_diversity(ps_simulate(data_type = "abundance"), "all"))
+      expect_no_error(ps_diversity(ps_simulate(spatial_type = "none"), "all"))
 })
 
 
@@ -16,8 +16,8 @@ test_that("diversity measures match canaper, for binary data", {
 
       # simulate data
       ps <- ps_simulate(data_type = "binary")
-      div <- ps_diversity(ps, spatial = F)
-      cpr <- ps_canaper(ps, n_reps = 3, n_iterations = 3, spatial = F)
+      div <- ps_diversity(ps, c("PD", "PE", "RPD", "RPE"), spatial = FALSE)
+      cpr <- ps_canaper(ps, n_reps = 3, n_iterations = 3, spatial = FALSE)
 
       # PD and PE: expect exact match
       d <- na.omit(cbind(div[,"PD"], cpr[,"pd_obs"]))

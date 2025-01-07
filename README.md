@@ -22,6 +22,8 @@ phylospatial data:
   null model randomizations.
 - `ps_dissim()` calculates a pairwise community phylogenetic beta
   diversity matrix.
+- `ps_ordinate()` performs a community ordination to reduce the
+  dimensionality of the data set.
 - `ps_regions()` clusters sites into phylogenetically similar
   biogeographic regions.
 - `ps_prioritize()` performs a spatial optimization to identify
@@ -42,7 +44,7 @@ data.
 - `vignette("alpha-diversity")` demonstrates calculation of alpha
   phylogenetic diversity and endemism measures, including statistical
   hypothesis testing using randomization-based null models.
-- `vignette("alpha-diversity")` shows how to calculate phylogenetic beta
+- `vignette("beta-diversity")` shows how to calculate phylogenetic beta
   diversity measures including nestedness and turnover, as well as
   phylogenetic ordination and regionalization to visualize phylogenetic
   community structure.

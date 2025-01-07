@@ -29,7 +29,7 @@
 #' }
 #' @return A randomized version of \code{x}.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # example quantitative community matrix
 #' comm <- ps_get_comm(moss, tips_only = TRUE, spatial = FALSE)
 #'

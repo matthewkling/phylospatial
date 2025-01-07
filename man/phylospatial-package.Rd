@@ -7,7 +7,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Conduct various spatial phylogenetic analyses, beginning with data on a phylogenetic tree and the geographic distributions of the terminal taxa. Package functionality includes diversity and endemism metrics, turnover and biotic regionalization analyses, null model randomizations, and spatial conservation prioritization. All functions support quantitative community data in addition to binary data.
+Conduct various analyses on spatial phylogenetics. Use your data on an evolutionary tree and geographic distributions of the terminal taxa to compute diversity and endemism metrics, test significance with null model randomization, analyze community turnover and biotic regionalization, and perform spatial conservation prioritizations. All functions support quantitative community data in addition to binary data.
 }
 \seealso{
 Useful links:

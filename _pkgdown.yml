@@ -29,8 +29,10 @@ reference:
 - contents:
   - ps_dissim
   - ps_add_dissim
-  - ps_rgb
   - ps_regions
+  - ps_regions_eval
+  - ps_ordinate
+  - ps_rgb
 - title: Conservation prioritization
 - contents:
   - ps_prioritize

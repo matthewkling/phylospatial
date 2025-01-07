@@ -7,7 +7,8 @@
 #'
 #' @format ## `moss`
 #' A `phylospatial` data object
-#' @source This is a spatially coarser version of the data published in: Kling et al. (2024) arXiv.
+#' @source This is a spatially coarser version of data published in: Kling, Gonzalez-Ramirez, et al. (2024)
+#'    bioRxiv, https://doi.org/10.1101/2024.12.16.628580.
 "moss"
 
 
@@ -22,8 +23,11 @@
 #' representing a spatially coarser version of data published by Kling et al. (2024).
 #' @examples
 #' moss_data("prob", "poly")
+#'
+#' \donttest{
 #' moss_data("bin", "rast")
-#' @references Kling et al. (2024) arXiv.
+#' }
+#' @references Kling, Gonzalez-Ramirez, et al. (2024) bioRxiv, https://doi.org/10.1101/2024.12.16.628580.
 #' @export
 moss_data <- function(data_type = c("probability", "binary"),
                       spatial_type = c("raster", "polygons")){
@@ -39,8 +43,8 @@ moss_data <- function(data_type = c("probability", "binary"),
       }
 
       if(data_type == "binary"){
-            comm <- ps_get_comm(ps, spatial = F)
-            comm <- apply(comm, 2, function(x) as.integer(x > (max(x, na.rm = T) * .25)))
+            comm <- ps_get_comm(ps, spatial = FALSE)
+            comm <- apply(comm, 2, function(x) as.integer(x > (max(x, na.rm = TRUE) * .25)))
             ps <- phylospatial(comm, ps$tree, spatial = ps$spatial, data_type = "binary")
       }
       return(ps)

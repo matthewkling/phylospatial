@@ -6,6 +6,8 @@
 #' community matrices containing continuous quantities such as occurrence probabilities or abundances.
 #'
 #' @param ps `phylospatial` object.
+#' @param metric Character vector giving one or more diversity metrics to calculate; see \link{ps_diversity}
+#'    for options. Can also specify `"all"` (the default) to calculate all available metrics.
 #' @param fun Null model function to use. Must be either "quantize", "nullmodel", or an actual function:
 #' \itemize{
 #'    \item "nullmodel": uses \link[vegan]{nullmodel} and \link[vegan]{simulate.nullmodel}, from the vegan
@@ -25,15 +27,16 @@
 #' @param progress Logical: should a progress bar be displayed?
 #' @param ... Additional arguments passed to \link{quantize}, \link[vegan]{simulate.nullmodel}, or custom function
 #'    `fun`. Note that the `nsim` argument the former two functions should not be used here; specify `n_rand` instead.
-#' @return A matrix with a row for every row of \code{x}, a column for every metric in \link{ps_diversity}, and
+#' @return A matrix with a row for every row of \code{x}, a column for every metric specified in `metric`, and
 #'    values indicating the proportion of randomizations in which the observed diversity metric was greater than
-#'    the randomized metric.
+#'    the randomized metric. Or if `spatial = TRUE`, a `sf` or `SpatRaster` object containing these data.
+#' @seealso [ps_diversity()]
 #' @examples
+#' \donttest{
 #' # simulate a `phylospatial` data set and run randomization with default settings
 #' ps <- ps_simulate(data_type = "prob")
 #' rand <- ps_rand(ps)
 #'
-#' \dontrun{
 #' # using the default `quantize` function, but with alternative arguments
 #' rand <- ps_rand(ps, transform = sqrt, n_strata = 4, priority = "rows")
 #'
@@ -41,22 +44,25 @@
 #' ps2 <- ps_simulate(data_type = "binary")
 #' rand <- ps_rand(ps2, fun = "nullmodel", method = "r2")
 #'
-#' # using abundance data
+#' # using abundance data, and demonstrating alternative metric choices
 #' ps3 <- ps_simulate(data_type = "abund")
-#' rand <- ps_rand(ps3, fun = "nullmodel", method = "abuswap_c")
+#' rand <- ps_rand(ps3, metric = c("ShPD", "SiPD"), fun = "nullmodel", method = "abuswap_c")
 #' rand
 #' }
 #' @export
-ps_rand <- function(ps, fun = "quantize", method = "curveball", n_rand = 100,
+ps_rand <- function(ps, metric = "all", fun = "quantize", method = "curveball", n_rand = 100,
                     spatial = TRUE, n_cores = 1, progress = interactive(), ...){
 
       enforce_ps(ps)
+      if(any(metric == "all")) metric <- metrics()
+      match.arg(metric, metrics(), several.ok = TRUE)
 
       phy <- ps$tree
       a <- occupied(ps)
       tip_comm <- ps_get_comm(ps, spatial = FALSE)[a, ]
 
-      div <- ps_diversity(ps, spatial = FALSE)[a, ]
+      div <- ps_diversity(ps, metric = metric, spatial = FALSE)[a, ]
+      if(length(metric) == 1) div <- matrix(div, ncol = 1)
       rand <- array(NA, c(dim(div), n_rand + 1))
       rand[,,1] <- div
 
@@ -81,7 +87,7 @@ ps_rand <- function(ps, fun = "quantize", method = "curveball", n_rand = 100,
 
             rsp <- phylospatial(rcomm, tree, check = FALSE,
                                 data_type = ps$data_type, clade_fun = ps$clade_fun)
-            ps_diversity(rsp)
+            ps_diversity(rsp, metric = metric)
       }
 
       if(n_cores == 1){
@@ -104,7 +110,7 @@ ps_rand <- function(ps, fun = "quantize", method = "curveball", n_rand = 100,
             for(i in 1:n_rand) rand[,,i+1] <- rnd[[i]]
       }
 
-      q <- apply(rand, 1:2, function(x) mean(x[1] > x[2:(n_rand+1)], na.rm = T) )
+      q <- apply(rand, 1:2, function(x) mean(x[1] > x[2:(n_rand+1)], na.rm = TRUE) )
 
       qa <- matrix(NA, length(a), ncol(q))
       qa[a, ] <- q

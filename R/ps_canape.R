@@ -5,7 +5,7 @@
 #' Categorization is based on randomization quantile values for PE, RPE, and CE (which Mishler et al. call "PE on
 #' the comparison tree").
 #'
-#' @param rand An object returned by `ps_rand`.
+#' @param rand An object returned by running `ps_rand` with .
 #' @param alpha Numeric value between 0 and 1 giving the one-tailed p-value threshold to use when
 #' determining significance.
 #' @details
@@ -26,7 +26,8 @@
 #' # (note that a real analysis would require a much higher `n_rand`)
 #' set.seed(123456)
 #' ps <- ps_simulate(n_tips = 50, data_type = "binary")
-#' rand <- ps_rand(ps, fun = "nullmodel", method = "curveball",
+#' rand <- ps_rand(ps, metric = c("PE", "RPE", "CE"),
+#'                 fun = "nullmodel", method = "curveball",
 #'                 n_rand = 25, burnin = 10000, progress = FALSE)
 #' canape <- ps_canape(rand)
 #' terra::plot(canape)

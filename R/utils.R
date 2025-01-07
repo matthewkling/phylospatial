@@ -1,4 +1,39 @@
 
+
+
+get_clade_fun <- function(data_type){
+      switch(data_type,
+             "binary" = function(x) ifelse(any(x == 1), 1, 0),
+             "probability" = function(x) 1 - prod(1 - x),
+             "abundance" = sum)
+}
+
+# for a given tree edge index, calculate community probability for each grid cell
+build_clade_range <- function(e, phylo, sxt, fun){
+      node <- phylo$edge[e, 2]
+      if(node <= length(phylo$tip.label)){
+            otu <- phylo$tip.label[node]
+            prob <- sxt[,otu]
+      } else{
+            clade <- ape::extract.clade(phylo, node)
+            otu <- clade$tip.label
+            prob <- apply(sxt[,otu], 1, fun)
+      }
+      return(name = prob)
+}
+
+build_tree_ranges <- function(tree, tip_comm, fun = NULL){
+      ntaxa <- nrow(tree$edge)
+      comm <- sapply(1:ntaxa, build_clade_range, phylo = tree, sxt = tip_comm, fun = fun)
+      nodes <- tree$edge[1:ntaxa, 2]
+      names <- colnames(tip_comm)[nodes]
+      names[is.na(names)] <- paste0("clade", 1:sum(is.na(names)))
+      colnames(comm) <- names
+      comm
+}
+
+
+
 enforce_ps <- function(x){
       if(! inherits(x, "phylospatial")) stop(paste0("Input `ps` data set must be an object of class `phylospatial` created by the `phylospatial()` or `ps_simulate()` function.",
                                                     " Instead, an obect of class `", paste(class(x), collapse = "; "), "` was provided."))
@@ -12,7 +47,7 @@ tip_indices <- function(tree, invert = FALSE) which(tree$edge[,2] %in% setdiff(t
 
 #' Convert a site-by-variable matrix into a SpatRaster or sf object
 #'
-#' @param m Matrix.
+#' @param m Matrix or vector.
 #' @param template `SpatRaster` layer with number of cells equal to the number of rows in m,
 #' or `sf` data frame with same number of rows as m.
 #'
@@ -26,6 +61,7 @@ tip_indices <- function(tree, invert = FALSE) which(tree$edge[,2] %in% setdiff(t
 #' to_spatial(moss_data()$comm[, 1:5], moss_data()$spatial)
 #' @export
 to_spatial <- function(m, template){
+      if(!inherits(m, "matrix")) m <- matrix(m, ncol = 1)
       if(inherits(template, "SpatRaster")){
             a <- array(m,
                        c(ncol(template), nrow(template), ncol(m)),
@@ -80,7 +116,7 @@ ps_get_comm <- function(ps, tips_only = TRUE, spatial = TRUE){
 
 
 occupied <- function(ps){
-      rowSums(ps$comm, na.rm = T) > 0
+      rowSums(ps$comm, na.rm = TRUE) > 0
 }
 
 star_tree <- function(comm){
@@ -91,5 +127,22 @@ star_tree <- function(comm){
       tree <- list(edge = edges, edge.length = rep(1/n, n),
                    Nnode = 1, tip.label = colnames(comm))
       class(tree) <- "phylo"
+      tree <- ape::root(tree, outgroup = 1, resolve.root = TRUE)
       return(tree)
+}
+
+
+area <- function(spatial){
+      if(inherits(spatial, "SpatRaster")){
+            size <- as.vector(terra::cellSize(spatial, unit = "km")[])
+            unit <- "km"
+      }
+      if(inherits(spatial, "sf")){
+            type <- sf::st_geometry_type(spatial)[1]
+            if(type == "POINT") size <- rep(1, nrow(spatial))
+            if(type %in% c("MULTIPOLYGON", "POLYGON")) size <- sf::st_area(spatial)
+            if(type %in% c("MULTILINESTRING", "LINESTRING")) size <- sf::st_length(spatial)
+            unit <- sf::st_crs(spatial, parameters = TRUE)$units_gdal
+      }
+      list(size = as.vector(size), unit = unit)
 }

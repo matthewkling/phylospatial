@@ -1,38 +1,5 @@
 
-
-get_clade_fun <- function(data_type){
-      switch(data_type,
-             "binary" = function(x) ifelse(any(x == 1), 1, 0),
-             "probability" = function(x) 1 - prod(1 - x),
-             "abundance" = sum)
-}
-
-# for a given tree edge index, calculate community probability for each grid cell
-build_clade_range <- function(e, phylo, sxt, fun){
-      node <- phylo$edge[e, 2]
-      if(node <= length(phylo$tip.label)){
-            otu <- phylo$tip.label[node]
-            prob <- sxt[,otu]
-      } else{
-            clade <- ape::extract.clade(phylo, node)
-            otu <- clade$tip.label
-            prob <- apply(sxt[,otu], 1, fun)
-      }
-      return(name = prob)
-}
-
-build_tree_ranges <- function(tree, tip_comm, fun = NULL){
-      ntaxa <- nrow(tree$edge)
-      comm <- sapply(1:ntaxa, build_clade_range, phylo = tree, sxt = tip_comm, fun = fun)
-      nodes <- tree$edge[1:ntaxa, 2]
-      names <- colnames(tip_comm)[nodes]
-      names[is.na(names)] <- paste0("clade", 1:sum(is.na(names)))
-      colnames(comm) <- names
-      comm
-}
-
-
-
+# instantiate a new `phylospatial` object
 new_phylospatial <- function(comm, tree, spatial, dissim = NULL, data_type, clade_fun){
       stopifnot(inherits(tree, "phylo"))
       stopifnot(is.character(data_type))
@@ -57,7 +24,7 @@ new_phylospatial <- function(comm, tree, spatial, dissim = NULL, data_type, clad
 #' not match between column/layer names in \code{comm} and tip labels in \code{tree} will be dropped with a warning (unless `build = FALSE`).
 #' @param tree Phylogeny of class \link[ape]{phylo}. Terminals whose names do not match \code{comm} will be dropped with a warning (unless
 #' `build = FALSE`). If this argument is not provided, terminals are assumed to follow a "star" tree with uniform branch lengths, which
-#' will lead to non-phylogenetic versions of any analyses done with the resulting `phylospatial` object.
+#' will lead to non-phylogenetic versions of any analyses done with the resulting `phylospatial` object. Must be a rooted tree.
 #' @param spatial An optional `SpatRaster` layer or `sf` object indicating site locations. The number of cells or rows must match \code{comm}.
 #' Ignored if \code{comm} is a `SpatRaster` or `sf` object.
 #' @param data_type Character giving the data type of \code{comm}. Must be "binary", "probability", "abundance", "auto" (the default), or "other".
@@ -74,6 +41,9 @@ new_phylospatial <- function(comm, tree, spatial, dissim = NULL, data_type, clad
 #' the columns of `comm` must exactly match the order of `tree` edges including tips and larger clades. If clade ranges are included in
 #' `comm` but `build = TRUE`, they will be dropped and new clade ranges will be built.
 #' @param check Logical indicating whether community data should be validated. Default is TRUE.
+#' @param area_tol Numeric value giving tolerance for variation in the area of sites. Default is `0.01`. If the coefficient of variation in
+#' the area or length of spatial units (e.g. grid cells) exceeds this value, an error will result. This check is performed because various
+#' other functions in the library assume that sites are equal area. This argument is ignored if `check = FALSE` or if no spatial data is provided.
 #'
 #' @details
 #' This function formats the input data as a `phylospatial` object. Beyond validating, cleaning, and restructing the data, the main operation
@@ -94,7 +64,7 @@ new_phylospatial <- function(comm, tree, spatial, dissim = NULL, data_type, clad
 #'  \item{"comm":}{ Community matrix, including a column for every terminal taxon and every larger clade. Column order corresponds to tree edge order.}
 #'  \item{"spatial":}{ A `SpatRaster` or `sf` providing spatial coordinates for the rows in `comm`. May be missing if no spatial data was supplied.}
 #'  \item{"dissim":}{ A community dissimilary matrix of class `dist` indicating pairwise phylogenetic dissimilarity between sites. Missing unless
-#'  \code{ps_dissim(..., add = T)} is called.}
+#'  \code{ps_dissim(..., add = TRUE)} is called.}
 #' }
 #'
 #' @examples
@@ -113,7 +83,7 @@ new_phylospatial <- function(comm, tree, spatial, dissim = NULL, data_type, clad
 #' @export
 phylospatial <- function(comm, tree = NULL, spatial = NULL,
                          data_type = c("auto", "probability", "binary", "abundance", "other"),
-                         clade_fun = NULL, build = TRUE, check = TRUE){
+                         clade_fun = NULL, build = TRUE, check = TRUE, area_tol = 0.01){
 
       # checks
       data_type <- match.arg(data_type)
@@ -121,7 +91,9 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
       stopifnot("Community data must be a `matrix`, `SpatRaster`, or `sf`." = inherits(comm, c("matrix", "SpatRaster", "sf")))
       stopifnot("Spatial reference must be a `SpatRaster` or `sf` object." = inherits(spatial, c("NULL", "SpatRaster", "sf")))
       if(inherits(spatial, "SpatRaster")) stopifnot("`spatial` must have the same number of grid cells as rows in `comm` data matrix." =
-                                                           terra::ncell(spatial) == nrow(comm))
+                                                          terra::ncell(spatial) == nrow(comm))
+      if(inherits(comm, "matrix")) stopifnot("`comm` must have column names." = !is.null(colnames(comm)))
+
 
       # unpack community and spatial data
       if(inherits(comm, "SpatRaster")){
@@ -139,6 +111,7 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
             warning("No phylogenetic tree was provided; any analyses using this `phylospatial` object will be non-phylogenetic.")
             tree <- star_tree(comm)
       }
+      stopifnot("`tree` must be a rooted phylogeny, but is unrooted." = ape::is.rooted(tree))
 
       if(!build){
             check <- FALSE
@@ -148,11 +121,23 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
                             ncol(comm) == length(tree$edge.length))
       }
 
-      # harmonize terminal taxa in tree and community
       if(is.null(check)) check <- TRUE
+
+      # enforce equal area
+      if(check & !is.null(spatial)){
+            if(inherits(spatial, "SpatRaster") & terra::crs(spatial) == ""){
+                  message("Raster data has no CRS, so can't check that cells are equal-area; it will be assumed that they are.")
+            }else{
+                  size <- area(spatial)
+                  stopifnot("Spatial units are not equal area: the coefficient of varition in cell/polygon/line sizes exceeds 0.01." =
+                                  (stats::sd(size$size) / mean(size$size)) < area_tol)
+            }
+      }
+
+      # harmonize terminal taxa in tree and community
       if(check){
             tips <- intersect(tree$tip.label, colnames(comm))
-            tips <- intersect(tips, colnames(comm)[colSums(comm, na.rm = T) > 0])
+            tips <- intersect(tips, colnames(comm)[colSums(comm, na.rm = TRUE) > 0])
             drop <- setdiff(tree$tip.label, tips)
             if(length(drop) > 0){
                   warning("Dropping ", length(drop), " tips from tree that are missing from community matrix or have no occurrences.")
@@ -170,8 +155,8 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
       is_binary <- function(x) identical(as.numeric(as.vector(x)), as.numeric(as.logical(x)))
       if(data_type == "auto"){
             if(any(na.omit(comm) < 0) | any(!is.finite(na.omit(comm)))) stop("Negative or infinite community values detected.")
-            if(min(comm, na.rm = T) >= 0 & max(comm, na.rm = T) <= 1) data_type <- "probability"
-            if(max(comm, na.rm = T) > 1) data_type <- "abundance"
+            if(min(comm, na.rm = TRUE) >= 0 & max(comm, na.rm = TRUE) <= 1) data_type <- "probability"
+            if(max(comm, na.rm = TRUE) > 1) data_type <- "abundance"
             if(is_binary(comm)) data_type <- "binary"
             if(build & check) message(paste("Community data type detected:", data_type))
             check <- FALSE
@@ -180,10 +165,10 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
             if(check) if(! is_binary(comm)) stop("Binary data may only consist of 0 and 1, but other values were detected.")
       }
       if(data_type == "probability"){
-            if(check) if(min(comm, na.rm = T) < 0 | max(comm, na.rm = T) > 1) stop("Probability data must be between 0 and 1, but other values were detected.")
+            if(check) if(min(comm, na.rm = TRUE) < 0 | max(comm, na.rm = TRUE) > 1) stop("Probability data must be between 0 and 1, but other values were detected.")
       }
       if(data_type == "abundance"){
-            if(check) if(min(comm, na.rm = T) < 0) stop("Abundance data must be between nonnegative, but negative values were detected.")
+            if(check) if(min(comm, na.rm = TRUE) < 0) stop("Abundance data must be between nonnegative, but negative values were detected.")
       }
 
       # build clade ranges
