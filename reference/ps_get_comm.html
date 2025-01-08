@@ -72,7 +72,6 @@ depending on which data type was used to create <code>ps</code>.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_simulate.html">ps_simulate</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Raster data has no CRS, so can't check that cells are equal-area; it will be assumed that they are.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># the defaults return a spatial object of terminal taxa distributions:</span></span></span>
 <span class="r-in"><span><span class="fu">ps_get_comm</span><span class="op">(</span><span class="va">ps</span><span class="op">)</span></span></span>
@@ -82,13 +81,13 @@ depending on which data type was used to create <code>ps</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 0, 20, 0, 20  (xmin, xmax, ymin, ymax)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. :  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> varnames    : t8 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               t7 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               t1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> varnames    : t7 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               t3 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               t2 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       :        t8,        t7,        t1,        t6,        t9,       t10, ... </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       :        t7,        t3,        t2,        t6,        t9,       t10, ... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 0.9519753, 0.7352123, 0.2985866, 0.9519943, 0.6688386, 0.6139021, ... </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 0.1524076, 0.1410909, 0.4263353, 0.4862675, 0.7616251, 0.1501068, ... </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get distributions for all taxa, as a matrix</span></span></span>
 <span class="r-in"><span><span class="va">pcomm</span> <span class="op">&lt;-</span> <span class="fu">ps_get_comm</span><span class="op">(</span><span class="va">ps</span>, tips_only <span class="op">=</span> <span class="cn">FALSE</span>, spatial <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>

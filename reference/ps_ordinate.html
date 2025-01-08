@@ -79,7 +79,7 @@ Default is TRUE.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_add_dissim.html">ps_add_dissim</a></span><span class="op">(</span><span class="fu"><a href="moss_data.html">moss_data</a></span><span class="op">(</span>spatial_type <span class="op">=</span> <span class="st">"raster"</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_add_dissim.html">ps_add_dissim</a></span><span class="op">(</span><span class="fu"><a href="moss.html">moss</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ord</span> <span class="op">&lt;-</span> <span class="fu">ps_ordinate</span><span class="op">(</span><span class="va">ps</span>, method <span class="op">=</span> <span class="st">"cmds"</span>, k <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ord</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ps_ordinate-1.png" alt="" width="700" height="433"></span>

@@ -72,17 +72,17 @@ object with the dissimilarity data added as an element called <code>dissim</code
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">ps_add_dissim</span><span class="op">(</span><span class="va">moss</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">ps_add_dissim</span><span class="op">(</span><span class="fu"><a href="moss.html">moss</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> `phylospatial` object</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - 884 lineages across 171 sites</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - 884 lineages across 1116 sites</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - community data type: probability </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - spatial data class: sf </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - spatial data class: SpatRaster </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - dissimilarity data: sorensen </span>
-<span class="r-in"><span><span class="fu">ps_add_dissim</span><span class="op">(</span><span class="va">moss</span>, fun <span class="op">=</span> <span class="st">"vegdist"</span>, method <span class="op">=</span> <span class="st">"jaccard"</span>, endemism <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ps_add_dissim</span><span class="op">(</span><span class="fu"><a href="moss.html">moss</a></span><span class="op">(</span><span class="op">)</span>, fun <span class="op">=</span> <span class="st">"vegdist"</span>, method <span class="op">=</span> <span class="st">"jaccard"</span>, endemism <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> `phylospatial` object</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - 884 lineages across 171 sites</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - 884 lineages across 1116 sites</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - community data type: probability </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - spatial data class: sf </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - spatial data class: SpatRaster </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - dissimilarity data: jaccard </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -227,49 +227,36 @@ each row of the community matrix.</p>
 <p>In this example, the spatial data is a raster layer inherited from
 the <code>SpatRaster</code> data we supplied as our <code>comm</code>.
 You can also supply vector data (points, lines, or polygons) as an
-<code>sf</code> object. Note also that spatial data isn’t required;
-community data provided as a matrix works just fine.</p>
+<code>sf</code> object. If the spatial data is in raster, polygon, or
+line format, <code>phylospatial</code> will check that all features have
+equal area or length, which is an important assumption underlying
+various functions in the package.</p>
+<p>Also note that spatial data isn’t required; community data provided
+as a matrix works just fine.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="example-data">Example data<a class="anchor" aria-label="anchor" href="#example-data"></a>
+<h2 id="a-realistic-example">A realistic example<a class="anchor" aria-label="anchor" href="#a-realistic-example"></a>
 </h2>
-<p>As we saw in above, example data sets can be useful for exploring
-package functionality. This package includes one example empirical data
-set, and a function for simulating toy <code>phylospatial</code> data
-sets akin to the one we manually constructed above. These are used
-throughout the other vignettes, and may be useful for your own
-experimentation.</p>
-<div class="section level4">
-<h4 id="moss">
-<code>moss</code><a class="anchor" aria-label="anchor" href="#moss"></a>
-</h4>
-<p>The package ships with one example <code>phylospatial</code> data
-set, <code>moss</code>, that contains spatial phylogenetic data for
-several hundred species of moss across California, based on species
-distribution models and a bryophyte phylogeny. This is an occurrence
-probability data set with <code>sf</code> polygon spatial data, as shown
-in the first plot below. These same data are also available in different
-spatial formats (raster vs. polygon) and data formats (binary
-vs. probability) via the function <code><a href="../reference/moss_data.html">moss_data()</a></code>; the second
-plot below shows binary occurrence data in raster format.</p>
+<p>Now let’s look at creating a phylospatial data set using real data.
+To do this, we’ll use the example “moss” data set that ships with the
+package, representing a phylogeny and modeled occurrence probabilities
+for several hundred species of moss in California. The function
+<code><a href="../reference/moss.html">moss()</a></code> returns a pre-constructed <code>phylospatial</code>
+object based on these data, but here let’s build one from scratch. In
+the code below we’ll load a raster data set with a layer of occurrence
+probabilities for each species, and a phylogeny representing their
+evolutionary relationships. We’ll then pass these to
+<code><a href="../reference/phylospatial.html">phylospatial()</a></code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">moss</span>, <span class="st">"comm"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">moss_comm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"moss_comm.tif"</span>, package <span class="op">=</span> <span class="st">"phylospatial"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">moss_tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">read.tree</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"moss_tree.nex"</span>, package <span class="op">=</span> <span class="st">"phylospatial"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/phylospatial.html">phylospatial</a></span><span class="op">(</span><span class="va">moss_comm</span>, <span class="va">moss_tree</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ps</span>, <span class="st">"comm"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="phylospatial-data_files/figure-html/moss-1.png" width="576"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/moss_data.html">moss_data</a></span><span class="op">(</span><span class="st">"binary"</span>, <span class="st">"raster"</span><span class="op">)</span>, <span class="st">"comm"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ps</span>, <span class="st">"tree"</span>, type <span class="op">=</span> <span class="st">"fan"</span>, show.tip.label <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="phylospatial-data_files/figure-html/moss-2.png" width="576"></p>
-</div>
-<div class="section level4">
-<h4 id="simulated-data">Simulated data<a class="anchor" aria-label="anchor" href="#simulated-data"></a>
-</h4>
-<p><code>phylospatial</code> data can also be simulated using the
-function <code><a href="../reference/ps_simulate.html">ps_simulate()</a></code>. This function is intended to
-produce simplistic data for examples and testing, not to produce
-realistic data. While the moss data is only available in binary and
-probability format due to the nature of the data, abundance data can be
-simulated.</p>
-</div>
 <div class="section level4">
 <h4 id="non-phylogenetic-data">Non-phylogenetic data<a class="anchor" aria-label="anchor" href="#non-phylogenetic-data"></a>
 </h4>
