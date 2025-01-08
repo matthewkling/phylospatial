@@ -1,5 +1,5 @@
 test_that("`quantize` obeys fixture requests", {
-      comm <- ps_get_comm(moss, spatial = FALSE)
+      comm <- ps_get_comm(moss("polygon"), spatial = FALSE)
 
       q <- quantize(comm, priority = "rows")
       expect_equal(rowSums(q), rowSums(comm))

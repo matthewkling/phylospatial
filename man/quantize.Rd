@@ -43,12 +43,13 @@ other binary and quantitative null models.
 \examples{
 \donttest{
 # example quantitative community matrix
-comm <- ps_get_comm(moss, tips_only = TRUE, spatial = FALSE)
+comm <- ps_get_comm(moss("polygon"), tips_only = TRUE, spatial = FALSE)[1:50, 1:50]
 
 # examples of different quantize usage
 rand <- quantize(comm)
 rand <- quantize(comm, n_strata = 4, transform = sqrt, priority = "rows")
-rand <- quantize(comm, method = "swap", burnin = 5000)
+rand <- quantize(comm, method = "swap", burnin = 10)
+# (note: this `burnin` value is far too small for a real analysis)
 }
 
 }

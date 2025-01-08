@@ -28,7 +28,7 @@ plotted as the RGB bands of color space to visualize spatial patterns of communi
 This function is a wrapper around \code{ps_ordinate()}.
 }
 \examples{
-ps <- ps_add_dissim(moss_data(spatial_type = "raster"))
+ps <- ps_add_dissim(moss())
 RGB <- ps_rgb(ps, method = "cmds")
 terra::plotRGB(RGB * 255, smooth = FALSE)
 

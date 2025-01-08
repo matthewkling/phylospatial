@@ -17,7 +17,6 @@ reference:
   - phylospatial
   - ps_simulate
   - moss
-  - moss_data
 - title: Alpha diversity
 - contents:
   - ps_diversity

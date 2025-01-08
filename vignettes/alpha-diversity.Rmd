@@ -1,6 +1,8 @@
 ---
 title: "Alpha phylogenetic diversity"
-output: rmarkdown::html_vignette
+output: 
+   rmarkdown::html_vignette:
+      toc: true
 vignette: >
   %\VignetteIndexEntry{alpha-diversity}
   %\VignetteEngine{knitr::rmarkdown}
@@ -18,11 +20,11 @@ fig.dim = c(6, 4)
 
 This vignette covers topics related to alpha diversity and endemism, including calculation of basic diversity metrics as well as statistical significance testing using null randomization.
 
-To get started, let's load the `phylospatial` library, as well as `tmap` for visualization. Note that the functions covered here all require a `phylospatial` object as input; see `vignette("phylospatial-data")` for details on constructing data sets. We'll use `moss_data()` for the examples here.
+To get started, let's load the `phylospatial` library, as well as `tmap` for visualization. Note that the functions covered here all require a `phylospatial` object as input; see `vignette("phylospatial-data")` for details on constructing data sets. We'll use the `moss()` example data here.
 
 ```{r setup, message=FALSE}
 library(phylospatial); library(tmap)
-ps <- moss_data("prob", "rast")
+ps <- moss()
 ```
 
 
@@ -43,7 +45,7 @@ The `ps_diversity()` function calculates the following alpha diversity measures:
 - SiPD: Simpson's phylogenetic diversity
 - SiPE: Simpson's phylogenetic diversity, weighted by endemism
 
-All measures use quantitative community data if provided. See `?ps_diversity` for equations giving the derivation of each metric.
+All measures use quantitative community data if provided. "Endemism" the inverse of the total occurrence mass (the sum of presence, probability, or abundance values) across all sites in the analysis. See `?ps_diversity` for equations giving the derivation of each metric.
 
 Let's compute the full set of metrics for our phylospatial data set. Since our data is raster-based, by default the function will return a `SpatRaster` with a layer for each measure. Here we'll make plots of PD and PE:
 

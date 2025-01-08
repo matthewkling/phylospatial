@@ -4,8 +4,6 @@ test_that("`ps_canaper()` runs without error on example data", {
                                        n_reps = 3, n_iterations = 3))
             expect_no_error(ps_canaper(ps_simulate(data_type = "binary", spatial_type = "none"),
                                        n_reps = 3, n_iterations = 3))
-            expect_no_error(ps_canaper(moss_data("binary"),
-                                       n_reps = 3, n_iterations = 3))
       }
 })
 

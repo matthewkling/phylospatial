@@ -3,7 +3,7 @@
 S3method(plot,phylospatial)
 S3method(print,phylospatial)
 export(benefit)
-export(moss_data)
+export(moss)
 export(phylospatial)
 export(plot_lambda)
 export(ps_add_dissim)

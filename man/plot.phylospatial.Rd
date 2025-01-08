@@ -24,6 +24,6 @@ A plot of the tree or community data.
 Plot a \code{phylospatial} object
 }
 \examples{
-plot(moss, "tree")
-plot(moss, "comm")
+plot(moss(), "tree")
+plot(moss(), "comm")
 }

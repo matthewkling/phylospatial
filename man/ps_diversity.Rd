@@ -27,27 +27,29 @@ versions of the classic binary metrics.
 \details{
 The function calculates the following metrics:
 \itemize{
-\item TD: Terminal diversity, i.e. richness of terminal taxa (in many cases these are species), \eqn{\sum_{t}{p_t}}
-\item TE: Terminal endemism, i.e. total endemism-weighted diversity of terminal taxa, a.k.a. "weighted endemism", \eqn{\sum_{t}{p_t / r_t}}
-\item CD: Clade diversity, i.e. richness of taxa at all levels (equivalent to PD on a cladogram), \eqn{\sum_{b}{p_b}}
-\item CE: Clade endemism, i.e. total endemism-weighted diversity of taxa at all levels (equivalent to PE on a cladrogram), \eqn{\sum_{b}{p_b / r_b}}
-\item PD: Faith's phylogenetic diversity, \eqn{\sum_{b}{v_b p_b}}
-\item PE: Phylogenetic endemism, i.e. endemism-weighted PD, \eqn{\sum_{b}{v_b p_b / r_b}}
-\item ShPD: Shannon phylogenetic diversity, a.k.a. "phylogenetic entropy", \eqn{-\sum_{b}{v_b p_b log(p_b)}}
-\item ShPE: Shannon phylogenetic endemism, an endemism-weighted version of ShPD, \eqn{-\sum_{b}{v_b p_b log(p_b) / r_b}}
-\item SiPD: Simpson phylogenetic diversity, \eqn{1 / \sum_{b}{(v_b (p_b / \sum{(v p)} )^2})}
-\item SiPE: Simpson phylogenetic endemism, an endemism-weighted version of SiPD, \eqn{1 / \sum_{b}{(v_b / r_b (p_b / \sum{(v p / r_b)} )^2})}
-\item RPD: Relative phylogenetic diversity, i.e. branch length of mean resident (equivalent to PD / CR), \eqn{\sum_{b}{(v_b p_b)} / \sum_{b}{(p_b)}}
-\item RPE: Relative phylogenetic endemism, i.e. mean endemism-weighted branch length (equivalent to PE / CE), \eqn{\sum_{b}{(v_b p_b / r_b)} / \sum_{b}{(p_b / r_b)}}
+\item TD---Terminal Diversity, i.e. richness of terminal taxa (in many cases these are species): \eqn{\sum_{t}{p_t}}
+\item TE---Terminal Endemism, i.e. total endemism-weighted diversity of terminal taxa, a.k.a. "weighted endemism": \eqn{\sum_{t}{p_t r_t^{-1}}}
+\item CD---Clade Diversity, i.e. richness of taxa at all levels (equivalent to PD on a cladogram): \eqn{\sum_{b}{p_b}}
+\item CE---Clade Endemism, i.e. total endemism-weighted diversity of taxa at all levels (equivalent to PE on a cladrogram): \eqn{\sum_{b}{p_b r_b^{-1}}}
+\item PD---Faith's Phylogenetic Diversity: \eqn{\sum_{b}{L_b p_b}}
+\item PE---Phylogenetic Endemism, i.e. endemism-weighted PD: \eqn{\sum_{b}{L_b p_b r_b^{-1}}}
+\item RPD---Relative Phylogenetic Diversity, i.e. branch length of mean resident (equivalent to PD / CR): \eqn{\sum_{b}{L_b p_b} / \sum_{b}{p_b}}
+\item RPE---Relative Phylogenetic Endemism, i.e. mean endemism-weighted branch length (equivalent to PE / CE): \eqn{\sum_{b}{L_b p_b r_b^{-1}} / \sum_{b}{p_b r_b^{-1}}}
+\item ShPD---Shannon Phylogenetic Diversity, a.k.a. "phylogenetic entropy": \eqn{-\sum_{b}{L_b n_b log(n_b)}}
+\item ShPE--Shannon phylogenetic Endemism, an endemism-weighted version of ShPD: \eqn{-\sum_{b}{L_b n_b log(e_b) r_b^{-1}}}
+\item SiPD---Simpson Phylogenetic Diversity: \eqn{1 / \sum_{b}{L_b n_b^2}}
+\item SiPE---Simpson Phylogenetic Endemism, an endemism-weighted version of SiPD: \eqn{1 / \sum_{b}{L_b r_b^{-1} e_b^2}}
 }
 
-where \eqn{b} indexes all clades including terminals, \eqn{t} indexes terminals only, \eqn{p_i} is the occurrence value
-(binary, probability, or abundance) of clade/terminal \eqn{i} in a given community, \eqn{v_b} is the
-length of the phylogenetic branch segment unique to clade \eqn{b}, and \eqn{r_i} is the range size of clade/terminal \eqn{i}
-calculated by summing \eqn{p_i} across all sites.
+where \eqn{b} indexes all taxa including terminals and larger clades; \eqn{t} indexes terminals only; \eqn{p_i} is the occurrence value
+(binary, probability, or abundance) of clade/terminal \eqn{i} in a given community; \eqn{L_b} is the
+length of the phylogenetic branch segment unique to clade \eqn{b}; and \eqn{r_i} is the sum of \eqn{p_i} across all sites.
+
+For Shannon and Simpson indices, only nonzero elements of \eqn{p_b} are used, \eqn{n_b = p_b / \sum_{b}{p_b L_b}}, and
+\eqn{e_b = p_b / \sum_{b}{p_b L_b r_b^{-1}}}.
 }
 \examples{
-div <- ps_diversity(ps_simulate(n_tips = 25))
+div <- ps_diversity(moss())
 terra::plot(div)
 
 }

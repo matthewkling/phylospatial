@@ -83,25 +83,22 @@ Note that you can also specify your own clade ranges to `phylospatial()` rather 
 
 The `spatial` component is the last key piece of our phylospatial object. (The only other element we haven't mentioned here is `dissim`, which is covered in the vignette on beta diversity.) The spatial component of the object contains spatial reference data on the geographic locations of the communities found in each row of the community matrix.
 
-In this example, the spatial data is a raster layer inherited from the `SpatRaster` data we supplied as our `comm`. You can also supply vector data (points, lines, or polygons) as an `sf` object. Note also that spatial data isn't required; community data provided as a matrix works just fine.
+In this example, the spatial data is a raster layer inherited from the `SpatRaster` data we supplied as our `comm`. You can also supply vector data (points, lines, or polygons) as an `sf` object. If the spatial data is in raster, polygon, or line format, `phylospatial` will check that all features have equal area or length, which is an important assumption underlying various functions in the package.
+
+Also note that spatial data isn't required; community data provided as a matrix works just fine.
 
 
-## Example data
+## A realistic example
 
-As we saw in above, example data sets can be useful for exploring package functionality. This package includes one example empirical data set, and a function for simulating toy `phylospatial` data sets akin to the one we manually constructed above. These are used throughout the other vignettes, and may be useful for your own experimentation.
-
-#### `moss` 
-
-The package ships with one example `phylospatial` data set, `moss`, that contains spatial phylogenetic data for several hundred species of moss across California, based on species distribution models and a bryophyte phylogeny. This is an occurrence probability data set with `sf` polygon spatial data, as shown in the first plot below. These same data are also available in different spatial formats (raster vs. polygon) and data formats (binary vs. probability) via the function `moss_data()`; the second plot below shows binary occurrence data in raster format.
+Now let's look at creating a phylospatial data set using real data. To do this, we'll use the example "moss" data set that ships with the package, representing a phylogeny and modeled occurrence probabilities for several hundred species of moss in California. The function `moss()` returns a pre-constructed `phylospatial` object based on these data, but here let's build one from scratch. In the code below we'll load a raster data set with a layer of occurrence probabilities for each species, and a phylogeny representing their evolutionary relationships. We'll then pass these to `phylospatial()`.
 
 ```{r moss, message=FALSE, warning=FALSE}
-plot(moss, "comm")
-plot(moss_data("binary", "raster"), "comm")
+moss_comm <- rast(system.file("extdata", "moss_comm.tif", package = "phylospatial"))
+moss_tree <- read.tree(system.file("extdata", "moss_tree.nex", package = "phylospatial"))
+ps <- phylospatial(moss_comm, moss_tree)
+plot(ps, "comm")
+plot(ps, "tree", type = "fan", show.tip.label = FALSE)
 ```
-
-#### Simulated data
-
-`phylospatial` data can also be simulated using the function `ps_simulate()`. This function is intended to produce simplistic data for examples and testing, not to produce realistic data. While the moss data is only available in binary and probability format due to the nature of the data, abundance data can be simulated. 
 
 
 #### Non-phylogenetic data

@@ -45,5 +45,5 @@ ps_simulate <- function(n_tips = 10,
       if(data_type == "abundance") tip_ranges <- round(tip_ranges * 100)
       if(spatial_type == "none") tip_ranges <- terra::values(tip_ranges)
 
-      phylospatial(tip_ranges, tree, data_type = data_type)
+      phylospatial(tip_ranges, tree, data_type = data_type, check = FALSE)
 }

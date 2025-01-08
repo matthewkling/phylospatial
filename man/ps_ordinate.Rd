@@ -26,7 +26,7 @@ Perform an ordination that reduces a spatial phylogenetic data set into \code{k}
 several alternative ordination algorithms.
 }
 \examples{
-ps <- ps_add_dissim(moss_data(spatial_type = "raster"))
+ps <- ps_add_dissim(moss())
 ord <- ps_ordinate(ps, method = "cmds", k = 4)
 terra::plot(ord)
 

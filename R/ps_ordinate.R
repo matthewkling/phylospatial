@@ -15,7 +15,7 @@
 #'
 #' @return A matrix or spatial object with `k` variables.
 #' @examples
-#' ps <- ps_add_dissim(moss_data(spatial_type = "raster"))
+#' ps <- ps_add_dissim(moss())
 #' ord <- ps_ordinate(ps, method = "cmds", k = 4)
 #' terra::plot(ord)
 #'
@@ -68,7 +68,7 @@ ps_ordinate <- function(ps, method = c("nmds", "cmds", "pca"), k = 3, spatial = 
 #'
 #' @return A matrix or spatial object with three variables containing RGB color values in the range 0-1.
 #' @examples
-#' ps <- ps_add_dissim(moss_data(spatial_type = "raster"))
+#' ps <- ps_add_dissim(moss())
 #' RGB <- ps_rgb(ps, method = "cmds")
 #' terra::plotRGB(RGB * 255, smooth = FALSE)
 #'

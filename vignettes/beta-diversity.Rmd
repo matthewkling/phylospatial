@@ -1,6 +1,8 @@
 ---
 title: "Phylogenetic beta diversity"
-output: rmarkdown::html_vignette
+output: 
+   rmarkdown::html_vignette:
+      toc: true
 vignette: >
   %\VignetteIndexEntry{beta-diversity}
   %\VignetteEngine{knitr::rmarkdown}
@@ -17,11 +19,11 @@ fig.dim = c(6, 4)
 
 This vignette covers topics related to phylogenetic beta diversity, including calculation of pairwise dissimilarity between sites, and use of these dissimilarity values in ordination and regionalization analyses.
 
-To get started, let's load the `phylospatial` library, as well as `tmap` for visualization. Note that the functions covered here all require a `phylospatial` object as input; see `vignette("phylospatial-data")` for details on constructing data sets. We'll use `moss_data()` for the examples here.
+To get started, let's load the `phylospatial` library, as well as `tmap` for visualization. Note that the functions covered here all require a `phylospatial` object as input; see `vignette("phylospatial-data")` for details on constructing data sets. We'll use the `moss()` example data here.
 
 ```{r setup, message=FALSE}
 library(phylospatial); library(tmap); library(magrittr)
-ps <- moss_data("prob", "rast")
+ps <- moss()
 ```
 
 ## Dissimilarity

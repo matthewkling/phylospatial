@@ -54,11 +54,11 @@ tip_indices <- function(tree, invert = FALSE) which(tree$edge[,2] %in% setdiff(t
 #' @return `SpatRaster` with a layer for every column in \code{m}, or `sf` data frame with
 #' a variable for every column in \code{m}, depending on the data type of \code{template}.
 #' @examples
-#' # example using `sf` data set `moss`:
-#' to_spatial(moss$comm[, 1:5], moss$spatial)
+#' # example using `sf` data set `moss_hex`:
+#' to_spatial(moss("polygon")$comm[, 1:5], moss("polygon")$spatial)
 #'
-#' # and using a `SpatRaster`:
-#' to_spatial(moss_data()$comm[, 1:5], moss_data()$spatial)
+#' # and using a `SpatRaster` data set `moss`:
+#' to_spatial(moss("polygon")$comm[, 1:5], moss("polygon")$spatial)
 #' @export
 to_spatial <- function(m, template){
       if(!inherits(m, "matrix")) m <- matrix(m, ncol = 1)

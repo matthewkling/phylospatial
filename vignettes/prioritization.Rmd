@@ -1,6 +1,8 @@
 ---
 title: "Conservation prioritization"
-output: rmarkdown::html_vignette
+output: 
+   rmarkdown::html_vignette:
+      toc: true
 vignette: >
   %\VignetteIndexEntry{prioritization}
   %\VignetteEngine{knitr::rmarkdown}
@@ -50,7 +52,7 @@ First let's load the libraries we'll need, and initialize a `phylospatial` data 
 ```{r optim, message=FALSE}
 library(phylospatial); library(tmap); library(magrittr)
 
-ps <- moss_data("prob", "rast")
+ps <- moss()
 init <- seq(1, 0, length.out = nrow(ps$comm))
 cost <- runif(nrow(ps$comm), 10, 1000)
 priority <- ps_prioritize(ps, init = init, cost = cost, progress = FALSE)

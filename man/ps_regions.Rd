@@ -35,10 +35,10 @@ compositional similarity.
 library(sf)
 
 # moss example data, using kmeans clustering algorithm
-plot(ps_regions(moss, method = "kmeans"))
+plot(ps_regions(moss("polygon"), method = "kmeans"))
 
 # to use a hierarchical clustering method, first we have to `ps_add_dissim()`
-plot(ps_regions(ps_add_dissim(moss), k = 7, method = "average"))
+plot(ps_regions(ps_add_dissim(moss("polygon")), k = 7, method = "average"))
 
 }
 \references{

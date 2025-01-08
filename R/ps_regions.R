@@ -24,10 +24,10 @@
 #' library(sf)
 #'
 #' # moss example data, using kmeans clustering algorithm
-#' plot(ps_regions(moss, method = "kmeans"))
+#' plot(ps_regions(moss("polygon"), method = "kmeans"))
 #'
 #' # to use a hierarchical clustering method, first we have to `ps_add_dissim()`
-#' plot(ps_regions(ps_add_dissim(moss), k = 7, method = "average"))
+#' plot(ps_regions(ps_add_dissim(moss("polygon")), k = 7, method = "average"))
 #'
 #' @export
 ps_regions <- function(ps, k = 5, method = "average", endemism = FALSE, normalize = TRUE){
@@ -102,7 +102,7 @@ ps_regions <- function(ps, k = 5, method = "average", endemism = FALSE, normaliz
 #' }
 #'
 #' @examples
-#' ps <- ps_add_dissim(moss)
+#' ps <- ps_add_dissim(moss())
 #' ps_regions_eval(ps, k = 1:15, plot = TRUE)
 #'
 #' @export
@@ -129,8 +129,11 @@ ps_regions_eval <- function(ps, k = 1:20, plot = TRUE, ...){
 
       # curvature of sse ~ k
       lag <- function(v, n = 1) {
-            if (n > 0) c(rep(NA, n), head(v, length(v) - n))
-            else c(tail(v, length(v) - abs(n)), rep(NA, abs(n)))
+            if(n > 0){
+                  c(rep(NA, n), v[1:length(v) - n])
+            }else{
+                  c(v[(abs(n)+1):length(v)], rep(NA, abs(n)))
+            }
       }
       curvature <- (lag(sse, -1) - sse) / (lag(k, -1) - k) - (sse - lag(sse)) / (k - lag(k))
 
@@ -139,14 +142,14 @@ ps_regions_eval <- function(ps, k = 1:20, plot = TRUE, ...){
 
       eval <- data.frame(k = k, sse = sse, curvature = curvature, dist11 = dist11)
       if(plot){
-            matplot(eval$k, eval[, 2:ncol(eval)], type = c("b"),
-                    pch = 1, col = 1:(ncol(eval) - 1),
-                    xlab = "k", ylab = NA)
-            abline(h = 1, col = 1)
-            abline(h = 0, col = 2)
-            abline(h = max(eval$dist11, na.rm = TRUE), col = 3)
-            legend("bottomright", legend = colnames(eval)[2:ncol(eval)],
-                   col = 1:(ncol(eval) - 1), pch = 1)
+            graphics::matplot(eval$k, eval[, 2:ncol(eval)], type = c("b"),
+                              pch = 1, col = 1:(ncol(eval) - 1),
+                              xlab = "k", ylab = NA)
+            graphics::abline(h = 1, col = 1)
+            graphics::abline(h = 0, col = 2)
+            graphics::abline(h = max(eval$dist11, na.rm = TRUE), col = 3)
+            graphics::legend("bottomright", legend = colnames(eval)[2:ncol(eval)],
+                             col = 1:(ncol(eval) - 1), pch = 1)
       }else{
             return(eval)
       }

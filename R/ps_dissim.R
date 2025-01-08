@@ -32,16 +32,21 @@
 #' Ecology and Evolution, 3(5), 808-812.
 #' @return A pairwise phylogenetic dissimilarity matrix of class `dist`.
 #' @examples
+#' # example data set:
+#' ps <- moss()
+#'
 #' # The default arguments give Sorensen's quantitative dissimilarity index
 #' # (a.k.a. Bray-Curtis distance):
-#' d <- ps_dissim(moss)
+#' d <- ps_dissim(ps)
 #'
-#' # This is equivalent to specifying to the formula explicitly via `designdist`:
-#' d <- ps_dissim(moss, method = "(b+c)/(2*a+b+c)", fun = "designdist", terms = "minimum", abcd = TRUE)
+#' # Specifying a custom formula explicitly via `designdist`
+#' # (this is the Bray-Curtis formula, so it's equivalent to the prior example)
+#' d <- ps_dissim(ps, method = "(b+c)/(2*a+b+c)",
+#'       fun = "designdist", terms = "minimum", abcd = TRUE)
 #'
 #' # Alternative arguments can specify a wide range of dissimilarity measures;
 #' # here's endemism-weighted Jaccard's dissimilarity:
-#' d <- ps_dissim(moss, method = "jaccard", endemism = TRUE)
+#' d <- ps_dissim(ps, method = "jaccard", endemism = TRUE)
 #'
 #' @export
 ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", "chaodist"),
@@ -85,8 +90,8 @@ ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", 
 #' @param ... Additional arguments passed to \link{ps_dissim}, such as \code{fun}, \code{endemism}, or \code{normalize}.
 #' @return \code{ps} with a new `dissim` element added.
 #' @examples
-#' ps_add_dissim(moss)
-#' ps_add_dissim(moss, fun = "vegdist", method = "jaccard", endemism = TRUE)
+#' ps_add_dissim(moss())
+#' ps_add_dissim(moss(), fun = "vegdist", method = "jaccard", endemism = TRUE)
 #'
 #' @export
 ps_add_dissim <- function(ps, method = "sorensen", ...){

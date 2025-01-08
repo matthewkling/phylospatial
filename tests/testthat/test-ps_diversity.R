@@ -1,7 +1,7 @@
 
 test_that("ps_diversity runs without error on example data", {
-      expect_no_error(ps_diversity(moss, "all"))
-      expect_no_error(ps_diversity(moss_data(), "all"))
+      expect_no_error(ps_diversity(moss(), "all"))
+      expect_no_error(ps_diversity(moss("polygon"), "all"))
 })
 
 test_that("ps_diversity runs without error on simulated data of various types", {
@@ -10,7 +10,6 @@ test_that("ps_diversity runs without error on simulated data of various types", 
       expect_no_error(ps_diversity(ps_simulate(data_type = "abundance"), "all"))
       expect_no_error(ps_diversity(ps_simulate(spatial_type = "none"), "all"))
 })
-
 
 test_that("diversity measures match canaper, for binary data", {
 
@@ -31,4 +30,24 @@ test_that("diversity measures match canaper, for binary data", {
       expect_equal(d[,1], d[,2])
       d <- na.omit(cbind(div[,"RPE"], cpr[,"rpe_obs"] / n))
       expect_equal(d[,1], d[,2])
+})
+
+
+test_that("diversity measures match `adiv::evodiv()` for abundance data", {
+
+      # simulate data
+      ps <- ps_simulate(data_type = "abundance")
+      occ <- occupied(ps)
+
+      # diversity metrics
+      div <- as.data.frame(ps_diversity(ps, spatial = FALSE))[occ,]
+      a <- as.data.frame(suppressWarnings(
+            adiv::evodiv(ps$tree,
+                         ps_get_comm(ps, tips_only = TRUE, spatial = FALSE)[occ,],
+                         method = c("Shannon", "Simpson"))))
+
+      # test
+      scl <- function(x) (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+      expect_equal(scl(div$SiPD), scl(a$Simpson))
+      expect_equal(scl(div$ShPD), scl(a$Shannon))
 })

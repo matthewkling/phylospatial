@@ -51,16 +51,21 @@ on proportional differences in community composition. The results from this func
 \link{ps_rgb} or \link{ps_regions}, or used in a variety of statistical analyses.
 }
 \examples{
+# example data set:
+ps <- moss()
+
 # The default arguments give Sorensen's quantitative dissimilarity index
 # (a.k.a. Bray-Curtis distance):
-d <- ps_dissim(moss)
+d <- ps_dissim(ps)
 
-# This is equivalent to specifying to the formula explicitly via `designdist`:
-d <- ps_dissim(moss, method = "(b+c)/(2*a+b+c)", fun = "designdist", terms = "minimum", abcd = TRUE)
+# Specifying a custom formula explicitly via `designdist`
+# (this is the Bray-Curtis formula, so it's equivalent to the prior example)
+d <- ps_dissim(ps, method = "(b+c)/(2*a+b+c)",
+      fun = "designdist", terms = "minimum", abcd = TRUE)
 
 # Alternative arguments can specify a wide range of dissimilarity measures;
 # here's endemism-weighted Jaccard's dissimilarity:
-d <- ps_dissim(moss, method = "jaccard", endemism = TRUE)
+d <- ps_dissim(ps, method = "jaccard", endemism = TRUE)
 
 }
 \references{

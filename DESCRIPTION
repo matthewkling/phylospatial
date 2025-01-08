@@ -29,10 +29,11 @@ Suggests:
     knitr,
     rmarkdown,
     tmap,
-    magrittr
+    magrittr,
+    adiv
 URL: https://matthewkling.github.io/phylospatial/
 Config/testthat/edition: 3
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5)
 LazyData: true
 VignetteBuilder: knitr
