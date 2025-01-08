@@ -34,6 +34,7 @@ test_that("diversity measures match canaper, for binary data", {
 
 
 test_that("diversity measures match `adiv::evodiv()` for abundance data", {
+      requireNamespace("adiv", quietly = TRUE)
 
       # simulate data
       ps <- ps_simulate(data_type = "abundance")
