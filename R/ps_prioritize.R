@@ -68,10 +68,14 @@ plot_lambda <- function(lambda = c(-1, -.5, 0, .5, 2, 1)){
 #'  \itemize{
 #'    \item "optimal": The default, this selects the site with the highest marginal value at each iteration. This is a
 #'    optimal approach that gives the same result each time.
-#'    \item "probable": This option selects a site randomly, with selection probabilities proportional to sites' marginal values. This
+#'    \item "probable": This option selects a site randomly, with selection probabilities calculated as a function of sites' marginal values. This
 #'    approach gives a different prioritization ranking each time an optimization is performed, so \code{n_reps} optimizations are performed,
 #'    and ranks for each site are summarized across repetitions.
 #' }
+#' @param trans A function that transforms marginal values into relative selection probabilities; only used if `method = "probable"`.
+#'    The function should take a vector of positive numbers representing marginal values and return an equal-length vector of positive numbers
+#'    representing a site's relative likelihood of being selected. The default function returns the marginal value if a site is in the top 25
+#'    highest-value sites, and zero otherwise.
 #' @param n_reps Number of random repetitions to do; only used if `method = "probable"`. Depending on the data set, a large number of reps
 #'    (more than the default of 100) may be needed in order to achieve a stable result. This may be a computational barrier for large data
 #'    sets; multicore processing via \code{n_cores} can help.
@@ -144,6 +148,7 @@ ps_prioritize <- function(ps,
                           protection = 1,
                           max_iter = NULL,
                           method = c("optimal", "probable"),
+                          trans = function(x) replace(x, which(rank(-x) > 25), 0),
                           n_reps = 100, n_cores = 1, summarize = TRUE,
                           spatial = TRUE,
                           progress = interactive()){
@@ -205,9 +210,9 @@ ps_prioritize <- function(ps,
                   mv <- mv / cost
                   if(sum(mv) == 0) break()
 
-                  # protect optimal site
+                  # identify and protect optimal site
                   if(method == "optimal") o <- which(mv == max(mv, na.rm = TRUE)) # identify optimal site(s)
-                  if(method == "probable") o <- sample(1:length(mv), 1, prob = mv)
+                  if(method == "probable") o <- sample(1:length(mv), 1, prob = trans(mv))
                   if(length(o) > 1) o <- sample(o, 1) # random tiebreaker
                   if(mv[o] == 0) break()
                   p[o] <- protection # protect site

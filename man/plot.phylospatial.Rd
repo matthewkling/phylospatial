@@ -24,6 +24,7 @@ A plot of the tree or community data.
 Plot a \code{phylospatial} object
 }
 \examples{
-plot(moss(), "tree")
-plot(moss(), "comm")
+ps <- ps_simulate()
+plot(ps, "tree")
+plot(ps, "comm")
 }

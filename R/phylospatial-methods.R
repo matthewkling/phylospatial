@@ -23,8 +23,9 @@ print.phylospatial <- function(x, ...){
 #' @return A plot of the tree or community data.
 #' @method plot phylospatial
 #' @examples
-#' plot(moss(), "tree")
-#' plot(moss(), "comm")
+#' ps <- ps_simulate()
+#' plot(ps, "tree")
+#' plot(ps, "comm")
 #' @export
 plot.phylospatial <- function(x, y = c("tree", "comm"),
                               max_taxa = 12,

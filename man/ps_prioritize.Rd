@@ -12,6 +12,7 @@ ps_prioritize(
   protection = 1,
   max_iter = NULL,
   method = c("optimal", "probable"),
+  trans = function(x) replace(x, which(rank(-x) > 25), 0),
   n_reps = 100,
   n_cores = 1,
   summarize = TRUE,
@@ -43,10 +44,15 @@ rather than partially protecting all taxa. See the function \link{plot_lambda} f
 \itemize{
 \item "optimal": The default, this selects the site with the highest marginal value at each iteration. This is a
 optimal approach that gives the same result each time.
-\item "probable": This option selects a site randomly, with selection probabilities proportional to sites' marginal values. This
+\item "probable": This option selects a site randomly, with selection probabilities calculated as a function of sites' marginal values. This
 approach gives a different prioritization ranking each time an optimization is performed, so \code{n_reps} optimizations are performed,
 and ranks for each site are summarized across repetitions.
 }}
+
+\item{trans}{A function that transforms marginal values into relative selection probabilities; only used if \code{method = "probable"}.
+The function should take a vector of positive numbers representing marginal values and return an equal-length vector of positive numbers
+representing a site's relative likelihood of being selected. The default function returns the marginal value if a site is in the top 25
+highest-value sites, and zero otherwise.}
 
 \item{n_reps}{Number of random repetitions to do; only used if \code{method = "probable"}. Depending on the data set, a large number of reps
 (more than the default of 100) may be needed in order to achieve a stable result. This may be a computational barrier for large data

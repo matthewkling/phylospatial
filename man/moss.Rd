@@ -21,7 +21,6 @@ across California. This data set is a coarser version of data from Kling et al. 
 occurrence probabilities, and is available in raster or polygon spatial formats.
 }
 \examples{
-moss("raster")
-moss("polygon")
+moss()
 
 }

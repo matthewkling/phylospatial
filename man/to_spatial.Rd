@@ -20,9 +20,6 @@ a variable for every column in \code{m}, depending on the data type of \code{tem
 Convert a site-by-variable matrix into a SpatRaster or sf object
 }
 \examples{
-# example using `sf` data set `moss_hex`:
-to_spatial(moss("polygon")$comm[, 1:5], moss("polygon")$spatial)
-
-# and using a `SpatRaster` data set `moss`:
-to_spatial(moss("polygon")$comm[, 1:5], moss("polygon")$spatial)
+ps <- moss()
+to_spatial(ps$comm[, 1:5], ps$spatial)
 }

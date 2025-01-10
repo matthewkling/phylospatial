@@ -58,7 +58,7 @@ ps <- moss()
 # (a.k.a. Bray-Curtis distance):
 d <- ps_dissim(ps)
 
-# Specifying a custom formula explicitly via `designdist`
+# Specifying a custom formula explicitly via `designdist`;
 # (this is the Bray-Curtis formula, so it's equivalent to the prior example)
 d <- ps_dissim(ps, method = "(b+c)/(2*a+b+c)",
       fun = "designdist", terms = "minimum", abcd = TRUE)
@@ -69,8 +69,14 @@ d <- ps_dissim(ps, method = "jaccard", endemism = TRUE)
 
 }
 \references{
+Graham, C. H., & Fine, P. V. (2008). Phylogenetic beta diversity: linking ecological and evolutionary
+processes across space in time. Ecology Letters, 11(12), 1265-1277.
+
 Baselga, A., & Orme, C. D. L. (2012). betapart: an R package for the study of beta diversity. Methods in
 Ecology and Evolution, 3(5), 808-812.
+
+Pavoine, S. (2016). A guide through a family of phylogenetic dissimilarity measures among sites.
+Oikos, 125(12), 1719-1732.
 }
 \seealso{
 \code{\link[=ps_add_dissim]{ps_add_dissim()}}

@@ -21,7 +21,8 @@ This function calculates pairwise phylogenetic dissimilarity between communities
 object with the dissimilarity data added as an element called \code{dissim}. See \link{ps_dissim} for details.
 }
 \examples{
-ps_add_dissim(moss())
-ps_add_dissim(moss(), fun = "vegdist", method = "jaccard", endemism = TRUE)
+ps <- ps_simulate(data_type = "prob")
+ps_add_dissim(ps)
+ps_add_dissim(ps, fun = "vegdist", method = "jaccard", endemism = TRUE)
 
 }

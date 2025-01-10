@@ -20,9 +20,9 @@ A matrix, \code{sf} data frame, or \code{SpatRaster} with a column or layer for 
 \description{
 This function calculates a variety of diversity and endemism metrics including Faith's phylogenetic diversity,
 Shannon phylogenetic entropy, Simpson phylogentic diversity, relative phylogentic diversity, richness of clades,
-richness of terminals (typically species), and versions of all these metrics weighted by endemism. If continuous
-community data (probabilities or abundances) are provided, they are used in calculations, giving quantitative
-versions of the classic binary metrics.
+richness of terminals (typically species), and versions of all these metrics weighted by endemism (i.e. rarity).
+If continuous community data (probabilities or abundances) are provided, they are used in calculations, giving
+quantitative versions of the classic binary metrics.
 }
 \details{
 The function calculates the following metrics:
@@ -31,7 +31,7 @@ The function calculates the following metrics:
 \item TE---Terminal Endemism, i.e. total endemism-weighted diversity of terminal taxa, a.k.a. "weighted endemism": \eqn{\sum_{t}{p_t r_t^{-1}}}
 \item CD---Clade Diversity, i.e. richness of taxa at all levels (equivalent to PD on a cladogram): \eqn{\sum_{b}{p_b}}
 \item CE---Clade Endemism, i.e. total endemism-weighted diversity of taxa at all levels (equivalent to PE on a cladrogram): \eqn{\sum_{b}{p_b r_b^{-1}}}
-\item PD---Faith's Phylogenetic Diversity: \eqn{\sum_{b}{L_b p_b}}
+\item PD---Phylogenetic Diversity: \eqn{\sum_{b}{L_b p_b}}
 \item PE---Phylogenetic Endemism, i.e. endemism-weighted PD: \eqn{\sum_{b}{L_b p_b r_b^{-1}}}
 \item RPD---Relative Phylogenetic Diversity, i.e. branch length of mean resident (equivalent to PD / CR): \eqn{\sum_{b}{L_b p_b} / \sum_{b}{p_b}}
 \item RPE---Relative Phylogenetic Endemism, i.e. mean endemism-weighted branch length (equivalent to PE / CE): \eqn{\sum_{b}{L_b p_b r_b^{-1}} / \sum_{b}{p_b r_b^{-1}}}
