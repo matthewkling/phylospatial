@@ -1,5 +1,5 @@
 test_that("`ps_ordinate()` and `ps_rgb()` run without error on example data", {
-      ps <- ps_add_dissim(moss())
+      ps <- ps_add_dissim(ps_simulate())
 
       expect_no_error(ps_ordinate(ps, method = "cmds", k = 4))
       expect_no_error(ps_ordinate(ps, method = "nmds", k = 2))

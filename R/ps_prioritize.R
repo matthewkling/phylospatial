@@ -119,6 +119,7 @@ plot_lambda <- function(lambda = c(-1, -.5, 0, .5, 2, 1)){
 #'    each representing the the ranking, with low values representing higher priorities.. }
 #' }
 #' @examples
+#' \donttest{
 #' # simulate a toy `phylospatial` data set
 #' set.seed(123)
 #' ps <- ps_simulate()
@@ -126,7 +127,6 @@ plot_lambda <- function(lambda = c(-1, -.5, 0, .5, 2, 1)){
 #' # basic prioritization
 #' p <- ps_prioritize(ps)
 #'
-#' \donttest{
 #' # specifying locations of initial protected areas
 #' # (can be binary, or can be continuous values between 0 and 1)
 #' # here we'll create an `init` raster with arbitrary values ranging from 0-1,

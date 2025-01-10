@@ -21,13 +21,13 @@
 #' @references Daru, B. H., Elliott, T. L., Park, D. S., & Davies, T. J. (2017). Understanding the processes underpinning
 #' patterns of phylogenetic regionalization. Trends in Ecology & Evolution, 32(11), 845-860.
 #' @examples
-#' library(sf)
+#' ps <- ps_simulate()
 #'
-#' # moss example data, using kmeans clustering algorithm
-#' plot(ps_regions(moss("polygon"), method = "kmeans"))
+#' # using kmeans clustering algorithm
+#' terra::plot(ps_regions(ps, method = "kmeans"))
 #'
 #' # to use a hierarchical clustering method, first we have to `ps_add_dissim()`
-#' plot(ps_regions(ps_add_dissim(moss("polygon")), k = 7, method = "average"))
+#' terra::plot(ps_regions(ps_add_dissim(ps), k = 7, method = "average"))
 #'
 #' @export
 ps_regions <- function(ps, k = 5, method = "average", endemism = FALSE, normalize = TRUE){
@@ -102,7 +102,7 @@ ps_regions <- function(ps, k = 5, method = "average", endemism = FALSE, normaliz
 #' }
 #'
 #' @examples
-#' ps <- ps_add_dissim(moss())
+#' ps <- ps_add_dissim(ps_simulate())
 #' ps_regions_eval(ps, k = 1:15, plot = TRUE)
 #'
 #' @export

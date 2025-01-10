@@ -32,13 +32,13 @@ Perform a clustering analysis that categorizes sites into biogeographic regions 
 compositional similarity.
 }
 \examples{
-library(sf)
+ps <- ps_simulate()
 
-# moss example data, using kmeans clustering algorithm
-plot(ps_regions(moss("polygon"), method = "kmeans"))
+# using kmeans clustering algorithm
+terra::plot(ps_regions(ps, method = "kmeans"))
 
 # to use a hierarchical clustering method, first we have to `ps_add_dissim()`
-plot(ps_regions(ps_add_dissim(moss("polygon")), k = 7, method = "average"))
+terra::plot(ps_regions(ps_add_dissim(ps), k = 7, method = "average"))
 
 }
 \references{

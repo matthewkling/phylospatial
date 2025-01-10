@@ -49,7 +49,8 @@ For Shannon and Simpson indices, only nonzero elements of \eqn{p_b} are used, \e
 \eqn{e_b = p_b / \sum_{b}{p_b L_b r_b^{-1}}}.
 }
 \examples{
-div <- ps_diversity(moss())
+ps <- ps_simulate()
+div <- ps_diversity(ps)
 terra::plot(div)
 
 }

@@ -1,12 +1,14 @@
 test_that("phylospatial function works on example data", {
-      suppressWarnings(library(sf))
-      expect_no_error(phylospatial(ps_get_comm(moss()), moss()$tree))
+      ps <- moss()
+      expect_no_error(phylospatial(ps_get_comm(ps), ps$tree))
+
+      ps <- moss("polygon")
+      expect_no_error(phylospatial(ps_get_comm(ps), ps$tree))
+
 })
 
 test_that("taxa are not scrambled during data transformations", {
-      suppressWarnings(library(sf))
-
-      ps <- moss()
+      ps <- ps_simulate()
       comm <- ps_get_comm(ps, spatial = FALSE)
 
       ps2 <- phylospatial(comm, ps$tree)
@@ -17,14 +19,15 @@ test_that("taxa are not scrambled during data transformations", {
 })
 
 test_that("disabling `build` works", {
-      expect_no_error(phylospatial(ps_get_comm(moss(), tips_only = FALSE, spatial = FALSE),
-                                   moss()$tree,
+      ps <- ps_simulate()
+      expect_no_error(phylospatial(ps_get_comm(ps, tips_only = FALSE, spatial = FALSE),
+                                   ps$tree,
                                    build = FALSE))
 })
 
 
 test_that("functions work without a phylogeny", {
-      comm <- ps_get_comm(moss())
+      comm <- ps_get_comm(ps_simulate())
       ps <- expect_no_error(suppressWarnings(phylospatial(comm)))
       expect_no_error(ps_diversity(ps))
       expect_no_error(ps_dissim(ps))

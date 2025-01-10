@@ -111,6 +111,7 @@ protecting a small portion of every taxon's range, versus fully protecting the r
 evolutionary branches and smaller geographic ranges).
 }
 \examples{
+\donttest{
 # simulate a toy `phylospatial` data set
 set.seed(123)
 ps <- ps_simulate()
@@ -118,7 +119,6 @@ ps <- ps_simulate()
 # basic prioritization
 p <- ps_prioritize(ps)
 
-\donttest{
 # specifying locations of initial protected areas
 # (can be binary, or can be continuous values between 0 and 1)
 # here we'll create an `init` raster with arbitrary values ranging from 0-1,

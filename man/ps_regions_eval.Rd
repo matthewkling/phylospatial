@@ -40,7 +40,7 @@ many data sets have no optimal value of \code{k} and the choice is often highly 
 can help you identify potential points where the variance explained stops increasing quickly as \code{k} increases.
 }
 \examples{
-ps <- ps_add_dissim(moss())
+ps <- ps_add_dissim(ps_simulate())
 ps_regions_eval(ps, k = 1:15, plot = TRUE)
 
 }

@@ -32,6 +32,7 @@ Endemism significance categories are defined as follows:
 }
 }
 \examples{
+\donttest{
 # classic CANAPE using binary data and the curveball algorithm
 # (note that a real analysis would require a much higher `n_rand`)
 set.seed(123456)
@@ -41,6 +42,7 @@ rand <- ps_rand(ps, metric = c("PE", "RPE", "CE"),
                 n_rand = 25, burnin = 10000, progress = FALSE)
 canape <- ps_canape(rand)
 terra::plot(canape)
+}
 
 }
 \references{

@@ -22,6 +22,7 @@
 #' corresponding to not-significant, mixed-, super-, neo-, and paleo-endemism, respectively.
 #'
 #' @examples
+#' \donttest{
 #' # classic CANAPE using binary data and the curveball algorithm
 #' # (note that a real analysis would require a much higher `n_rand`)
 #' set.seed(123456)
@@ -31,6 +32,7 @@
 #'                 n_rand = 25, burnin = 10000, progress = FALSE)
 #' canape <- ps_canape(rand)
 #' terra::plot(canape)
+#' }
 #'
 #' @references
 #' Mishler, B. D., Knerr, N., González-Orozco, C. E., Thornhill, A. H., Laffan, S. W., & Miller, J. T. (2014).

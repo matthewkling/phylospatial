@@ -55,11 +55,11 @@ ps %>%
       tm_layout(title = "Phylogenetic community ordination")
 ```
 
-We can also qualitatively visualize compositional patterns by converting ordination axes to a set of colors representing how similar two sites are to each other, using the `ps_rgb()` function. Let's do that here, using the `"nmds"` (nonmetric multidimensional scaling) ordination algorithm, and then plot the result using `tmap::tm_rgb()`:
+We can also qualitatively visualize compositional patterns by converting ordination axes to a set of colors representing how similar two sites are to each other, using the `ps_rgb()` function. Let's do that here, using the `"cmds"` (classical multidimensional scaling) ordination algorithm, and then plot the result using `tmap::tm_rgb()`:
 
 ```{r rgb, message=FALSE, warning=FALSE}
 ps %>%
-      ps_rgb(method = "nmds") %>%
+      ps_rgb(method = "cmds") %>%
       tm_shape() +
       tm_rgb(max.value = 1, interpolate = FALSE) +
       tm_layout(title = "Phylogenetic community ordination")

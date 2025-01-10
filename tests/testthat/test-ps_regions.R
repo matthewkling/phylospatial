@@ -1,10 +1,11 @@
 test_that("`ps_regions()` runs without error on example data", {
-      expect_no_error(ps_regions(moss(), method = "kmeans"))
-      expect_no_error(ps_regions(moss("polygon"), method = "kmeans"))
-      expect_no_error(ps_regions(ps_simulate(spatial_type = "none"), method = "kmeans"))
-      expect_no_error(ps_regions(ps_add_dissim(moss()), method = "average"))
-})
 
-test_that("`ps_regions_eval()` runs without error on example data", {
-      expect_no_error(ps_regions_eval(ps_add_dissim(moss()), k = 1:20))
+      ps <- ps_add_dissim(ps_simulate())
+
+      expect_no_error(ps_regions(ps, method = "kmeans"))
+      expect_no_error(ps_regions(ps_simulate(spatial_type = "none"), method = "kmeans"))
+      expect_no_error(ps_regions(ps, method = "average"))
+
+      # ps_regions_eval():
+      expect_no_error(ps_regions_eval(ps, k = 1:20))
 })

@@ -74,7 +74,7 @@ to_spatial <- function(m, template){
       if(inherits(template, "sf")){
             s <- cbind(template, as.data.frame(m))
       }
-      if(inherits(template, "NULL")){
+      if(!inherits(template, c("SpatRaster", "sf"))){
             s <- m
       }
       s

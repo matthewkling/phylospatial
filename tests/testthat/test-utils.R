@@ -1,11 +1,13 @@
 
-test_that("ps_get_comm runs without error on example data", {
-      expect_no_error(ps_get_comm(moss()))
-      expect_no_error(ps_get_comm(moss("polygon")))
-      expect_no_error(ps_get_comm(moss(), tips_only = FALSE, spatial = FALSE))
-})
+test_that("utilities without error on example data", {
 
-test_that("to_spatial runs without error on example data", {
-      expect_no_error(to_spatial(moss()$comm, moss()$spatial))
-      expect_no_error(to_spatial(moss("polygon")$comm, moss("polygon")$spatial))
+      mr <- ps_simulate(spatial_type = "rast")
+      mp <- moss("poly")
+
+      expect_no_error(ps_get_comm(mr))
+      expect_no_error(ps_get_comm(mp))
+      expect_no_error(ps_get_comm(mr, tips_only = FALSE, spatial = FALSE))
+
+      expect_no_error(to_spatial(mr$comm, mr$spatial))
+      expect_no_error(to_spatial(mp$comm, mp$spatial))
 })

@@ -56,7 +56,8 @@
 #' diversification, divergence and survival as conservation targets. Philosophical Transactions of the Royal Society B, 374(1763), 20170397.
 #'
 #' @examples
-#' div <- ps_diversity(moss())
+#' ps <- ps_simulate()
+#' div <- ps_diversity(ps)
 #' terra::plot(div)
 #'
 #' @export

@@ -68,6 +68,7 @@ new_phylospatial <- function(comm, tree, spatial, dissim = NULL, data_type, clad
 #' }
 #'
 #' @examples
+#' \donttest{
 #' # load species distribution data and phylogeny
 #' comm <- terra::rast(system.file("extdata", "moss_comm.tif", package = "phylospatial"))
 #' tree <- ape::read.tree(system.file("extdata", "moss_tree.nex", package = "phylospatial"))
@@ -75,11 +76,7 @@ new_phylospatial <- function(comm, tree, spatial, dissim = NULL, data_type, clad
 #' # construct `phylospatial` object
 #' ps <- phylospatial(comm, tree)
 #' ps
-#'
-#' # construct `phylospatial` object without a tree
-#' # (works, with a warning)
-#' ps <- phylospatial(comm)
-#'
+#' }
 #' @export
 phylospatial <- function(comm, tree = NULL, spatial = NULL,
                          data_type = c("auto", "probability", "binary", "abundance", "other"),

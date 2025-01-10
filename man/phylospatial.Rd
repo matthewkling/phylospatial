@@ -78,6 +78,7 @@ might want to use this option if you have your own distribution data data on all
 clades in addition to terminal species), or if your community data comes from a previously-constructed \code{phylospatial} object.
 }
 \examples{
+\donttest{
 # load species distribution data and phylogeny
 comm <- terra::rast(system.file("extdata", "moss_comm.tif", package = "phylospatial"))
 tree <- ape::read.tree(system.file("extdata", "moss_tree.nex", package = "phylospatial"))
@@ -85,9 +86,5 @@ tree <- ape::read.tree(system.file("extdata", "moss_tree.nex", package = "phylos
 # construct `phylospatial` object
 ps <- phylospatial(comm, tree)
 ps
-
-# construct `phylospatial` object without a tree
-# (works, with a warning)
-ps <- phylospatial(comm)
-
+}
 }

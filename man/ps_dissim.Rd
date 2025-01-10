@@ -52,7 +52,7 @@ on proportional differences in community composition. The results from this func
 }
 \examples{
 # example data set:
-ps <- moss()
+ps <- ps_simulate(n_tips = 50)
 
 # The default arguments give Sorensen's quantitative dissimilarity index
 # (a.k.a. Bray-Curtis distance):

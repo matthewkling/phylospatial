@@ -15,7 +15,7 @@
 #'
 #' @return A matrix or spatial object with `k` variables.
 #' @examples
-#' ps <- ps_add_dissim(moss())
+#' ps <- ps_add_dissim(ps_simulate(50, 5, 5))
 #' ord <- ps_ordinate(ps, method = "cmds", k = 4)
 #' terra::plot(ord)
 #'

@@ -64,10 +64,10 @@ tm_shape(div$PE) +
 
 We can also use randomization to calculate the statistical significance of these diversity metrics under a null model, using the `ps_rand()` function. By default, this function uses `quantize()`, a stratified randomization scheme designed for use with continuous occurrence data, in combination with the `"curveball"` algorithm. 
 
-Let's run 100 randomizations (more would be necessary for a real analysis) for all metrics, and plot the results for PE. This is a quantile value that gives the proportion of randomizations in which observed PE was greater than randomized PE in a given grid cell. (If you wanted to identify "statistically significant" grid cells in a one-tailed test with alpha = 0.05, these would be cells with values greater than 0.95.)
+Let's run 25 randomizations (far more would be necessary for a real analysis) for all metrics, and plot the results for PE. This is a quantile value that gives the proportion of randomizations in which observed PE was greater than randomized PE in a given grid cell. (If you wanted to identify "statistically significant" grid cells in a one-tailed test with alpha = 0.05, these would be cells with values greater than 0.95.)
 
 ```{r rand, message=FALSE, warning=FALSE}
-rand <- ps_rand(ps, n_rand = 10, progress = FALSE)
+rand <- ps_rand(ps, n_rand = 25, progress = FALSE)
 tm_shape(rand$qPE) + 
       tm_raster(palette = "inferno", style = "cont") +
       tm_layout(legend.outside = TRUE)
@@ -75,7 +75,7 @@ tm_shape(rand$qPE) +
 
 There are numerous alternative options for randomization algorithms to use, depending on the type of occurrence data you have (probability, binary, or abundance) and depending on which attributes of the terminal community matrix (fill, row and column sums, etc.) you want to hold fixed. For example, here's a randomization with an abundance data set, using the `"abuswap_c"` algorithm provided by `vegan::nullmodel`:
 
-```{r rand2, message=FALSE, warning=FALSE}
+```{r rand2, message=FALSE, warning=FALSE, eval=FALSE}
 ps2 <- ps_simulate(data_type = "abundance")
 rand2 <- ps_rand(ps2, fun = "nullmodel", method = "abuswap_c", progress = FALSE)
 ```

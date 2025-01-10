@@ -1,7 +1,7 @@
 
 #' @method print phylospatial
 #' @return prints a summary of the phylospatial object
-#' @examples print(moss)
+#' @examples print(ps_simulate())
 #' @export
 print.phylospatial <- function(x, ...){
       cat("`phylospatial` object\n",
