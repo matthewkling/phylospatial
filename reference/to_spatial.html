@@ -67,67 +67,21 @@ a variable for every column in <code>m</code>, depending on the data type of <co
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># example using `sf` data set `moss_hex`:</span></span></span>
-<span class="r-in"><span><span class="fu">to_spatial</span><span class="op">(</span><span class="fu"><a href="moss.html">moss</a></span><span class="op">(</span><span class="st">"polygon"</span><span class="op">)</span><span class="op">$</span><span class="va">comm</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="fu"><a href="moss.html">moss</a></span><span class="op">(</span><span class="st">"polygon"</span><span class="op">)</span><span class="op">$</span><span class="va">spatial</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 527 features and 5 fields</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: POLYGON</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: -375000 ymin: -630000 xmax: 555000 ymax: 450000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Projected CRS: unnamed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> First 10 features:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          clade1 Sphagnum_teres       clade2 Sphagnum_squarrosum       clade3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.0153801784   1.832663e-29 0.0153801784        4.061571e-05 0.0153401858</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.0270682060   2.796592e-25 0.0270682060        2.341211e-03 0.0247850219</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.0581547094   1.398105e-21 0.0581547094        4.884653e-02 0.0097861997</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.2086119861   2.853711e-18 0.2086119861        2.016190e-01 0.0087590150</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.2530552111   1.080983e-15 0.2530552111        2.465081e-01 0.0086890374</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.0584494860   1.026890e-13 0.0584494860        5.655514e-02 0.0020079025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  0.0170809968   4.367453e-12 0.0170809968        1.435780e-02 0.0027628668</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  0.0004397862   4.552663e-11 0.0004397862        1.957388e-04 0.0002440952</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  0.0001781171   7.732686e-11 0.0001781170        1.256262e-06 0.0001768609</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.0127500322   7.544112e-11 0.0127500322        4.675405e-09 0.0127500275</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                 x</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  POLYGON ((-375000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  POLYGON ((-345000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  POLYGON ((-315000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  POLYGON ((-285000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  POLYGON ((-255000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  POLYGON ((-225000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  POLYGON ((-195000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  POLYGON ((-165000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  POLYGON ((-135000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 POLYGON ((-105000 420000, -...</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># and using a `SpatRaster` data set `moss`:</span></span></span>
-<span class="r-in"><span><span class="fu">to_spatial</span><span class="op">(</span><span class="fu"><a href="moss.html">moss</a></span><span class="op">(</span><span class="st">"polygon"</span><span class="op">)</span><span class="op">$</span><span class="va">comm</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="fu"><a href="moss.html">moss</a></span><span class="op">(</span><span class="st">"polygon"</span><span class="op">)</span><span class="op">$</span><span class="va">spatial</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 527 features and 5 fields</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: POLYGON</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: -375000 ymin: -630000 xmax: 555000 ymax: 450000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Projected CRS: unnamed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> First 10 features:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          clade1 Sphagnum_teres       clade2 Sphagnum_squarrosum       clade3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.0153801784   1.832663e-29 0.0153801784        4.061571e-05 0.0153401858</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.0270682060   2.796592e-25 0.0270682060        2.341211e-03 0.0247850219</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.0581547094   1.398105e-21 0.0581547094        4.884653e-02 0.0097861997</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.2086119861   2.853711e-18 0.2086119861        2.016190e-01 0.0087590150</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.2530552111   1.080983e-15 0.2530552111        2.465081e-01 0.0086890374</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.0584494860   1.026890e-13 0.0584494860        5.655514e-02 0.0020079025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  0.0170809968   4.367453e-12 0.0170809968        1.435780e-02 0.0027628668</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  0.0004397862   4.552663e-11 0.0004397862        1.957388e-04 0.0002440952</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  0.0001781171   7.732686e-11 0.0001781170        1.256262e-06 0.0001768609</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.0127500322   7.544112e-11 0.0127500322        4.675405e-09 0.0127500275</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                 x</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  POLYGON ((-375000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  POLYGON ((-345000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  POLYGON ((-315000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  POLYGON ((-285000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  POLYGON ((-255000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  POLYGON ((-225000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  POLYGON ((-195000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  POLYGON ((-165000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  POLYGON ((-135000 420000, -...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 POLYGON ((-105000 420000, -...</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="moss.html">moss</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">to_spatial</span><span class="op">(</span><span class="va">ps</span><span class="op">$</span><span class="va">comm</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="va">ps</span><span class="op">$</span><span class="va">spatial</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> dimensions  : 36, 31, 5  (nrow, ncol, nlyr)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 30000, 30000  (x, y)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : -375000, 555000, -630000, 450000  (xmin, xmax, ymin, ymax)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +datum=NAD83 +units=m +no_defs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> varnames    : clade1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Sphagnum_teres </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               clade2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       :   clade1, Sphagnum_teres,    clade2, Sphagn~rrosum,    clade3 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 0.000000,      0.0000000, 0.0000000,     0.0000000, 0.0000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 0.996422,      0.5368522, 0.9961039,     0.6190746, 0.9961031 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

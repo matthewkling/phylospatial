@@ -206,9 +206,11 @@ in our data set, and we can confirm that it did so correctly by checking
 to calculate clade occurrence values gives the probability that at least
 one member of the clade is present in a given site. Abundance and binary
 data have their own default functions. (You can also override the
-defaults by supplying your own <code>clade_fun</code>.) The function
-that was used for a given data set can be accessed at
-<code>ps$clade_fun</code>.</p>
+defaults by supplying your own <code>clade_fun</code>—for example, if
+you had occurrence probabilities that you knew were strongly
+non-independent among species, you could specify
+<code>clade_fun = max</code>.) The function that was used for a given
+data set can be accessed at <code>ps$clade_fun</code>.</p>
 <p>Note that you can also specify your own clade ranges to
 <code><a href="../reference/phylospatial.html">phylospatial()</a></code> rather than letting it build them for you,
 by setting <code>build = FALSE</code>. You might want to do this if, for

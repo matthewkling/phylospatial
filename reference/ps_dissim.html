@@ -115,8 +115,12 @@ applied after endemism.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Baselga, A., &amp; Orme, C. D. L. (2012). betapart: an R package for the study of beta diversity. Methods in
+    <p>Graham, C. H., &amp; Fine, P. V. (2008). Phylogenetic beta diversity: linking ecological and evolutionary
+processes across space in time. Ecology Letters, 11(12), 1265-1277.</p>
+<p>Baselga, A., &amp; Orme, C. D. L. (2012). betapart: an R package for the study of beta diversity. Methods in
 Ecology and Evolution, 3(5), 808-812.</p>
+<p>Pavoine, S. (2016). A guide through a family of phylogenetic dissimilarity measures among sites.
+Oikos, 125(12), 1719-1732.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -132,7 +136,7 @@ Ecology and Evolution, 3(5), 808-812.</p>
 <span class="r-in"><span><span class="co"># (a.k.a. Bray-Curtis distance):</span></span></span>
 <span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">ps_dissim</span><span class="op">(</span><span class="va">ps</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Specifying a custom formula explicitly via `designdist`</span></span></span>
+<span class="r-in"><span><span class="co"># Specifying a custom formula explicitly via `designdist`;</span></span></span>
 <span class="r-in"><span><span class="co"># (this is the Bray-Curtis formula, so it's equivalent to the prior example)</span></span></span>
 <span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">ps_dissim</span><span class="op">(</span><span class="va">ps</span>, method <span class="op">=</span> <span class="st">"(b+c)/(2*a+b+c)"</span>,</span></span>
 <span class="r-in"><span>      fun <span class="op">=</span> <span class="st">"designdist"</span>, terms <span class="op">=</span> <span class="st">"minimum"</span>, abcd <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

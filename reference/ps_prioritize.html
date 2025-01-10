@@ -66,6 +66,7 @@ parameter "lambda" determining the shape of the conservation benefit function.</
 <span>  protection <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  max_iter <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"optimal"</span>, <span class="st">"probable"</span><span class="op">)</span>,</span>
+<span>  trans <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/replace.html" class="external-link">replace</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rank.html" class="external-link">rank</a></span><span class="op">(</span><span class="op">-</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">25</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  n_reps <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  n_cores <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  summarize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -112,10 +113,17 @@ rather than partially protecting all taxa. See the function <a href="plot_lambda
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>Procedure for selecting which site to add to the reserve network at each iteration:</p><ul><li><p>"optimal": The default, this selects the site with the highest marginal value at each iteration. This is a
 optimal approach that gives the same result each time.</p></li>
-<li><p>"probable": This option selects a site randomly, with selection probabilities proportional to sites' marginal values. This
+<li><p>"probable": This option selects a site randomly, with selection probabilities calculated as a function of sites' marginal values. This
 approach gives a different prioritization ranking each time an optimization is performed, so <code>n_reps</code> optimizations are performed,
 and ranks for each site are summarized across repetitions.</p></li>
 </ul></dd>
+
+
+<dt id="arg-trans">trans<a class="anchor" aria-label="anchor" href="#arg-trans"></a></dt>
+<dd><p>A function that transforms marginal values into relative selection probabilities; only used if <code>method = "probable"</code>.
+The function should take a vector of positive numbers representing marginal values and return an equal-length vector of positive numbers
+representing a site's relative likelihood of being selected. The default function returns the marginal value if a site is in the top 25
+highest-value sites, and zero otherwise.</p></dd>
 
 
 <dt id="arg-n-reps">n_reps<a class="anchor" aria-label="anchor" href="#arg-n-reps"></a></dt>

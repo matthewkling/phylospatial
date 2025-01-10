@@ -181,13 +181,13 @@ that were already selected because they have slightly higher value.</p>
 <code>method = "probable"</code>, addresses these issues. At each
 iteration, instead of protecting the site with the highest marginal
 value as done in the <code>"optimal"</code> method, this approach
-protects a random site, selected with a probability proportional to its
-marginal value. The trade-off is that individual runs of the algorithm
-can be highly variable, so the algorithm needs to be run many times, and
-prioritization rankings summarized across these repeated runs. When
-using the probabilistic method, <code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code> returns
-summary statistics for each site including its average priority rank
-across reps, various quantiles of its rank distribution, and the
+protects a random site, selected with a probability that is a function
+of the site’s marginal value. The trade-off is that individual runs of
+the algorithm can be highly variable, so the algorithm needs to be run
+many times, and prioritization rankings summarized across these repeated
+runs. When using the probabilistic method, <code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code>
+returns summary statistics for each site including its average priority
+rank across reps, various quantiles of its rank distribution, and the
 proportion of reps in which a site was among the top-ranked sites.</p>
 <p>Running a large number of <code>n_reps</code> can substantially
 increase computation times, but there are two ways to help mitigate run
@@ -199,7 +199,7 @@ your data set has 1000 sites, setting <code>max_iter = 10</code> can
 reduce run times by almost two orders of magnitude. While you won’t get
 a full rank prioritization of all sites from any individual rep, you
 will get the proportion of reps in which a site is in the top 10, which
-is arguably even more informative.</p>
+is arguably even more useful.</p>
 <p>Let’s demonstrate that here; we’ll use 1000 reps for expediency, but
 10000 or more would be better for a real analysis:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
