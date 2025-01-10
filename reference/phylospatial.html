@@ -149,7 +149,8 @@ clades in addition to terminal species), or if your community data comes from a 
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># load species distribution data and phylogeny</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># load species distribution data and phylogeny</span></span></span>
 <span class="r-in"><span><span class="va">comm</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"moss_comm.tif"</span>, package <span class="op">=</span> <span class="st">"phylospatial"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu">ape</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">read.tree</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"moss_tree.nex"</span>, package <span class="op">=</span> <span class="st">"phylospatial"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -162,13 +163,7 @@ clades in addition to terminal species), or if your community data comes from a 
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - community data type: probability </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - spatial data class: SpatRaster </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - dissimilarity data: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># construct `phylospatial` object without a tree</span></span></span>
-<span class="r-in"><span><span class="co"># (works, with a warning)</span></span></span>
-<span class="r-in"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu">phylospatial</span><span class="op">(</span><span class="va">comm</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>No phylogenetic tree was provided; any analyses using this `phylospatial` object will be non-phylogenetic.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Community data type detected: probability</span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

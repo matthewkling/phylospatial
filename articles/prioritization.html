@@ -200,10 +200,10 @@ reduce run times by almost two orders of magnitude. While you won’t get
 a full rank prioritization of all sites from any individual rep, you
 will get the proportion of reps in which a site is in the top 10, which
 is arguably even more useful.</p>
-<p>Let’s demonstrate that here; we’ll use 1000 reps for expediency, but
-10000 or more would be better for a real analysis:</p>
+<p>Let’s demonstrate that here; we’ll use just 100 reps for expediency,
+but 1000 or more would be better for a real analysis:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">init</span>, cost <span class="op">=</span> <span class="va">cost</span>, n_reps <span class="op">=</span> <span class="fl">1000</span>,</span>
+<code class="sourceCode R"><span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">init</span>, cost <span class="op">=</span> <span class="va">cost</span>, n_reps <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>                          method <span class="op">=</span> <span class="st">"prob"</span>, max_iter <span class="op">=</span> <span class="fl">10</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">priority</span><span class="op">$</span><span class="va">top10</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -244,36 +244,7 @@ applications.</p>
 <p>Deciding which value to use is a subjective choice, and you should
 consider what makes the most sense for your particular use case. It can
 also be useful to compare different values to understand how sensitive
-your results may be to this choice. Here, let’s compare optimizations
-using lambda values of -1, 0, 1, and 2:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span></span>
-<span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lambda</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span></span>
-<span>      <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">init</span>, lambda <span class="op">=</span> <span class="va">x</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in ps_prioritize(ps, init = init, lambda = x, progress = FALSE):</span></span>
-<span><span class="co">#&gt; choosing a negative value for `lambda` is not generally recommended.</span></span>
-<span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">priority</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"lambda ="</span>, <span class="va">lambda</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">priority</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"-inferno"</span>, style <span class="op">=</span> <span class="st">"log10"</span>,</span>
-<span>                title <span class="op">=</span> <span class="st">"conservation\npriorities"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="prioritization_files/figure-html/lambda2-1.png" width="576"></p>
-<p>In this case, as we increase the value of lambda, we can see
-priorities shifting away from the core area in the center of the map and
-away from the northwest part of the study area, to cover more areas in
-the southeast portion of the study area. To further highlight these
-differences, let’s make a map of the difference between the two
-right-hand panels above (lambda of 0 versus 2):</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">diff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">priority</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">priority</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">diff</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"-PRGn"</span>, style <span class="op">=</span> <span class="st">"cont"</span>,</span>
-<span>                title <span class="op">=</span> <span class="st">"change in log rank when\nchanging lambda from 0 to 2"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Variable(s) "NA" contains positive and negative values, so midpoint is set to 0. Set midpoint = NA to show the full spectrum of the color palette.</span></span></code></pre></div>
-<p><img src="prioritization_files/figure-html/diff-1.png" width="576"></p>
+your results may be to this choice.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

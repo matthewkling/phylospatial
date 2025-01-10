@@ -141,7 +141,7 @@ significance of these diversity metrics under a null model, using the
 <code><a href="../reference/quantize.html">quantize()</a></code>, a stratified randomization scheme designed for
 use with continuous occurrence data, in combination with the
 <code>"curveball"</code> algorithm.</p>
-<p>Let’s run 100 randomizations (more would be necessary for a real
+<p>Let’s run 25 randomizations (far more would be necessary for a real
 analysis) for all metrics, and plot the results for PE. This is a
 quantile value that gives the proportion of randomizations in which
 observed PE was greater than randomized PE in a given grid cell. (If you
@@ -149,7 +149,7 @@ wanted to identify “statistically significant” grid cells in a
 one-tailed test with alpha = 0.05, these would be cells with values
 greater than 0.95.)</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">10</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">25</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">rand</span><span class="op">$</span><span class="va">qPE</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"inferno"</span>, style <span class="op">=</span> <span class="st">"cont"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>

@@ -142,12 +142,12 @@ dimensions:</p>
 <p>We can also qualitatively visualize compositional patterns by
 converting ordination axes to a set of colors representing how similar
 two sites are to each other, using the <code><a href="../reference/ps_rgb.html">ps_rgb()</a></code> function.
-Let’s do that here, using the <code>"nmds"</code> (nonmetric
+Let’s do that here, using the <code>"cmds"</code> (classical
 multidimensional scaling) ordination algorithm, and then plot the result
 using <code><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tmap::tm_rgb()</a></code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>      <span class="fu"><a href="../reference/ps_rgb.html">ps_rgb</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"nmds"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>      <span class="fu"><a href="../reference/ps_rgb.html">ps_rgb</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"cmds"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_rgb</a></span><span class="op">(</span>max.value <span class="op">=</span> <span class="fl">1</span>, interpolate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Phylogenetic community ordination"</span><span class="op">)</span></span></code></pre></div>
