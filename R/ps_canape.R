@@ -26,7 +26,7 @@
 #' # classic CANAPE using binary data and the curveball algorithm
 #' # (note that a real analysis would require a much higher `n_rand`)
 #' set.seed(123456)
-#' ps <- ps_simulate(n_tips = 50, data_type = "binary")
+#' ps <- moss()
 #' rand <- ps_rand(ps, metric = c("PE", "RPE", "CE"),
 #'                 fun = "nullmodel", method = "curveball",
 #'                 n_rand = 25, burnin = 10000, progress = FALSE)
@@ -93,9 +93,11 @@ ps_canape <- function(rand, alpha = .05){
 #'
 #' @return A `matrix `or `SpatRaster`, or `sf` with a column or layer for each metric.
 #' @examples
+#' \donttest{
 #' if(requireNamespace("canaper")){
 #'       ps <- ps_simulate(data_type = "binary")
 #'       terra::plot(ps_canaper(ps)$pd_obs_p_upper)
+#' }
 #' }
 #' @seealso [ps_canape()], [ps_rand()]
 #' @references

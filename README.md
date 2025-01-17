@@ -3,8 +3,6 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/matthewkling/phylospatial/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/matthewkling/phylospatial/actions/workflows/R-CMD-check.yaml)
-[![Codecov test
-coverage](https://codecov.io/gh/matthewkling/phylospatial/graph/badge.svg)](https://app.codecov.io/gh/matthewkling/phylospatial)
 <!-- badges: end -->
 
 # phylospatial <a href="https://matthewkling.github.io/phylospatial/"><img src="man/figures/logo.png" align="right" height="139" /></a>

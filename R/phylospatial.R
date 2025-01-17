@@ -118,8 +118,6 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
                             ncol(comm) == length(tree$edge.length))
       }
 
-      if(is.null(check)) check <- TRUE
-
       # enforce equal area
       if(check & !is.null(spatial)){
             if(inherits(spatial, "SpatRaster") & terra::crs(spatial) == ""){

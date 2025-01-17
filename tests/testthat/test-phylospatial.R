@@ -5,6 +5,9 @@ test_that("phylospatial function works on example data", {
       ps <- moss("polygon")
       expect_no_error(phylospatial(ps_get_comm(ps), ps$tree))
 
+      # test taxonomic reconciliation
+      expect_warning(phylospatial(ps_get_comm(ps)[, -3],
+                                   ape::drop.tip(ps$tree, 1)))
 })
 
 test_that("taxa are not scrambled during data transformations", {

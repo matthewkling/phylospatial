@@ -1,6 +1,7 @@
 url: https://matthewkling.github.io/phylospatial/
 template:
   bootstrap: 5
+  math-rendering: mathjax
 
 articles:
 - title: Articles

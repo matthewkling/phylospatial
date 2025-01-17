@@ -32,9 +32,11 @@ additional variable, 'endem_type', in the output. 'endem_type' values 0-4 corres
 paleo, mixed, and super endemesim, respectively.
 }
 \examples{
+\donttest{
 if(requireNamespace("canaper")){
       ps <- ps_simulate(data_type = "binary")
       terra::plot(ps_canaper(ps)$pd_obs_p_upper)
+}
 }
 }
 \references{
