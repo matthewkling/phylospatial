@@ -36,7 +36,7 @@ Endemism significance categories are defined as follows:
 # classic CANAPE using binary data and the curveball algorithm
 # (note that a real analysis would require a much higher `n_rand`)
 set.seed(123456)
-ps <- moss()
+ps <- ps_simulate(data_type = "binary")
 rand <- ps_rand(ps, metric = c("PE", "RPE", "CE"),
                 fun = "nullmodel", method = "curveball",
                 n_rand = 25, burnin = 10000, progress = FALSE)
