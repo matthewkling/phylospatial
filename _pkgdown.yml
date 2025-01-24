@@ -9,8 +9,6 @@ template:
 
 home:
   links:
-  - text: View on CRAN
-    href: https://cran.r-project.org/web/packages/phylospatial/index.html
   - text: Browse source code
     href: https://github.com/matthewkling/phylospatial
   - text: Report a bug
