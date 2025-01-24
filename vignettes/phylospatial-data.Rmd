@@ -19,7 +19,7 @@ fig.dim = c(6, 4)
 
 ## Introduction
 
-This vignette demonstrates the basic structure and creation of a spatial phylogenetic data set, which is the first step of any analysis using this R package. Spatial phylogenetic analyses require two essential ingredients: data on the geographic distributions of a set of organisms, and a phylogeny representing their evolutionary relationships. This package stores these data as objects of of class `'phylospatial'`.
+This vignette demonstrates the basic structure and creation of a spatial phylogenetic data set, which is the first step of any analysis using this R package. Spatial phylogenetic analyses require two essential ingredients: data on the geographic distributions of a set of organisms, and a phylogeny representing their evolutionary relationships. This package stores these data as objects of class `'phylospatial'`.
 
 The core idea of spatial phylogenetics is that analyses account for every every single "lineage" on the phylogenetic tree, including terminals and larger clades. Each lineage has a geographic range comprising the collective ranges of all terminal(s) in the clade, and it has a single branch segment whose length represents the evolutionary history that is shared by those terminals and only those terminals. When calculating biodiversity metrics, every lineage's occurrence in a site gets weighted by its branch length.
 
@@ -28,7 +28,7 @@ In this vignette, we'll create a lightweight example of a `phylospatial` object,
 
 ## A minimal example
 
-Let's begin by creating a simple `phylospatial` object. To do this, we use the `phylospatial()` function, which has two required arguments: `tree`, a phylogeny of class `phylo`, and `comm`, a community data set representing the geographic distributions of the terminal taxa (usually species). In the code below, we simulate a random tree with five terminal taxa, and a raster data set with 100 grid cells containing occurrence probabilities for each terminal, with layer names corresponding to species on the tree. (A differentiating feature of the `phylospatial` library is that it supports quantitative data types like probabilities or abundances, in addition to binary community data.) Then we pass them to `phylospatial()`:
+Let's begin by creating a simple `phylospatial` object. To do this, we use the `phylospatial()` function, which has two key arguments: `tree`, a phylogeny of class `phylo`, and `comm`, a community data set representing the geographic distributions of the terminal taxa (usually species). In the code below, we simulate a random tree with five terminal taxa, and a raster data set with 100 grid cells containing occurrence probabilities for each terminal, with layer names corresponding to species on the tree. (A differentiating feature of the `phylospatial` library is that it supports quantitative data types like probabilities or abundances, in addition to binary community data.) Then we pass them to `phylospatial()`:
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(phylospatial); library(terra); library(ape); library(sf)
