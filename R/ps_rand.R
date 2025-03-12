@@ -1,9 +1,9 @@
 
 #' Null model randomization analysis of alpha diversity metrics
 #'
-#' This function compares to diversity metrics calculated in \link{ps_diversity} to their null distributions
-#' computed by randomizing the community matrix. Randomization is done using the \link{quantize} method for
-#' community matrices containing continuous quantities such as occurrence probabilities or abundances.
+#' This function compares phylodiversity metrics calculated in \link{ps_diversity} to their null distributions
+#' computed by randomizing the community matrix, indicating statistical significance under the assumptions
+#' of the null model. Various null model algorithms are available for binary, probability, and count data.
 #'
 #' @param ps `phylospatial` object.
 #' @param metric Character vector giving one or more diversity metrics to calculate; see \link{ps_diversity}

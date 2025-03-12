@@ -54,9 +54,9 @@ values indicating the proportion of randomizations in which the observed diversi
 the randomized metric. Or if \code{spatial = TRUE}, a \code{sf} or \code{SpatRaster} object containing these data.
 }
 \description{
-This function compares to diversity metrics calculated in \link{ps_diversity} to their null distributions
-computed by randomizing the community matrix. Randomization is done using the \link{quantize} method for
-community matrices containing continuous quantities such as occurrence probabilities or abundances.
+This function compares phylodiversity metrics calculated in \link{ps_diversity} to their null distributions
+computed by randomizing the community matrix, indicating statistical significance under the assumptions
+of the null model. Various null model algorithms are available for binary, probability, and count data.
 }
 \examples{
 \donttest{

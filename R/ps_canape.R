@@ -5,7 +5,7 @@
 #' Categorization is based on randomization quantile values for PE, RPE, and CE (which Mishler et al. call "PE on
 #' the comparison tree").
 #'
-#' @param rand An object returned by running `ps_rand` with .
+#' @param rand An object returned by running `ps_rand`. It must include the metrics PE, RPE, and CE.
 #' @param alpha Numeric value between 0 and 1 giving the one-tailed p-value threshold to use when
 #' determining significance.
 #' @details
