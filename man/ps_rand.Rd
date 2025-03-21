@@ -22,20 +22,21 @@ ps_rand(
 \item{metric}{Character vector giving one or more diversity metrics to calculate; see \link{ps_diversity}
 for options. Can also specify \code{"all"} (the default) to calculate all available metrics.}
 
-\item{fun}{Null model function to use. Must be either "quantize", "nullmodel", or an actual function:
+\item{fun}{Null model function to use. Must be either "tip_shuffle", "nullmodel", "quantize", or an actual function:
 \itemize{
+\item "tip_shuffle": randomly shuffles the identities of terminal taxa
 \item "nullmodel": uses \link[vegan]{nullmodel} and \link[vegan]{simulate.nullmodel}, from the vegan
 package, which offer a wide range of randomization algorithms with different properties.
-\item "quantize": (the default) deploys the function \link{quantize}, which is a routine that is itself
+\item "quantize": (the default) deploys the function \link{quantize}, a routine that is itself
 a wrapper around \link[vegan]{nullmodel}, allowing the use of binary algorithms for quantitative data.
 \item Any other function that accepts a community matrix as its first argument and returns a
 randomized version of the matrix.
 }}
 
-\item{method}{One of the method options listed under \link[vegan]{commsim}. If \verb{fun = "quantize}, this must
+\item{method}{One of the method options listed under \link[vegan]{commsim}. If \code{fun = "quantize"}, this must
 be one of the "binary" methods. If \code{fun = "nullmodel"}, be sure to select a method that is appropriate to
-your community \code{data_type} (binary, quantitative, abundance). This argument is ignored if a custom function
-is provided to \code{fun}.}
+your community \code{data_type} (binary, quantitative, abundance). This argument is ignored if \code{fun} is
+\code{"tip_shuffle"} or if it is a custom function.}
 
 \item{n_rand}{Integer giving the number of random communities to generate.}
 
@@ -55,8 +56,9 @@ the randomized metric. Or if \code{spatial = TRUE}, a \code{sf} or \code{SpatRas
 }
 \description{
 This function compares phylodiversity metrics calculated in \link{ps_diversity} to their null distributions
-computed by randomizing the community matrix, indicating statistical significance under the assumptions
-of the null model. Various null model algorithms are available for binary, probability, and count data.
+computed by randomizing the community matrix or shuffling the tips of the phylogeny, indicating statistical
+significance under the assumptions of the null model. Various null model algorithms are available for
+binary, probability, and count data.
 }
 \examples{
 \donttest{

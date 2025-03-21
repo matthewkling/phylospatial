@@ -2,25 +2,27 @@
 #' Null model randomization analysis of alpha diversity metrics
 #'
 #' This function compares phylodiversity metrics calculated in \link{ps_diversity} to their null distributions
-#' computed by randomizing the community matrix, indicating statistical significance under the assumptions
-#' of the null model. Various null model algorithms are available for binary, probability, and count data.
+#' computed by randomizing the community matrix or shuffling the tips of the phylogeny, indicating statistical
+#' significance under the assumptions of the null model. Various null model algorithms are available for
+#' binary, probability, and count data.
 #'
 #' @param ps `phylospatial` object.
 #' @param metric Character vector giving one or more diversity metrics to calculate; see \link{ps_diversity}
 #'    for options. Can also specify `"all"` (the default) to calculate all available metrics.
-#' @param fun Null model function to use. Must be either "quantize", "nullmodel", or an actual function:
+#' @param fun Null model function to use. Must be either "tip_shuffle", "nullmodel", "quantize", or an actual function:
 #' \itemize{
+#'    \item "tip_shuffle": randomly shuffles the identities of terminal taxa
 #'    \item "nullmodel": uses \link[vegan]{nullmodel} and \link[vegan]{simulate.nullmodel}, from the vegan
 #'    package, which offer a wide range of randomization algorithms with different properties.
-#'    \item "quantize": (the default) deploys the function \link{quantize}, which is a routine that is itself
+#'    \item "quantize": (the default) deploys the function \link{quantize}, a routine that is itself
 #'    a wrapper around \link[vegan]{nullmodel}, allowing the use of binary algorithms for quantitative data.
 #'    \item Any other function that accepts a community matrix as its first argument and returns a
 #'    randomized version of the matrix.
 #' }
-#' @param method One of the method options listed under \link[vegan]{commsim}. If `fun = "quantize`, this must
+#' @param method One of the method options listed under \link[vegan]{commsim}. If `fun = "quantize"`, this must
 #'    be one of the "binary" methods. If `fun = "nullmodel"`, be sure to select a method that is appropriate to
-#'    your community `data_type` (binary, quantitative, abundance). This argument is ignored if a custom function
-#'    is provided to `fun`.
+#'    your community `data_type` (binary, quantitative, abundance). This argument is ignored if `fun` is
+#'    `"tip_shuffle"` or if it is a custom function.
 #' @param n_rand Integer giving the number of random communities to generate.
 #' @param spatial Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE).
 #' @param n_cores Integer giving the number of compute cores to use for parallel processing.
@@ -69,6 +71,8 @@ ps_rand <- function(ps, metric = "all", fun = "quantize", method = "curveball", 
       if(inherits(fun, "function")){
             fx <- fun
             fun <- "custom"
+      }else{
+            stopifnot("Invalid argument to 'fun'" = fun %in% c("tip_shuffle", "nullmodel", "quantize"))
       }
       if(fun == "quantize" & ps$data_type == "binary") stop(
             "The `quantize` function does not work with binary community data; select a different option for `fun`")
@@ -79,7 +83,13 @@ ps_rand <- function(ps, metric = "all", fun = "quantize", method = "curveball", 
                   "This object does not contain binary community data, but a binary `method` was requested. See `?vegan::commsim` for descriptions of methods.")
       }
 
+      tip_shuffle <- function(x){
+            colnames(x) <- sample(colnames(x))
+            return(x)
+      }
+
       perm <- function(comm, tree, ...){
+            if(fun == "tip_shuffle") rcomm <- tip_shuffle(comm)
             if(fun == "quantize") rcomm <- quantize(comm, method = method, ...)
             if(fun == "nullmodel") rcomm <- stats::simulate(
                   vegan::nullmodel(comm, method = method), nsim = 1, ...)[,,1]
