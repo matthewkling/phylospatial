@@ -29,7 +29,8 @@ Suggests:
     knitr,
     rmarkdown,
     tmap,
-    magrittr
+    magrittr,
+    hillR
 URL: https://matthewkling.github.io/phylospatial/
 Config/testthat/edition: 3
 Depends: 
