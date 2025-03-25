@@ -18,35 +18,50 @@ the details below. Can also specify \code{"all"} (the default) to calculate all 
 A matrix, \code{sf} data frame, or \code{SpatRaster} with a column or layer for each requested diversity metric.
 }
 \description{
-This function calculates a variety of diversity and endemism metrics including Faith's phylogenetic diversity,
-Shannon phylogenetic entropy, Simpson phylogentic diversity, relative phylogentic diversity, richness of clades,
-richness of terminals (typically species), and versions of all these metrics weighted by endemism (i.e. rarity).
-If continuous community data (probabilities or abundances) are provided, they are used in calculations, giving
-quantitative versions of the classic binary metrics.
+This function calculates a variety of alpha phylogenetic diversity metrics, including measures of richness,
+regularity, and divergence. If continuous community data (probabilities or abundances) are provided,
+they are used in calculations, giving quantitative versions of the classic binary metrics.
 }
 \details{
-The function calculates the following metrics:
+The function calculates the following metrics. The emphasis is on node-focused metrics related to
+Faith's phylogenetic diversity that count each branch or clade one time; terminal-focused metrics like
+mean phylogenetic distance are not currently supported. Endemism-weighted versions of all metrics are
+available. All metrics are weighted by occurrence probability or abundance, if applicable.
+
+\strong{Richness measures:}
 \itemize{
-\item TD---Terminal Diversity, i.e. richness of terminal taxa (in many cases these are species): \eqn{\sum_{t}{p_t}}
-\item TE---Terminal Endemism, i.e. total endemism-weighted diversity of terminal taxa, a.k.a. "weighted endemism": \eqn{\sum_{t}{p_t r_t^{-1}}}
-\item CD---Clade Diversity, i.e. richness of taxa at all levels (equivalent to PD on a cladogram): \eqn{\sum_{b}{p_b}}
-\item CE---Clade Endemism, i.e. total endemism-weighted diversity of taxa at all levels (equivalent to PE on a cladrogram): \eqn{\sum_{b}{p_b r_b^{-1}}}
-\item PD---Phylogenetic Diversity: \eqn{\sum_{b}{L_b p_b}}
-\item PE---Phylogenetic Endemism, i.e. endemism-weighted PD: \eqn{\sum_{b}{L_b p_b r_b^{-1}}}
-\item RPD---Relative Phylogenetic Diversity, i.e. branch length of mean resident (equivalent to PD / CR): \eqn{\sum_{b}{L_b p_b} / \sum_{b}{p_b}}
-\item RPE---Relative Phylogenetic Endemism, i.e. mean endemism-weighted branch length (equivalent to PE / CE): \eqn{\sum_{b}{L_b p_b r_b^{-1}} / \sum_{b}{p_b r_b^{-1}}}
-\item ShPD---Shannon Phylogenetic Diversity, a.k.a. "phylogenetic entropy": \eqn{-\sum_{b}{L_b n_b log(n_b)}}
-\item ShPE--Shannon phylogenetic Endemism, an endemism-weighted version of ShPD: \eqn{-\sum_{b}{L_b n_b log(e_b) r_b^{-1}}}
-\item SiPD---Simpson Phylogenetic Diversity: \eqn{1 / \sum_{b}{L_b n_b^2}}
-\item SiPE---Simpson Phylogenetic Endemism, an endemism-weighted version of SiPD: \eqn{1 / \sum_{b}{L_b r_b^{-1} e_b^2}}
+\item \strong{TD}---Terminal Diversity, i.e. richness of terminal taxa (in many cases these are species): \eqn{\sum_{t}{p_t}}
+\item \strong{TE}---Terminal Endemism, i.e. total endemism-weighted diversity of terminal taxa, a.k.a. "weighted endemism": \eqn{\sum_{t}{p_t r_t^{-1}}}
+\item \strong{CD}---Clade Diversity, i.e. richness of taxa at all levels (equivalent to PD on a cladogram): \eqn{\sum_{b}{p_b}}
+\item \strong{CE}---Clade Endemism, i.e. total endemism-weighted diversity of taxa at all levels (equivalent to PE on a cladrogram): \eqn{\sum_{b}{p_b r_b^{-1}}}
+\item \strong{PD}---Phylogenetic Diversity, i.e. total branch length occurring in a site: \eqn{\sum_{b}{L_b p_b}}
+\item \strong{PE}---Phylogenetic Endemism, i.e. endemism-weighted PD: \eqn{\sum_{b}{L_b p_b r_b^{-1}}}
+\item \strong{ShPD}---Shannon Phylogenetic Diversity, a.k.a. "phylogenetic entropy" (this version is the log of the "effective diversity" version based on Hill numbers):
+\eqn{-\sum_{b}{L_b n_b log(n_b)}}
+\item \strong{ShPE}---Shannon phylogenetic Endemism, an endemism-weighted version of ShPD: \eqn{-\sum_{b}{L_b n_b log(e_b) r_b^{-1}}}
+\item \strong{SiPD}---Simpson Phylogenetic Diversity: \eqn{1 / \sum_{b}{L_b n_b^2}}
+\item \strong{SiPE}---Simpson Phylogenetic Endemism, an endemism-weighted version of SiPD: \eqn{1 / \sum_{b}{L_b r_b^{-1} e_b^2}}
+}
+
+\strong{Divergence measures:}
+\itemize{
+\item \strong{RPD}---Relative Phylogenetic Diversity, i.e. mean branch segment length (equivalent to PD / CR): \eqn{\sum_{b}{L_b p_b} / \sum_{b}{p_b}}
+\item \strong{RPE}---Relative Phylogenetic Endemism, i.e. mean endemism-weighted branch segment length (equivalent to PE / CE): \eqn{\sum_{b}{L_b p_b r_b^{-1}} / \sum_{b}{p_b r_b^{-1}}}
+\item Note that divergence can also be assessed with null model analysis of richness measures via \code{ps_rand()}.
+}
+
+\strong{Regularity measures}:
+\itemize{
+\item \strong{VPD}---Variation in Phylogenetic Diversity contributions of taxa, i.e. coefficient of variation in branch segemnt length:
+\eqn{\sqrt{ (\sum_{b}{(p_b (L_b - RPD)^2)}) / (\sum_{b}{p_b}) } / RPD }
+\item \strong{VPE}---Variation in Phylogenetic Endemism contributions of taxa, i.e. coefficient of variation in endemism-weighted branch length: \eqn{}
+\eqn{\sqrt{ (\sum_{b}{(p_b r_b^{-1} (L_b - RPE)^2)}) / (\sum_{b}{p_b r_b^{-1}}) } / RPE }
 }
 
 where \eqn{b} indexes all taxa including terminals and larger clades; \eqn{t} indexes terminals only; \eqn{p_i} is the occurrence value
 (binary, probability, or abundance) of clade/terminal \eqn{i} in a given community; \eqn{L_b} is the
-length of the phylogenetic branch segment unique to clade \eqn{b}; and \eqn{r_i} is the sum of \eqn{p_i} across all sites.
-
-For Shannon and Simpson indices, only nonzero elements of \eqn{p_b} are used, \eqn{n_b = p_b / \sum_{b}{p_b L_b}}, and
-\eqn{e_b = p_b / \sum_{b}{p_b L_b r_b^{-1}}}.
+length of the phylogenetic branch segment unique to clade \eqn{b}; and \eqn{r_i} is the sum of \eqn{p_i} across all sites. For Shannon
+and Simpson indices, only nonzero elements of \eqn{p_b} are used, \eqn{n_b = p_b / \sum_{b}{p_b L_b}}, and \eqn{e_b = p_b / \sum_{b}{p_b L_b r_b^{-1}}}.
 }
 \examples{
 ps <- ps_simulate()
