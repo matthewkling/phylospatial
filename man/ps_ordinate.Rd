@@ -31,3 +31,6 @@ ord <- ps_ordinate(ps, method = "cmds", k = 4)
 terra::plot(ord)
 
 }
+\seealso{
+For visualization using ordination onto RGB color space, see \code{\link[=ps_rgb]{ps_rgb()}}.
+}

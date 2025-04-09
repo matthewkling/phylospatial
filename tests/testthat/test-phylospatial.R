@@ -28,7 +28,6 @@ test_that("disabling `build` works", {
                                    build = FALSE))
 })
 
-
 test_that("functions work without a phylogeny", {
       comm <- ps_get_comm(ps_simulate())
       ps <- expect_no_error(suppressWarnings(phylospatial(comm)))

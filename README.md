@@ -7,12 +7,12 @@
 
 # phylospatial <a href="https://matthewkling.github.io/phylospatial/"><img src="man/figures/logo.png" align="right" height="139" /></a>
 
-`phylospatial` is an R package for spatial phylogenetic analysis. The
-field of spatial phylogenetics focuses on accounting for evolutionary
-relationships among taxa when describing biodiversity patterns, an
-approach that has a number of advantages over species-based accounting.
-This package provides a set of functions to build and analyze
-phylospatial data:
+`phylospatial` is an R package for spatial phylogenetic diversity
+analysis. The field of spatial phylogenetics focuses on accounting for
+evolutionary relationships among taxa when describing biodiversity
+patterns, an approach that has a number of advantages over species-based
+accounting. This package provides a set of functions to build and
+analyze phylospatial data:
 
 - `phylospatial()` constructs a spatial phylogenetic data set from
   community data and a tree.
@@ -31,8 +31,8 @@ phylospatial data:
 
 A key difference between `phylospatial` and other spatial phylogenetic R
 libraries is that all functions in this package work not only with
-binary presence-absence data but also with continuous community data
-types such as occurrence probabilities or abundances. These quantities
+binary presence-absence data but also with quantitative community data
+types including occurrence probabilities or abundances. These quantities
 are treated as weights in all computations throughout the package,
 avoiding the need to discard information by thresholding continuous
 data.

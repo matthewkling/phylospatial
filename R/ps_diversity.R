@@ -10,9 +10,7 @@
 #'    the details below. Can also specify `"all"` (the default) to calculate all available metrics.
 #' @param spatial Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE)?
 #'
-#' @details The function calculates the following metrics. The emphasis is on node-focused metrics related to
-#' Faith's phylogenetic diversity that count each branch or clade one time; terminal-focused metrics like
-#' mean phylogenetic distance are not currently supported. Endemism-weighted versions of all metrics are
+#' @details The function calculates the following metrics. Endemism-weighted versions of most metrics are
 #' available. All metrics are weighted by occurrence probability or abundance, if applicable.
 #'
 #' **Richness measures:**
@@ -31,15 +29,16 @@
 #' **Divergence measures:**
 #' * **RPD**---Relative Phylogenetic Diversity, i.e. mean branch segment length (equivalent to PD / CR): \eqn{\sum_{b}{L_b p_b} / \sum_{b}{p_b}}
 #' * **RPE**---Relative Phylogenetic Endemism, i.e. mean endemism-weighted branch segment length (equivalent to PE / CE): \eqn{\sum_{b}{L_b p_b r_b^{-1}} / \sum_{b}{p_b r_b^{-1}}}
-#' * Note that divergence can also be assessed with null model analysis of richness measures via `ps_rand()`.
+#' * **MPDT**---Mean Pairwise Distance between Terminals, i.e. the classic MPD metric. This is the average of cophenetic distances, weighted by \eqn{p_t}.
+#' * **MPDN**---Mean Pairwise Distance between Nodes, an experimental version of MPD that considers distances between every pair of non-nested clades, putting more weight on deeper branches than does MPDT.
+#'    This is the mean of distances between all collateral (non-lineal) node pairs including terminal and internal nodes, weighted by \eqn{p_b}.
+#' * Note that divergence can also be assessed by using `ps_rand()` to run null model analyses of richness measures like PD.
 #'
 #' **Regularity measures**:
-#' * **VPD**---Variation in Phylogenetic Diversity contributions of taxa, i.e. coefficient of variation in branch segemnt length:
-#' \eqn{\sqrt{ (\sum_{b}{(p_b (L_b - RPD)^2)}) / (\sum_{b}{p_b}) } / RPD }
-#' * **VPE**---Variation in Phylogenetic Endemism contributions of taxa, i.e. coefficient of variation in endemism-weighted branch length: \eqn{}
-#' \eqn{\sqrt{ (\sum_{b}{(p_b r_b^{-1} (L_b - RPE)^2)}) / (\sum_{b}{p_b r_b^{-1}}) } / RPE }
+#' * **VPDT**---Variance in Pairwise Distances between Terminals, i.e. the classic VPD metric, weighted by \eqn{p_t}.
+#' * **VPDN**---Variance in Pairwise Distances between Nodes, i.e. MPDN but variance.
 #'
-#' where \eqn{b} indexes all taxa including terminals and larger clades; \eqn{t} indexes terminals only; \eqn{p_i} is the occurrence value
+#' In the above equations, \eqn{b} indexes all taxa including terminals and larger clades; \eqn{t} indexes terminals only; \eqn{p_i} is the occurrence value
 #' (binary, probability, or abundance) of clade/terminal \eqn{i} in a given community; \eqn{L_b} is the
 #' length of the phylogenetic branch segment unique to clade \eqn{b}; and \eqn{r_i} is the sum of \eqn{p_i} across all sites. For Shannon
 #' and Simpson indices, only nonzero elements of \eqn{p_b} are used, \eqn{n_b = p_b / \sum_{b}{p_b L_b}}, and \eqn{e_b = p_b / \sum_{b}{p_b L_b r_b^{-1}}}.
@@ -63,6 +62,9 @@
 #' Mishler, B. D., Knerr, N., González-Orozco, C. E., Thornhill, A. H., Laffan, S. W., & Miller, J. T. (2014).
 #' Phylogenetic measures of biodiversity and neo-and paleo-endemism in Australian Acacia. Nature Communications, 5(1), 4473.
 #'
+#' Tucker, C. M., Cadotte, M. W., Davies, T. J., et al. (2016) A guide to phylogenetic metrics for conservation, community
+#' ecology and macroecology. Biological Reviews, 92(2), 698-715.
+#'
 #' Kling, M. M., Mishler, B. D., Thornhill, A. H., Baldwin, B. G., & Ackerly, D. D. (2019). Facets of phylodiversity: evolutionary
 #' diversification, divergence and survival as conservation targets. Philosophical Transactions of the Royal Society B, 374(1763), 20170397.
 #'
@@ -79,10 +81,15 @@ ps_diversity <- function(ps, metric = "all", spatial = TRUE){
       match.arg(metric, metrics(), several.ok = TRUE)
 
       # taxon variables
-      L <- ps$tree$edge.length # branch lengths
+      tree <- ps$tree
+      L <- tree$edge.length # branch lengths
       L[L == Inf] <- max(L[L != Inf])
       if(any(grepl("E", metric))) R <- apply(ps$comm, 2, sum, na.rm = TRUE) # range sizes
-      tips <- tip_indices(ps$tree)
+      tips <- tip_indices(tree)
+
+      # pairwise distances
+      if(any(c("MPDT", "VPDT") %in% metric)) tdist <- ape::cophenetic.phylo(tree)
+      if(any(c("MPDN", "VPDN") %in% metric)) ndist <- clade_dist(tree)
 
       div <- function(m) switch(m,
                                 TD =  apply(ps$comm[, tips], 1, sum, na.rm = TRUE),
@@ -93,8 +100,12 @@ ps_diversity <- function(ps, metric = "all", spatial = TRUE){
                                 PE =  apply(ps$comm, 1, function(p) sum(p * L / R, na.rm = TRUE)),
                                 RPD = apply(ps$comm, 1, function(p) weighted.mean(L, w = p, na.rm = TRUE)),
                                 RPE = apply(ps$comm, 1, function(p) weighted.mean(L, w = p / R, na.rm = TRUE)),
-                                VPD = apply(ps$comm, 1, function(p) weighted.cv(L, w = p)),
-                                VPE = apply(ps$comm, 1, function(p) weighted.cv(L, w = p / R)),
+
+                                MPDT = apply(ps$comm[, tips], 1, function(p) mpd_weighted(tdist, p)),
+                                MPDN = apply(ps$comm, 1, function(p) mpd_weighted(ndist, p)),
+                                VPDT = apply(ps$comm[, tips], 1, function(p) mpd_weighted(tdist, p, variance = TRUE)),
+                                VPDN = apply(ps$comm, 1, function(p) mpd_weighted(ndist, p, variance = TRUE)),
+
                                 ShPD = apply(ps$comm, 1, function(p){
                                       p[p == 0] <- NA
                                       n <- p / sum(p*L, na.rm = TRUE)
@@ -126,19 +137,70 @@ ps_diversity <- function(ps, metric = "all", spatial = TRUE){
 
 
 metrics <- function() c("TD", "TE", "CD", "CE", "PD", "PE", "RPD", "RPE",
-                        "VPD", "VPE", "ShPD", "ShPE", "SiPD", "SiPE")
+                        "ShPD", "ShPE", "SiPD", "SiPE",
+                        "MPDT", "MPDN", "VPDT", "VPDN")
 
 
-# weighted coefficient of variation with na.rm
-weighted.cv <- function(x, w){
-
-      # na.rm
-      a <- !is.na(x*w)
-      x <- x[a]
-      w <- w[a]
-
-      # cv
-      m <- sum(x * w) / sum(w)
-      sqrt(sum(w * (x - m)^2) / sum(w)) / m
+# weighted mean (or variance) in pairwise distances
+mpd_weighted <- function(x, w, variance = FALSE){
+      # if(inherits(x, "phylo")) x <- ape::cophenetic.phylo(x)
+      w <- outer(w, w)
+      i <- upper.tri(w) & is.finite(x * w)
+      w <- w[i]
+      m <- sum(x[i] * w) / sum(w)
+      if(variance) m <- sum(w * (x[i] - m)^2) / sum(w)
+      m
 }
 
+
+# weighted mean nearest taxon/terminal distance
+# NB: works for binary and abundance data but NOT probability
+# (that would require a novel method computing probs of each tip being the nearest taxon, conditional on branch lengths and on joint occurrence probs across all tips)
+mntd_weighted <- function(x, w){
+      diag(x) <- NA
+      i <- which(w > 0)
+      if(length(i) < 2) return(NA)
+      w <- w[i]
+      x <- x[i, i, drop = FALSE]
+      x <- apply(x, 1, min, na.rm = TRUE)
+      sum(x * w) / sum(w)
+}
+
+
+#' Pairwise distances among clades or nodes
+#'
+#' This function runs `ape::dist.nodes()` with some additional filtering and sorting. By default,
+#' it returns distances between every pair of non-nested clades, i.e. every pair of collateral (non-lineal) nodes
+#' including terminals and internal nodes.
+#'
+#' @param tree A phylogeny of class `"phylo"`.
+#' @param lineal Logical indicating whether to retain distances for pairs of nodes that are lineal ancestors/descendants.
+#'    If `FALSE` (the default), these are set to `NA`, retaining values only for node pairs that are collateral kin.
+#' @param edges Logical indicating whether to return a distance matrix with a row for every edge in `tree`.
+#'    If `TRUE` (the default), rows/columns of the result correspond to `tree$edge`. If `FALSE`, rows/columns
+#'    correspond to nodes as in `ape::dist.nodes()`.
+#' @return A matrix of pairwise distances between nodes.
+#' @examples
+#' clade_dist(ape::rtree(10))
+#' @export
+clade_dist <- function(tree, lineal = FALSE, edges = TRUE){
+      requireNamespace("phytools", quietly = TRUE)
+
+      # node distances
+      d <- ape::dist.nodes(tree)
+
+      # set distances between nodes and their descendants to NA
+      if(!lineal){
+            d <- sapply(1:nrow(d), function(i) replace(d[i,], phytools::getDescendants(tree, i), NA))
+            d <- d * t(d/d)
+            diag(d) <- NA
+      }
+
+      # switch from node order to edge order, and exclude root node
+      if(edges){
+            d <- d[tree$edge[,2], tree$edge[,2]]
+            colnames(d) <- rownames(d)
+      }
+
+      return(d)
+}

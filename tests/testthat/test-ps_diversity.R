@@ -66,3 +66,16 @@ test_that("diversity measures match `adiv::evodiv()` and `hillR::hill_phylo()` f
 })
 
 
+test_that("MPD matches picante", {
+      requireNamespace("picante", quietly = TRUE)
+
+      ps <- ps_simulate(data_type = "binary")
+      expect_equal(picante::mpd(terra::values(ps_get_comm(ps)), ape::cophenetic.phylo(ps$tree)),
+                   as.vector(ps_diversity(ps, metric = "MPDT")))
+
+      # # skipping this test since it fails due to picante (problematically) averaging the entire distance matrix, including diagonals
+      # ps <- ps_simulate(data_type = "abundance")
+      # d1 <- picante::mpd(values(ps_get_comm(ps)), cophenetic.phylo(ps$tree), abundance.weighted = TRUE)
+      # d2 <- as.vector(ps_diversity(ps, metric = "MPDN"))
+      # expect_equal(d1, d2)
+})

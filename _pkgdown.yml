@@ -36,6 +36,7 @@ reference:
   - quantize
   - ps_canape
   - ps_canaper
+  - clade_dist
 - title: Beta diversity
 - contents:
   - ps_dissim

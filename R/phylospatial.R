@@ -166,13 +166,14 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
             if(check) if(min(comm, na.rm = TRUE) < 0) stop("Abundance data must be between nonnegative, but negative values were detected.")
       }
 
+      # scale branch lengths
+      tree$edge.length <- tree$edge.length / sum(tree$edge.length)
+      tree <- ape::reorder.phylo(tree) # because methods like TMPD assume this ordering
+
       # build clade ranges
       if(data_type == "other" & !inherits(clade_fun, "function")) stop("If `data_type = 'other'`, `clade_fun` must be a custom function.")
       if(is.null(clade_fun)) clade_fun <- get_clade_fun(data_type)
       if(build) comm <- build_tree_ranges(tree, comm, clade_fun)
-
-      # scale branch lengths
-      tree$edge.length <- tree$edge.length / sum(tree$edge.length)
 
       # create phylospatial object
       new_phylospatial(comm, tree, spatial, dissim = NULL, data_type, clade_fun)

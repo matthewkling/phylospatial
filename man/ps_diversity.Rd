@@ -23,9 +23,7 @@ regularity, and divergence. If continuous community data (probabilities or abund
 they are used in calculations, giving quantitative versions of the classic binary metrics.
 }
 \details{
-The function calculates the following metrics. The emphasis is on node-focused metrics related to
-Faith's phylogenetic diversity that count each branch or clade one time; terminal-focused metrics like
-mean phylogenetic distance are not currently supported. Endemism-weighted versions of all metrics are
+The function calculates the following metrics. Endemism-weighted versions of most metrics are
 available. All metrics are weighted by occurrence probability or abundance, if applicable.
 
 \strong{Richness measures:}
@@ -47,18 +45,19 @@ available. All metrics are weighted by occurrence probability or abundance, if a
 \itemize{
 \item \strong{RPD}---Relative Phylogenetic Diversity, i.e. mean branch segment length (equivalent to PD / CR): \eqn{\sum_{b}{L_b p_b} / \sum_{b}{p_b}}
 \item \strong{RPE}---Relative Phylogenetic Endemism, i.e. mean endemism-weighted branch segment length (equivalent to PE / CE): \eqn{\sum_{b}{L_b p_b r_b^{-1}} / \sum_{b}{p_b r_b^{-1}}}
-\item Note that divergence can also be assessed with null model analysis of richness measures via \code{ps_rand()}.
+\item \strong{MPDT}---Mean Pairwise Distance between Terminals, i.e. the classic MPD metric. This is the average of cophenetic distances, weighted by \eqn{p_t}.
+\item \strong{MPDN}---Mean Pairwise Distance between Nodes, an experimental version of MPD that considers distances between every pair of non-nested clades, putting more weight on deeper branches than does MPDT.
+This is the mean of distances between all collateral (non-lineal) node pairs including terminal and internal nodes, weighted by \eqn{p_b}.
+\item Note that divergence can also be assessed by using \code{ps_rand()} to run null model analyses of richness measures like PD.
 }
 
 \strong{Regularity measures}:
 \itemize{
-\item \strong{VPD}---Variation in Phylogenetic Diversity contributions of taxa, i.e. coefficient of variation in branch segemnt length:
-\eqn{\sqrt{ (\sum_{b}{(p_b (L_b - RPD)^2)}) / (\sum_{b}{p_b}) } / RPD }
-\item \strong{VPE}---Variation in Phylogenetic Endemism contributions of taxa, i.e. coefficient of variation in endemism-weighted branch length: \eqn{}
-\eqn{\sqrt{ (\sum_{b}{(p_b r_b^{-1} (L_b - RPE)^2)}) / (\sum_{b}{p_b r_b^{-1}}) } / RPE }
+\item \strong{VPDT}---Variance in Pairwise Distances between Terminals, i.e. the classic VPD metric, weighted by \eqn{p_t}.
+\item \strong{VPDN}---Variance in Pairwise Distances between Nodes, i.e. MPDN but variance.
 }
 
-where \eqn{b} indexes all taxa including terminals and larger clades; \eqn{t} indexes terminals only; \eqn{p_i} is the occurrence value
+In the above equations, \eqn{b} indexes all taxa including terminals and larger clades; \eqn{t} indexes terminals only; \eqn{p_i} is the occurrence value
 (binary, probability, or abundance) of clade/terminal \eqn{i} in a given community; \eqn{L_b} is the
 length of the phylogenetic branch segment unique to clade \eqn{b}; and \eqn{r_i} is the sum of \eqn{p_i} across all sites. For Shannon
 and Simpson indices, only nonzero elements of \eqn{p_b} are used, \eqn{n_b = p_b / \sum_{b}{p_b L_b}}, and \eqn{e_b = p_b / \sum_{b}{p_b L_b r_b^{-1}}}.
@@ -86,6 +85,9 @@ of the Royal Society B: Biological Sciences, 365(1558), 3599-3609.
 
 Mishler, B. D., Knerr, N., González-Orozco, C. E., Thornhill, A. H., Laffan, S. W., & Miller, J. T. (2014).
 Phylogenetic measures of biodiversity and neo-and paleo-endemism in Australian Acacia. Nature Communications, 5(1), 4473.
+
+Tucker, C. M., Cadotte, M. W., Davies, T. J., et al. (2016) A guide to phylogenetic metrics for conservation, community
+ecology and macroecology. Biological Reviews, 92(2), 698-715.
 
 Kling, M. M., Mishler, B. D., Thornhill, A. H., Baldwin, B. G., & Ackerly, D. D. (2019). Facets of phylodiversity: evolutionary
 diversification, divergence and survival as conservation targets. Philosophical Transactions of the Royal Society B, 374(1763), 20170397.

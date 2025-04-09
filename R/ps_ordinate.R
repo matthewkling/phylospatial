@@ -12,7 +12,7 @@
 #' @param k Positive integer giving the desired number of output dimensions; default is `3`.
 #' @param spatial Logical indicating whether a spatial object (inherited from `ps`) should be returned.
 #'    Default is TRUE.
-#'
+#' @seealso For visualization using ordination onto RGB color space, see [ps_rgb()].
 #' @return A matrix or spatial object with `k` variables.
 #' @examples
 #' ps <- ps_add_dissim(ps_simulate(50, 5, 5))
