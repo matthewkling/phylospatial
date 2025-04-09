@@ -92,49 +92,44 @@ here.</p>
 <p>The <code><a href="../reference/ps_diversity.html">ps_diversity()</a></code> function calculates the following
 alpha diversity measures. While there are a wide variety of
 phylogentically-informed diversity metrics in the literature, the
-<code>phylospatial</code> package currently focuses on “node-based”
+<code>phylospatial</code> package focuses primarily on “node-based”
 diversity metrics like Faith’s PD that give equal treatment to
-clades/branches at all levels, as opposed to “terminal-focused” metrics
-like mean phylogenetic distance that give primacy to teriminal taxa.</p>
-<ul>
-<li>TR: Terminal richness, i.e. richness of terminal taxa (in many cases
-these are species). For binary data this is the total number of
-terminals in a site, while for quantitative data it is the sum of
-probability or abundance values.</li>
-<li>TE: Terminal endemism, i.e. total endemism-weighted diversity of
-terminal taxa (a.k.a. “weighted endemism”)</li>
-<li>CR: Clade richness, i.e. richness of taxa at all levels (equivalent
-to PD on a cladogram)</li>
-<li>CE: Clade endemism, i.e. total endemism-weighted diversity of taxa
-at all levels (equivalent to PE on a cladrogram)</li>
-<li>PD: Phylogenetic diversity, i.e. total length of all branch segments
-present in a location</li>
-<li>PE: Phylogenetic endemism, i.e. endemism-weighted PD</li>
-<li>RPD: Relative phylogenetic diversity, i.e. branch length of mean
-resident (equivalent to PD / CR)</li>
-<li>RPE: Relative phylogenetic endemism, i.e. mean endemism-weighted
-branch length (equivalent to PE / CE)</li>
-<li>VPD: Variation in phylogenetic diversity, i.e. coefficient of
-variation in branch lengths</li>
-<li>VPE: Variation in phylogenetic endemism, i.e. coefficient of
-variation in endemism-weighted branch lengths</li>
-<li>ShPD: Shannon’s pylogenetic diversity, a.k.a “phylogenetic
-entropy”</li>
-<li>ShPE: Shannon’s pylogenetic diversity, weighted by endemism</li>
-<li>SiPD: Simpson’s phylogenetic diversity</li>
-<li>SiPE: Simpson’s phylogenetic diversity, weighted by endemism</li>
-</ul>
+clades/branches at all levels. Phylogenetic diversity metrics can be
+categorized as addressing richness, divergence, and regularity (Tucker
+et al. 2017), as listed below. Note that an alternative approach to
+assessing divergence is through null model analysis of richness metrics,
+discussed later in this vignette.</p>
+<p>Richness metrics: - PD: Phylogenetic diversity, i.e. total length of
+all branch segments present in a location - PE: Phylogenetic endemism,
+i.e. endemism-weighted PD - ShPD: Shannon’s pylogenetic diversity, a.k.a
+“phylogenetic entropy” - ShPE: Shannon’s pylogenetic diversity, weighted
+by endemism - SiPD: Simpson’s phylogenetic diversity - SiPE: Simpson’s
+phylogenetic diversity, weighted by endemism - TR: Terminal richness,
+i.e. richness of terminal taxa (in many cases these are species). For
+binary data this is the total number of terminals in a site, while for
+quantitative data it is the sum of probability or abundance values. -
+TE: Terminal endemism, i.e. total endemism-weighted diversity of
+terminal taxa (a.k.a. “weighted endemism”) - CR: Clade richness,
+i.e. richness of taxa at all levels (equivalent to PD on a cladogram) -
+CE: Clade endemism, i.e. total endemism-weighted diversity of taxa at
+all levels (equivalent to PE on a cladrogram)</p>
+<p>Divergence metrics: - RPD: Relative phylogenetic diversity, i.e. mean
+branch segment length of residents (equivalent to PD / CR) - RPE:
+Relative phylogenetic endemism, i.e. mean endemism-weighted branch
+length (equivalent to PE / CE) - MPDT: Mean pairwise distance between
+terminals, i.e. the classic MPD measure - MPDN: Mean pairwise distance
+between nodes, a node-based version of MPD that calculates the average
+branch length separating all pairs of collateral (non-lineal) nodes
+including terminals and internal nodes, giving more representation to
+deeper branches</p>
+<p>Regularity metrics: - VPDT: Variance in pairwise distances between
+terminals - VPDN: Variance in pairwise distances between collateral
+nodes</p>
 <p>All measures use quantitative community data if provided. “Endemism”
-the inverse of the total occurrence mass (the sum of presence,
+is the inverse of the total occurrence mass (the sum of presence,
 probability, or abundance values) across all sites in the analysis. See
 <code><a href="../reference/ps_diversity.html">?ps_diversity</a></code> for equations giving the derivation of each
 metric.</p>
-<p>Phylogenetic diversity metrics can be categorized as addressing
-richness, divergence, and regularity (Tucker et al. 2017). While the
-majority of the above metrics focus on richness, VPD and VPE relate to
-regularity, and RPD and RPE represent divergence. An alternative
-approach to assessing divergence is through null model analysis of
-richness metrics, discussed below.</p>
 <p>Let’s compute the full set of metrics for our phylospatial data set.
 Since our data is raster-based, by default the function will return a
 <code>SpatRaster</code> with a layer for each measure. Here we’ll make
