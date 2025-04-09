@@ -33,9 +33,10 @@ Suggests:
     hillR,
     picante,
     phytools
-URL: https://matthewkling.github.io/phylospatial/
+URL: https://matthewkling.github.io/phylospatial/, https://github.com/matthewkling/phylospatial
 Config/testthat/edition: 3
 Depends: 
     R (>= 3.5)
 LazyData: true
 VignetteBuilder: knitr
+BugReports: https://github.com/matthewkling/phylospatial/issues
