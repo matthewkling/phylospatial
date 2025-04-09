@@ -13,6 +13,8 @@ Conduct various analyses on spatial phylogenetic diversity patterns. Use your da
 Useful links:
 \itemize{
   \item \url{https://matthewkling.github.io/phylospatial/}
+  \item \url{https://github.com/matthewkling/phylospatial}
+  \item Report bugs at \url{https://github.com/matthewkling/phylospatial/issues}
 }
 
 }
