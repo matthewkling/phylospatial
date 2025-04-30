@@ -49,7 +49,7 @@ The second optional variable is `cost`, representing the relative cost of protec
 
 First let's load the libraries we'll need, and initialize a `phylospatial` data set using the example data for California mosses. (See `vignette("phylospatial-data")` for details on constructing `phylospatial` objects.) We'll also create a variable called `con` specifying our (arbitrary) initial conservation values, and pass it to `ps_prioritize()` with our spatial phylogenetic data. Plotting the result, the highest-priority sites are those with low rank values, shown in yellow.
 
-```{r optim, message=FALSE}
+```{r optim, message=FALSE, warning=FALSE}
 library(phylospatial); library(tmap); library(magrittr)
 
 ps <- moss()
@@ -58,8 +58,7 @@ cost <- runif(nrow(ps$comm), 10, 1000)
 priority <- ps_prioritize(ps, init = init, cost = cost, progress = FALSE)
 
 tm_shape(priority) + 
-      tm_raster(palette = "-inferno", style = "log10",
-                title = "conservation\npriorities") + 
+      tm_raster(col.scale = tm_scale_continuous_log(values = "-inferno")) + 
       tm_layout(legend.outside = TRUE)
 ```
 
@@ -79,8 +78,8 @@ priority <- ps_prioritize(ps, init = init, cost = cost, n_reps = 100,
                           method = "prob", max_iter = 10, progress = FALSE)
 
 tm_shape(priority$top10) + 
-      tm_raster(palette = "inferno", style = "cont",
-                title = "proporiton of runs\nin which site was\ntop-10 priority") + 
+      tm_raster(col.scale = tm_scale_continuous(values = "inferno"),
+                col.legend = tm_legend(title = "proporiton of runs\nin which site was\ntop-10 priority")) + 
       tm_layout(legend.outside = TRUE)
 ```
 

@@ -4,7 +4,7 @@ Version: 1.1.0.9000
 Authors@R: 
     person("Matthew", "Kling", , "mattkling@berkeley.edu", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0001-9073-4240"))
-Description: Conduct various analyses on spatial phylogenetic diversity patterns. 
+Description: Analyze spatial phylogenetic diversity patterns. 
     Use your data on an evolutionary tree and geographic distributions of the 
     terminal taxa to compute diversity and endemism metrics, test significance 
     with null model randomization, analyze community turnover and biotic 
