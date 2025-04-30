@@ -6,12 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Alpha phylogenetic diversity • phylospatial</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -100,50 +99,63 @@ categorized as addressing richness, divergence, and regularity (Tucker
 et al. 2017), as listed below. Note that an alternative approach to
 assessing divergence is through null model analysis of richness metrics,
 discussed later in this vignette.</p>
-<p>Richness metrics: - PD: Phylogenetic diversity, i.e. total length of
-all branch segments present in a location - PE: Phylogenetic endemism,
-i.e. endemism-weighted PD - ShPD: Shannon’s pylogenetic diversity, a.k.a
-“phylogenetic entropy” - ShPE: Shannon’s pylogenetic diversity, weighted
-by endemism - SiPD: Simpson’s phylogenetic diversity - SiPE: Simpson’s
-phylogenetic diversity, weighted by endemism - TR: Terminal richness,
-i.e. richness of terminal taxa (in many cases these are species). For
-binary data this is the total number of terminals in a site, while for
-quantitative data it is the sum of probability or abundance values. -
-TE: Terminal endemism, i.e. total endemism-weighted diversity of
-terminal taxa (a.k.a. “weighted endemism”) - CR: Clade richness,
-i.e. richness of taxa at all levels (equivalent to PD on a cladogram) -
-CE: Clade endemism, i.e. total endemism-weighted diversity of taxa at
-all levels (equivalent to PE on a cladrogram)</p>
-<p>Divergence metrics: - RPD: Relative phylogenetic diversity, i.e. mean
-branch segment length of residents (equivalent to PD / CR) - RPE:
-Relative phylogenetic endemism, i.e. mean endemism-weighted branch
-length (equivalent to PE / CE) - MPDT: Mean pairwise distance between
-terminals, i.e. the classic MPD measure - MPDN: Mean pairwise distance
-between nodes, a node-based version of MPD that calculates the average
-branch length separating all pairs of collateral (non-lineal) nodes
-including terminals and internal nodes, giving more representation to
-deeper branches</p>
-<p>Regularity metrics: - VPDT: Variance in pairwise distances between
-terminals - VPDN: Variance in pairwise distances between collateral
-nodes</p>
+<p>Richness metrics:</p>
+<ul>
+<li>PD: Phylogenetic diversity, i.e. total length of all branch segments
+present in a location</li>
+<li>PE: Phylogenetic endemism, i.e. endemism-weighted PD</li>
+<li>ShPD: Shannon’s pylogenetic diversity, a.k.a “phylogenetic
+entropy”</li>
+<li>ShPE: Shannon’s pylogenetic diversity, weighted by endemism</li>
+<li>SiPD: Simpson’s phylogenetic diversity</li>
+<li>SiPE: Simpson’s phylogenetic diversity, weighted by endemism</li>
+<li>TR: Terminal richness, i.e. richness of terminal taxa (in many cases
+these are species). For binary data this is the total number of
+terminals in a site, while for quantitative data it is the sum of
+probability or abundance values.</li>
+<li>TE: Terminal endemism, i.e. total endemism-weighted diversity of
+terminal taxa (a.k.a. “weighted endemism”)</li>
+<li>CR: Clade richness, i.e. richness of taxa at all levels (equivalent
+to PD on a cladogram)</li>
+<li>CE: Clade endemism, i.e. total endemism-weighted diversity of taxa
+at all levels (equivalent to PE on a cladrogram)</li>
+</ul>
+<p>Divergence metrics:</p>
+<ul>
+<li>RPD: Relative phylogenetic diversity, i.e. mean branch segment
+length of residents (equivalent to PD / CR)</li>
+<li>RPE: Relative phylogenetic endemism, i.e. mean endemism-weighted
+branch length (equivalent to PE / CE)</li>
+<li>MPDT: Mean pairwise distance between terminals, i.e. the classic MPD
+measure</li>
+<li>MPDN: Mean pairwise distance between nodes, a node-based version of
+MPD that calculates the average branch length separating all pairs of
+collateral (non-lineal) nodes including terminals and internal nodes,
+giving more representation to deeper branches</li>
+</ul>
+<p>Regularity metrics:</p>
+<ul>
+<li>VPDT: Variance in pairwise distances between terminals</li>
+<li>VPDN: Variance in pairwise distances between collateral nodes</li>
+</ul>
 <p>All measures use quantitative community data if provided. “Endemism”
 is the inverse of the total occurrence mass (the sum of presence,
 probability, or abundance values) across all sites in the analysis. See
 <code><a href="../reference/ps_diversity.html">?ps_diversity</a></code> for equations giving the derivation of each
 metric.</p>
-<p>Let’s compute the full set of metrics for our phylospatial data set.
+<p>Let’s compute some diversity metrics for our phylospatial data set.
 Since our data is raster-based, by default the function will return a
 <code>SpatRaster</code> with a layer for each measure. Here we’ll make
 plots of PD and PE:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">div</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_diversity.html">ps_diversity</a></span><span class="op">(</span><span class="va">ps</span>, metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">div</span><span class="op">$</span><span class="va">PD</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"inferno"</span>, style <span class="op">=</span> <span class="st">"cont"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="alpha-diversity_files/figure-html/alpha-1.png" width="576"></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">div</span><span class="op">$</span><span class="va">PE</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"inferno"</span>, style <span class="op">=</span> <span class="st">"cont"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="alpha-diversity_files/figure-html/alpha-2.png" width="576"></p>
 </div>
@@ -157,8 +169,8 @@ significance of these diversity metrics under a null model, using the
 use with continuous occurrence data, in combination with the
 <code>"curveball"</code> algorithm.</p>
 <p>Let’s run 25 randomizations (far more would be necessary for a real
-analysis) for all metrics, and plot the results for PE. This is a
-quantile value that gives the proportion of randomizations in which
+analysis) for four diversity metrics, and plot the results for PE. This
+is a quantile value that gives the proportion of randomizations in which
 observed PE was greater than randomized PE in a given grid cell. (If you
 wanted to identify “statistically significant” grid cells in a
 one-tailed test with alpha = 0.05, these would be cells with values
@@ -167,23 +179,23 @@ greater than 0.95.)</p>
 <code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">25</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span>, <span class="st">"CE"</span>, <span class="st">"RPE"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">rand</span><span class="op">$</span><span class="va">qPE</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"inferno"</span>, style <span class="op">=</span> <span class="st">"cont"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="alpha-diversity_files/figure-html/rand-1.png" width="576"></p>
-<p>There are numerous alternative options for randomization algorithms
-to use, depending on the type of occurrence data you have (probability,
-binary, or abundance) and depending on which attributes of the terminal
-community matrix (fill, row and column sums, etc.) you want to hold
-fixed. In addition to the default function used above, these include a
-basic <code>"tip_shuffle"</code> randomization, a range of algorithms
-defined in the <code>vegan</code> package, and an option to supply a
-custom randomization function. As a second example, here’s a
+<p>There are numerous alternative options for randomization algorithms,
+a choice that will depend on the type of occurrence data you have
+(probability, binary, or abundance) and on which attributes of the
+terminal community matrix (fill, row and column sums, etc.) you want to
+hold fixed. In addition to the default function used above, these
+include a basic <code>"tip_shuffle"</code> randomization, a range of
+algorithms defined in the <code>vegan</code> package, and an option to
+supply a custom randomization function. As a second example, here’s a
 randomization with an abundance data set, using the
 <code>"abuswap_c"</code> algorithm provided by
 <code><a href="https://rdrr.io/pkg/vegan/man/nullmodel.html" class="external-link">vegan::nullmodel</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ps2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"abundance"</span>, metric <span class="op">=</span> <span class="st">"PD"</span><span class="op">)</span></span>
-<span><span class="va">rand2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"abuswap_c"</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ps2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"abundance"</span><span class="op">)</span></span>
+<span><span class="va">rand2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"abuswap_c"</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>, metric <span class="op">=</span> <span class="st">"PD"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="canape">CANAPE<a class="anchor" aria-label="anchor" href="#canape"></a>
@@ -195,8 +207,8 @@ paleo-endemism” (CANAPE, <a href="https://doi.org/10.1038/ncomms5473" class="e
 function <code><a href="../reference/ps_canape.html">ps_canape()</a></code> uses significance values for PE, RPE,
 and CE, which are returned by <code><a href="../reference/ps_rand.html">ps_rand()</a></code>, to categorize
 sites into five endemism cateogories. Here’s an example with the moss
-data; in this case, only three of the five categories occur in the
-result (no areas of significant neo- or mixed-endemism are present):</p>
+data; note that depending on the randomization, only a subset of the
+five categories may occur in the result here:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_canape.html">ps_canape</a></span><span class="op">(</span><span class="va">rand</span>, alpha <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cp</span><span class="op">)</span></span></code></pre></div>
@@ -213,7 +225,7 @@ result (no areas of significant neo- or mixed-endemism are present):</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer>
