@@ -30,7 +30,7 @@ analyze phylospatial data:
   conservation priorities.
 
 A key difference between `phylospatial` and other spatial phylogenetic R
-libraries is that all functions in this package works not only with
+libraries is that all functions in this package work not only with
 binary presence-absence data but also with quantitative community data
 types including occurrence probabilities or abundances. In particular,
 support for occurrence probabilities, such as from species distribution

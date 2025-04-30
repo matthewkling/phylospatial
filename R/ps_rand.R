@@ -8,7 +8,7 @@
 #'
 #' @param ps `phylospatial` object.
 #' @param metric Character vector giving one or more diversity metrics to calculate; see \link{ps_diversity}
-#'    for options. Can also specify `"all"` (the default) to calculate all available metrics.
+#'    for options. Can also specify `"all"` to calculate all available metrics.
 #' @param fun Null model function to use. Must be either "tip_shuffle", "nullmodel", "quantize", or an actual function:
 #' \itemize{
 #'    \item "tip_shuffle": randomly shuffles the identities of terminal taxa
@@ -52,7 +52,7 @@
 #' rand
 #' }
 #' @export
-ps_rand <- function(ps, metric = "PD", fun = "quantize", method = "curveball", n_rand = 100,
+ps_rand <- function(ps, metric = c("PD", "PE", "RPE", "CE"), fun = "quantize", method = "curveball", n_rand = 100,
                     spatial = TRUE, n_cores = 1, progress = interactive(), ...){
 
       enforce_ps(ps)

@@ -6,7 +6,7 @@
 \usage{
 ps_rand(
   ps,
-  metric = "PD",
+  metric = c("PD", "PE", "RPE", "CE"),
   fun = "quantize",
   method = "curveball",
   n_rand = 100,
@@ -20,7 +20,7 @@ ps_rand(
 \item{ps}{\code{phylospatial} object.}
 
 \item{metric}{Character vector giving one or more diversity metrics to calculate; see \link{ps_diversity}
-for options. Can also specify \code{"all"} (the default) to calculate all available metrics.}
+for options. Can also specify \code{"all"} to calculate all available metrics.}
 
 \item{fun}{Null model function to use. Must be either "tip_shuffle", "nullmodel", "quantize", or an actual function:
 \itemize{
