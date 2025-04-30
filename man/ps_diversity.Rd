@@ -4,13 +4,14 @@
 \alias{ps_diversity}
 \title{Calculate spatial phylogenetic diversity and endemism metrics}
 \usage{
-ps_diversity(ps, metric = "all", spatial = TRUE)
+ps_diversity(ps, metric = c("PD", "PE", "CE", "RPE"), spatial = TRUE)
 }
 \arguments{
 \item{ps}{phylospatial object (created by \code{phylospatial()} or \code{ps_simulate()}).}
 
 \item{metric}{Character vector containing the abbreviation for one or more diversity metrics listed in
-the details below. Can also specify \code{"all"} (the default) to calculate all available metrics.}
+the details below. Can also specify \code{"all"} to calculate all available metrics. A small subset of common
+measures are selected by default.}
 
 \item{spatial}{Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE)?}
 }

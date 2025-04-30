@@ -7,7 +7,8 @@
 #'
 #' @param ps phylospatial object (created by \code{phylospatial()} or \code{ps_simulate()}).
 #' @param metric Character vector containing the abbreviation for one or more diversity metrics listed in
-#'    the details below. Can also specify `"all"` (the default) to calculate all available metrics.
+#'    the details below. Can also specify `"all"` to calculate all available metrics. A small subset of common
+#'    measures are selected by default.
 #' @param spatial Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE)?
 #'
 #' @details The function calculates the following metrics. Endemism-weighted versions of most metrics are
@@ -74,7 +75,7 @@
 #' terra::plot(div)
 #'
 #' @export
-ps_diversity <- function(ps, metric = "all", spatial = TRUE){
+ps_diversity <- function(ps, metric = c("PD", "PE", "CE", "RPE"), spatial = TRUE){
 
       enforce_ps(ps)
       if(any(metric == "all")) metric <- metrics()

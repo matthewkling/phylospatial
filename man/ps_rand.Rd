@@ -6,7 +6,7 @@
 \usage{
 ps_rand(
   ps,
-  metric = "all",
+  metric = "PD",
   fun = "quantize",
   method = "curveball",
   n_rand = 100,

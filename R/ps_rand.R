@@ -52,7 +52,7 @@
 #' rand
 #' }
 #' @export
-ps_rand <- function(ps, metric = "all", fun = "quantize", method = "curveball", n_rand = 100,
+ps_rand <- function(ps, metric = "PD", fun = "quantize", method = "curveball", n_rand = 100,
                     spatial = TRUE, n_cores = 1, progress = interactive(), ...){
 
       enforce_ps(ps)
