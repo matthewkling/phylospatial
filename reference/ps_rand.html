@@ -60,6 +60,7 @@ binary, probability, and count data.</p>
 <span>  fun <span class="op">=</span> <span class="st">"quantize"</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"curveball"</span>,</span>
 <span>  n_rand <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  summary <span class="op">=</span> <span class="st">"quantile"</span>,</span>
 <span>  spatial <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_cores <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  progress <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -102,6 +103,13 @@ your community <code>data_type</code> (binary, quantitative, abundance). This ar
 <dd><p>Integer giving the number of random communities to generate.</p></dd>
 
 
+<dt id="arg-summary">summary<a class="anchor" aria-label="anchor" href="#arg-summary"></a></dt>
+<dd><p>Character indicating which summary statistic to return. If <code>"quantile"</code>, the default, the function
+returns the proportion of randomizations in which the observed diversity metric was greater than the randomized
+metric. If <code>"zscore"</code>, it returns a "standardized effect size" or z-score relating the observed value to the mean and
+standard deviation of the randomizations.</p></dd>
+
+
 <dt id="arg-spatial">spatial<a class="anchor" aria-label="anchor" href="#arg-spatial"></a></dt>
 <dd><p>Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE).</p></dd>
 
@@ -122,8 +130,7 @@ your community <code>data_type</code> (binary, quantitative, abundance). This ar
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A matrix with a row for every row of <code>x</code>, a column for every metric specified in <code>metric</code>, and
-values indicating the proportion of randomizations in which the observed diversity metric was greater than
-the randomized metric. Or if <code>spatial = TRUE</code>, a <code>sf</code> or <code>SpatRaster</code> object containing these data.</p>
+values for the <code>summary</code> statistic. Or if <code>spatial = TRUE</code>, a <code>sf</code> or <code>SpatRaster</code> object containing these data.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
