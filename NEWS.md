@@ -1,8 +1,8 @@
-# phylospatial (development version)
+# phylospatial 1.1.1
 
-* `ps_diversity()` now computes a smaller set of metrics by default, rather than all metrics.
+* `ps_diversity()` now computes a smaller set of metrics by default, in order to reduce runtimes.
 
-* `ps_rand()` includes a new choice of summary statistic. In addition to the default "quantile" function, a new "z-score" option is available.
+* `ps_rand()` includes a new choice of summary statistic: in addition to the default "quantile" function, a new "z-score" option is available.
 
 # phylospatial 1.1.0
 
