@@ -14,6 +14,7 @@ test_that("`ps_rand` runs without error on example data", {
 
       if(requireNamespace("furrr")) expect_no_error(ps_rand(ps, n_rand = 10, n_cores = 2, progress = FALSE))
 
+      expect_no_error(ps_rand(bn, "PD", "tip_shuffle", n_rand = 3, summary = "zscore", progress = FALSE))
       expect_no_error(ps_rand(bn, "PD", "tip_shuffle", n_rand = 3, progress = FALSE))
       expect_no_error(ps_rand(bn, "PD", "nullmodel", "r00", n_rand = 3, progress = FALSE))
       expect_error(ps_rand(bn, "PD", "nullmodel", "swap_count", n_rand = 3, progress = FALSE))

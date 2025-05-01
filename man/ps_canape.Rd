@@ -7,7 +7,8 @@
 ps_canape(rand, alpha = 0.05)
 }
 \arguments{
-\item{rand}{An object returned by running \code{ps_rand}. It must include the metrics PE, RPE, and CE.}
+\item{rand}{An object returned by running \code{ps_rand}. It must include the metrics PE, RPE, and CE,
+and must have been computed with \code{summary = "quantile"}.}
 
 \item{alpha}{Numeric value between 0 and 1 giving the one-tailed p-value threshold to use when
 determining significance.}

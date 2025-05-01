@@ -10,6 +10,7 @@ ps_rand(
   fun = "quantize",
   method = "curveball",
   n_rand = 100,
+  summary = "quantile",
   spatial = TRUE,
   n_cores = 1,
   progress = interactive(),
@@ -40,6 +41,11 @@ your community \code{data_type} (binary, quantitative, abundance). This argument
 
 \item{n_rand}{Integer giving the number of random communities to generate.}
 
+\item{summary}{Character indicating which summary statistic to return. If \code{"quantile"}, the default, the function
+returns the proportion of randomizations in which the observed diversity metric was greater than the randomized
+metric. If \code{"zscore"}, it returns a "standardized effect size" or z-score relating the observed value to the mean and
+standard deviation of the randomizations.}
+
 \item{spatial}{Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE).}
 
 \item{n_cores}{Integer giving the number of compute cores to use for parallel processing.}
@@ -51,8 +57,7 @@ your community \code{data_type} (binary, quantitative, abundance). This argument
 }
 \value{
 A matrix with a row for every row of \code{x}, a column for every metric specified in \code{metric}, and
-values indicating the proportion of randomizations in which the observed diversity metric was greater than
-the randomized metric. Or if \code{spatial = TRUE}, a \code{sf} or \code{SpatRaster} object containing these data.
+values for the \code{summary} statistic. Or if \code{spatial = TRUE}, a \code{sf} or \code{SpatRaster} object containing these data.
 }
 \description{
 This function compares phylodiversity metrics calculated in \link{ps_diversity} to their null distributions

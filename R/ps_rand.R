@@ -24,14 +24,17 @@
 #'    your community `data_type` (binary, quantitative, abundance). This argument is ignored if `fun` is
 #'    `"tip_shuffle"` or if it is a custom function.
 #' @param n_rand Integer giving the number of random communities to generate.
+#' @param summary Character indicating which summary statistic to return. If `"quantile"`, the default, the function
+#'    returns the proportion of randomizations in which the observed diversity metric was greater than the randomized
+#'    metric. If `"zscore"`, it returns a "standardized effect size" or z-score relating the observed value to the mean and
+#'    standard deviation of the randomizations.
 #' @param spatial Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE).
 #' @param n_cores Integer giving the number of compute cores to use for parallel processing.
 #' @param progress Logical: should a progress bar be displayed?
 #' @param ... Additional arguments passed to \link{quantize}, \link[vegan]{simulate.nullmodel}, or custom function
 #'    `fun`. Note that the `nsim` argument the former two functions should not be used here; specify `n_rand` instead.
 #' @return A matrix with a row for every row of \code{x}, a column for every metric specified in `metric`, and
-#'    values indicating the proportion of randomizations in which the observed diversity metric was greater than
-#'    the randomized metric. Or if `spatial = TRUE`, a `sf` or `SpatRaster` object containing these data.
+#'    values for the `summary` statistic. Or if `spatial = TRUE`, a `sf` or `SpatRaster` object containing these data.
 #' @seealso [ps_diversity()]
 #' @examples
 #' \donttest{
@@ -52,12 +55,15 @@
 #' rand
 #' }
 #' @export
-ps_rand <- function(ps, metric = c("PD", "PE", "RPE", "CE"), fun = "quantize", method = "curveball", n_rand = 100,
+ps_rand <- function(ps, metric = c("PD", "PE", "RPE", "CE"),
+                    fun = "quantize", method = "curveball", n_rand = 100,
+                    summary = "quantile",
                     spatial = TRUE, n_cores = 1, progress = interactive(), ...){
 
       enforce_ps(ps)
       if(any(metric == "all")) metric <- metrics()
       match.arg(metric, metrics(), several.ok = TRUE)
+      match.arg(summary, c("quantile", "zscore"))
 
       phy <- ps$tree
       a <- occupied(ps)
@@ -120,11 +126,12 @@ ps_rand <- function(ps, metric = c("PD", "PE", "RPE", "CE"), fun = "quantize", m
             for(i in 1:n_rand) rand[,,i+1] <- rnd[[i]]
       }
 
-      q <- apply(rand, 1:2, function(x) mean(x[1] > x[2:(n_rand+1)], na.rm = TRUE) )
+      if(summary == "quantile") q <- apply(rand, 1:2, function(x) mean(x[1] > x[2:(n_rand+1)], na.rm = TRUE) )
+      if(summary == "zscore") q <- apply(rand, 1:2, function(x) (x[1] - mean(x[2:(n_rand+1)], na.rm = TRUE)) / sd(x[2:(n_rand+1)], na.rm = TRUE) )
 
       qa <- matrix(NA, length(a), ncol(q))
       qa[a, ] <- q
-      colnames(qa) <- paste0("q", colnames(div))
+      colnames(qa) <- paste0(substr(summary, 1, 1), colnames(div))
 
       if(spatial) qa <- to_spatial(qa, ps$spatial)
       return(qa)
