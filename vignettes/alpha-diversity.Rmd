@@ -76,11 +76,24 @@ tm_shape(div$PE) +
 
 We can also use randomization to calculate the statistical significance of these diversity metrics under a null model, using the `ps_rand()` function. By default, this function uses `quantize()`, a stratified randomization scheme designed for use with continuous occurrence data, in combination with the `"curveball"` algorithm. 
 
-Let's run 25 randomizations (far more would be necessary for a real analysis) for four diversity metrics, and plot the results for PE. This is a quantile value that gives the proportion of randomizations in which observed PE was greater than randomized PE in a given grid cell. (If you wanted to identify "statistically significant" grid cells in a one-tailed test with alpha = 0.05, these would be cells with values greater than 0.95.)
+Let's run 1000 randomizations for four diversity metrics, and plot the results for PE. This is a quantile value that gives the proportion of randomizations in which observed PE was greater than randomized PE in a given grid cell. (If you wanted to identify "statistically significant" grid cells in a one-tailed test with alpha = 0.05, these would be cells with values greater than 0.95.)
 
-```{r rand, message=FALSE, warning=FALSE}
-rand <- ps_rand(ps, n_rand = 25, progress = FALSE,
+```{r rand, eval=FALSE}
+rand <- ps_rand(ps, n_rand = 1000, progress = FALSE,
                 metric = c("PD", "PE", "CE", "RPE"))
+tm_shape(rand$qPE) + 
+      tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
+      tm_layout(legend.outside = TRUE)
+```
+
+```{r precompute, eval=FALSE, echo=FALSE}
+# pre-process to avoid exceeding CRAN runtime limits -- need to manually run this when updating vignette!
+rand0 <- ps_rand(ps, n_rand = 1000, metric = c("PD", "PE", "CE", "RPE"))
+terra::writeRaster(rand0, "~/Documents/R/phylospatial/inst/extdata/alpha-diversity-rand.tif", overwrite = TRUE)
+```
+
+```{r postcompute, echo=FALSE}
+rand <- terra::rast(system.file("extdata", "alpha-diversity-rand.tif", package = "phylospatial"))
 tm_shape(rand$qPE) + 
       tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
       tm_layout(legend.outside = TRUE)

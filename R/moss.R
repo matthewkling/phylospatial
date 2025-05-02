@@ -8,7 +8,9 @@
 #' @param format Either "raster" (default) or "polygon"
 #' @return a `phylospatial` object
 #' @examples
+#' \donttest{
 #' moss()
+#' }
 #'
 #' @source Kling, Gonzalez-Ramirez, Carter, Borokini, and Mishler (2024) bioRxiv, https://doi.org/10.1101/2024.12.16.628580.
 #' @export

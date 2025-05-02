@@ -1,5 +1,6 @@
 
 test_that("ps_diversity runs without error on example data", {
+      skip_on_cran() # due to processing time
       expect_no_error(ps_diversity(moss(), "all"))
       expect_no_error(ps_diversity(moss("polygon"), "all"))
 })

@@ -47,20 +47,40 @@ In addition to the required spatial phylogenetic data set, there are two other o
 
 The second optional variable is `cost`, representing the relative cost of protecting different sites across the study area. Sites with high benefit-to-cost ratios are prioritized. For this example, we'll just specify an arbitrary initial protection gradient from north to south and a cost gradient from east to west, though of course a real analysis would require actual data. For simplicity we'll provide these as vectors, but we could also provide raster layers matching the `spatial` element of our data set.
 
-First let's load the libraries we'll need, and initialize a `phylospatial` data set using the example data for California mosses. (See `vignette("phylospatial-data")` for details on constructing `phylospatial` objects.) We'll also create a variable called `con` specifying our (arbitrary) initial conservation values, and pass it to `ps_prioritize()` with our spatial phylogenetic data. Plotting the result, the highest-priority sites are those with low rank values, shown in yellow.
+First let's load the libraries we'll need, and initialize a `phylospatial` data set using the example data for California mosses. (See `vignette("phylospatial-data")` for details on constructing `phylospatial` objects.) We'll also create a variable called `init` specifying our (arbitrary) initial conservation values, and `cost` defining some hypothetical land cost data.
 
-```{r optim, message=FALSE, warning=FALSE}
+```{r init, message=FALSE, warning=FALSE}
 library(phylospatial); library(tmap); library(magrittr)
 
 ps <- moss()
 init <- seq(1, 0, length.out = nrow(ps$comm))
 cost <- runif(nrow(ps$comm), 10, 1000)
-priority <- ps_prioritize(ps, init = init, cost = cost, progress = FALSE)
+```
+
+Now we'll pass those inputs to `ps_prioritize()`. Plotting the result, the highest-priority sites are those with low rank values, shown in yellow.
+
+```{r optim, eval=FALSE}
+priority <- ps_prioritize(ps, init = init, cost = cost)
 
 tm_shape(priority) + 
       tm_raster(col.scale = tm_scale_continuous_log(values = "-inferno")) + 
       tm_layout(legend.outside = TRUE)
 ```
+
+```{r precompute, eval=FALSE, echo=FALSE}
+# pre-process to avoid exceeding CRAN runtime limits -- need to manually run this when updating vignette!
+priority <- ps_prioritize(ps, init = init, cost = cost, progress = FALSE)
+terra::writeRaster(priority, "~/Documents/R/phylospatial/inst/extdata/priority.tif", overwrite = TRUE)
+```
+
+```{r postcompute, echo=FALSE}
+priority <- terra::rast(system.file("extdata", "priority.tif", package = "phylospatial"))
+
+tm_shape(priority) + 
+      tm_raster(col.scale = tm_scale_continuous_log(values = "-inferno")) + 
+      tm_layout(legend.outside = TRUE)
+```
+
 
 
 ## Probabilistic prioritization
@@ -71,11 +91,27 @@ Probabilistic prioritization, activated with `method = "probable"`, addresses th
 
 Running a large number of `n_reps` can substantially increase computation times, but there are two ways to help mitigate run times. First, you can use parallel processing by increasing `n_cores` above the default of 1. Second, you can set `max_iter` to a relatively small number, which stops the algorithm after this number of sites have been added. For example, if your data set has 1000 sites, setting `max_iter = 10` can reduce run times by almost two orders of magnitude. While you won't get a full rank prioritization of all sites from any individual rep, you will get the proportion of reps in which a site is in the top 10, which is arguably even more useful.
 
-Let's demonstrate that here; we'll use just 100 reps for expediency, but 1000 or more would be better for a real analysis:
+Let's demonstrate that here; we'll run 2500 reps, though more might be better for a real analysis:
 
-```{r prob}
-priority <- ps_prioritize(ps, init = init, cost = cost, n_reps = 100,
-                          method = "prob", max_iter = 10, progress = FALSE)
+```{r prob, eval=FALSE}
+priority <- ps_prioritize(ps, init = init, cost = cost, n_reps = 2500,
+                          method = "prob", max_iter = 10)
+
+tm_shape(priority$top10) + 
+      tm_raster(col.scale = tm_scale_continuous(values = "inferno"),
+                col.legend = tm_legend(title = "proporiton of runs\nin which site was\ntop-10 priority")) + 
+      tm_layout(legend.outside = TRUE)
+```
+
+```{r precompute2, eval=FALSE, echo=FALSE}
+# pre-process to avoid exceeding CRAN runtime limits -- need to manually run this when updating vignette!
+priority <- ps_prioritize(ps, init = init, cost = cost, n_reps = 2500,
+                          method = "prob", max_iter = 10)
+terra::writeRaster(priority, "~/Documents/R/phylospatial/inst/extdata/priority-prob.tif", overwrite = TRUE)
+```
+
+```{r postcompute2, echo=FALSE}
+priority <- terra::rast(system.file("extdata", "priority-prob.tif", package = "phylospatial"))
 
 tm_shape(priority$top10) + 
       tm_raster(col.scale = tm_scale_continuous(values = "inferno"),
