@@ -1,3 +1,5 @@
+# phylospatial (development version)
+
 # phylospatial 1.1.1
 
 * `ps_diversity()` now computes a smaller set of metrics by default, in order to reduce runtimes.
