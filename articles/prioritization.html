@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -150,22 +150,25 @@ as vectors, but we could also provide raster layers matching the
 <code>phylospatial</code> data set using the example data for California
 mosses. (See <code><a href="../articles/phylospatial-data.html">vignette("phylospatial-data")</a></code> for details on
 constructing <code>phylospatial</code> objects.) We’ll also create a
-variable called <code>con</code> specifying our (arbitrary) initial
-conservation values, and pass it to <code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code> with
-our spatial phylogenetic data. Plotting the result, the highest-priority
-sites are those with low rank values, shown in yellow.</p>
+variable called <code>init</code> specifying our (arbitrary) initial
+conservation values, and <code>cost</code> defining some hypothetical
+land cost data.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://matthewkling.github.io/phylospatial/">phylospatial</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/r-tmap/tmap" class="external-link">tmap</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/moss.html">moss</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ps</span><span class="op">$</span><span class="va">comm</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">cost</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ps</span><span class="op">$</span><span class="va">comm</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">1000</span><span class="op">)</span></span>
-<span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">init</span>, cost <span class="op">=</span> <span class="va">cost</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">cost</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ps</span><span class="op">$</span><span class="va">comm</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
+<p>Now we’ll pass those inputs to <code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code>. Plotting
+the result, the highest-priority sites are those with low rank values,
+shown in yellow.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">init</span>, cost <span class="op">=</span> <span class="va">cost</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">priority</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous_log</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"-inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="prioritization_files/figure-html/optim-1.png" width="576"></p>
+<p><img src="prioritization_files/figure-html/postcompute-1.png" width="576"></p>
 </div>
 <div class="section level2">
 <h2 id="probabilistic-prioritization">Probabilistic prioritization<a class="anchor" aria-label="anchor" href="#probabilistic-prioritization"></a>
@@ -202,17 +205,17 @@ reduce run times by almost two orders of magnitude. While you won’t get
 a full rank prioritization of all sites from any individual rep, you
 will get the proportion of reps in which a site is in the top 10, which
 is arguably even more useful.</p>
-<p>Let’s demonstrate that here; we’ll use just 100 reps for expediency,
-but 1000 or more would be better for a real analysis:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">init</span>, cost <span class="op">=</span> <span class="va">cost</span>, n_reps <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>                          method <span class="op">=</span> <span class="st">"prob"</span>, max_iter <span class="op">=</span> <span class="fl">10</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<p>Let’s demonstrate that here; we’ll run 2500 reps, though more might
+be better for a real analysis:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">priority</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_prioritize.html">ps_prioritize</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">init</span>, cost <span class="op">=</span> <span class="va">cost</span>, n_reps <span class="op">=</span> <span class="fl">2500</span>,</span>
+<span>                          method <span class="op">=</span> <span class="st">"prob"</span>, max_iter <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">priority</span><span class="op">$</span><span class="va">top10</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span>,</span>
 <span>                col.legend <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_legend.html" class="external-link">tm_legend</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"proporiton of runs\nin which site was\ntop-10 priority"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="prioritization_files/figure-html/prob-1.png" width="576"></p>
+<p><img src="prioritization_files/figure-html/postcompute2-1.png" width="576"></p>
 </div>
 <div class="section level2">
 <h2 id="conservation-benefit-functions">Conservation benefit functions<a class="anchor" aria-label="anchor" href="#conservation-benefit-functions"></a>
@@ -227,7 +230,7 @@ conservation benefit measure that is used in calculating the marginal
 value of sites during prioritization.</p>
 <p>We can use the function <code><a href="../reference/plot_lambda.html">plot_lambda()</a></code> to compare the
 shapes of benefit functions under different lambda values:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_lambda.html">plot_lambda</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="prioritization_files/figure-html/lambda-1.png" width="432">
 A value of <code>lambda = 0</code> places equal marginal value on

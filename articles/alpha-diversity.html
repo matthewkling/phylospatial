@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -168,20 +168,19 @@ significance of these diversity metrics under a null model, using the
 <code><a href="../reference/quantize.html">quantize()</a></code>, a stratified randomization scheme designed for
 use with continuous occurrence data, in combination with the
 <code>"curveball"</code> algorithm.</p>
-<p>Let’s run 25 randomizations (far more would be necessary for a real
-analysis) for four diversity metrics, and plot the results for PE. This
-is a quantile value that gives the proportion of randomizations in which
-observed PE was greater than randomized PE in a given grid cell. (If you
-wanted to identify “statistically significant” grid cells in a
-one-tailed test with alpha = 0.05, these would be cells with values
-greater than 0.95.)</p>
+<p>Let’s run 1000 randomizations for four diversity metrics, and plot
+the results for PE. This is a quantile value that gives the proportion
+of randomizations in which observed PE was greater than randomized PE in
+a given grid cell. (If you wanted to identify “statistically
+significant” grid cells in a one-tailed test with alpha = 0.05, these
+would be cells with values greater than 0.95.)</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">25</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">1000</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span>, <span class="st">"CE"</span>, <span class="st">"RPE"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">rand</span><span class="op">$</span><span class="va">qPE</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="alpha-diversity_files/figure-html/rand-1.png" width="576"></p>
+<p><img src="alpha-diversity_files/figure-html/postcompute-1.png" width="576"></p>
 <p>There are numerous alternative options for randomization algorithms,
 a choice that will depend on the type of occurrence data you have
 (probability, binary, or abundance) and on which attributes of the
