@@ -1,12 +1,12 @@
 pandoc: 3.1.11
-pkgdown: 2.1.2
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   alpha-diversity: alpha-diversity.html
   beta-diversity: beta-diversity.html
   phylospatial-data: phylospatial-data.html
   prioritization: prioritization.html
-last_built: 2025-05-05T19:09Z
+last_built: 2025-11-13T16:56Z
 urls:
   reference: https://matthewkling.github.io/phylospatial/reference
   article: https://matthewkling.github.io/phylospatial/articles

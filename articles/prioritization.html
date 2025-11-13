@@ -168,7 +168,7 @@ shown in yellow.</p>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">priority</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous_log</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"-inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="prioritization_files/figure-html/postcompute-1.png" width="576"></p>
+<p><img src="prioritization_files/figure-html/postcompute-1.png" class="r-plt" width="576"></p>
 </div>
 <div class="section level2">
 <h2 id="probabilistic-prioritization">Probabilistic prioritization<a class="anchor" aria-label="anchor" href="#probabilistic-prioritization"></a>
@@ -215,7 +215,7 @@ be better for a real analysis:</p>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span>,</span>
 <span>                col.legend <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_legend.html" class="external-link">tm_legend</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"proporiton of runs\nin which site was\ntop-10 priority"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="prioritization_files/figure-html/postcompute2-1.png" width="576"></p>
+<p><img src="prioritization_files/figure-html/postcompute2-1.png" class="r-plt" width="576"></p>
 </div>
 <div class="section level2">
 <h2 id="conservation-benefit-functions">Conservation benefit functions<a class="anchor" aria-label="anchor" href="#conservation-benefit-functions"></a>
@@ -232,7 +232,7 @@ value of sites during prioritization.</p>
 shapes of benefit functions under different lambda values:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_lambda.html">plot_lambda</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="prioritization_files/figure-html/lambda-1.png" width="432">
+<p><img src="prioritization_files/figure-html/lambda-1.png" class="r-plt" width="432">
 A value of <code>lambda = 0</code> places equal marginal value on
 protecting additional populations of a taxon regardless of how much of
 its range is already protected. The default of <code>lambda = 1</code>
@@ -262,7 +262,7 @@ your results may be to this choice.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

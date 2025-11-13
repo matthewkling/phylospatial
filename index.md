@@ -1,0 +1,72 @@
+# phylospatial
+
+`phylospatial` is an R package for spatial phylogenetic diversity
+analysis. The field of spatial phylogenetics focuses on accounting for
+evolutionary relationships among taxa when describing biodiversity
+patterns, an approach that has a number of advantages over species-based
+accounting. This package provides a set of functions to build and
+analyze phylospatial data:
+
+- [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
+  constructs a spatial phylogenetic data set from community data and a
+  tree.
+- [`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md)
+  calculates a range of phylogenetic diversity and endemism metrics.
+- [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+  computes significance values for diversity metrics using null model
+  randomizations.
+- [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
+  calculates a pairwise community phylogenetic beta diversity matrix.
+- [`ps_ordinate()`](https://matthewkling.github.io/phylospatial/reference/ps_ordinate.md)
+  performs a community ordination to reduce the dimensionality of the
+  data set.
+- [`ps_regions()`](https://matthewkling.github.io/phylospatial/reference/ps_regions.md)
+  clusters sites into phylogenetically similar biogeographic regions.
+- [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+  performs a spatial optimization to identify conservation priorities.
+
+A key difference between `phylospatial` and other spatial phylogenetic R
+libraries is that all functions in this package work not only with
+binary presence-absence data but also with quantitative community data
+types including occurrence probabilities or abundances. In particular,
+support for occurrence probabilities, such as from species distribution
+models, has not been implemented in other phylogenetic diversity tools
+and was a central motivation for the creation of this package.
+Probability, abundance, and binary data are incorporated in distinct
+ways in all computations throughout the package, avoiding the need to
+discard information by thresholding continuous data.
+
+## Vignettes
+
+- [`vignette("phylospatial-data")`](https://matthewkling.github.io/phylospatial/articles/phylospatial-data.md)
+  gives details about constructing `phylospatial` datasets with
+  different types of data.
+- [`vignette("alpha-diversity")`](https://matthewkling.github.io/phylospatial/articles/alpha-diversity.md)
+  demonstrates calculation of alpha phylogenetic diversity and endemism
+  measures, including statistical hypothesis testing using
+  randomization-based null models.
+- [`vignette("beta-diversity")`](https://matthewkling.github.io/phylospatial/articles/beta-diversity.md)
+  shows how to calculate phylogenetic beta diversity measures including
+  nestedness and turnover, as well as phylogenetic ordination and
+  regionalization to visualize phylogenetic community structure.
+- [`vignette("prioritization")`](https://matthewkling.github.io/phylospatial/articles/prioritization.md)
+  explains how to perform a phylogenetic conservation prioritization.
+
+## Installation
+
+``` r
+# you can install the package from CRAN:
+install.packages("phylospatial")
+
+# or the development version from GitHub:
+remotes::install_github("matthewkling/phylospatial")
+```
+
+## Citation
+
+To cite `phylospatial` in publications, please use:
+
+> Kling, M. (2025). [phylospatial: an R package for spatial phylogenetic
+> analysis with quantitative community
+> data](https://doi.org/10.1111/2041-210x.70056). Methods in Ecology and
+> Evolution. <doi:10.1111/2041-210x.70056>
