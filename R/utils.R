@@ -8,29 +8,93 @@ get_clade_fun <- function(data_type){
              "abundance" = sum)
 }
 
-# for a given tree edge index, calculate community probability for each grid cell
-build_clade_range <- function(e, phylo, sxt, fun){
-      node <- phylo$edge[e, 2]
-      if(node <= length(phylo$tip.label)){
-            otu <- phylo$tip.label[node]
-            prob <- sxt[,otu]
-      } else{
-            clade <- ape::extract.clade(phylo, node)
-            otu <- clade$tip.label
-            prob <- apply(sxt[,otu], 1, fun)
-      }
-      return(name = prob)
-}
 
-build_tree_ranges <- function(tree, tip_comm, fun = NULL){
+
+build_tree_ranges <- function(tree, tip_comm, fun, data_type){
+
       ntaxa <- nrow(tree$edge)
-      comm <- sapply(1:ntaxa, build_clade_range, phylo = tree, sxt = tip_comm, fun = fun)
-      nodes <- tree$edge[1:ntaxa, 2]
+      nodes <- tree$edge[, 2]
+      ntips <- length(tree$tip.label)
+
+      # Precompute descendant tips
+      descendant_tips <- vector("list", max(nodes))
+      for(i in 1:ntips) {
+            descendant_tips[[i]] <- i
+      }
+      for(i in ntaxa:1) {
+            node <- nodes[i]
+            if(node > ntips) {
+                  children <- tree$edge[tree$edge[, 1] == node, 2]
+                  descendant_tips[[node]] <- unique(unlist(descendant_tips[children]))
+            }
+      }
+
+      # Build community matrix with specialized code by data type
+      comm <- matrix(NA, nrow = nrow(tip_comm), ncol = ntaxa)
+
+      # Handle tips (same for all data types)
+      tip_edges <- which(nodes <= ntips)
+      comm[, tip_edges] <- tip_comm[, nodes[tip_edges]]
+
+      # Handle internal nodes with data-type-specific code
+      internal_edges <- which(nodes > ntips)
+
+      if(data_type == "probability") {
+            # Optimized for probability: 1 - prod(1 - x)
+            for(e in internal_edges) {
+                  tip_indices <- descendant_tips[[nodes[e]]]
+                  if(length(tip_indices) == 1) {
+                        comm[, e] <- tip_comm[, tip_indices]
+                  } else {
+                        # Vectorized probability calculation (avoid apply by using log space equivalent of product)
+                        comm[, e] <- 1 - exp(rowSums(log(1 - tip_comm[, tip_indices])))
+                  }
+            }
+
+      } else if(data_type == "binary") {
+            # Optimized for binary: any(x == 1) or max(x)
+            for(e in internal_edges) {
+                  tip_indices <- descendant_tips[[nodes[e]]]
+                  if(length(tip_indices) == 1) {
+                        comm[, e] <- tip_comm[, tip_indices]
+                  } else {
+                        # Vectorized: check if any are 1
+                        comm[, e] <- pmax(0, pmin(1, rowSums(tip_comm[, tip_indices, drop = FALSE])))
+                  }
+            }
+
+      } else if(data_type == "abundance") {
+            # Optimized for abundance: sum(x)
+            for(e in internal_edges) {
+                  tip_indices <- descendant_tips[[nodes[e]]]
+                  if(length(tip_indices) == 1) {
+                        comm[, e] <- tip_comm[, tip_indices]
+                  } else {
+                        # Vectorized sum
+                        comm[, e] <- rowSums(tip_comm[, tip_indices, drop = FALSE])
+                  }
+            }
+
+      } else {
+            # Generic case - use provided function
+            for(e in internal_edges) {
+                  tip_indices <- descendant_tips[[nodes[e]]]
+                  if(length(tip_indices) == 1) {
+                        comm[, e] <- tip_comm[, tip_indices]
+                  } else {
+                        comm[, e] <- apply(tip_comm[, tip_indices, drop = FALSE], 1, fun)
+                  }
+            }
+      }
+
+      # Set column names
       names <- colnames(tip_comm)[nodes]
       names[is.na(names)] <- paste0("clade", 1:sum(is.na(names)))
       colnames(comm) <- names
+
       comm
 }
+
 
 
 

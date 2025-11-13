@@ -173,7 +173,7 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
       # build clade ranges
       if(data_type == "other" & !inherits(clade_fun, "function")) stop("If `data_type = 'other'`, `clade_fun` must be a custom function.")
       if(is.null(clade_fun)) clade_fun <- get_clade_fun(data_type)
-      if(build) comm <- build_tree_ranges(tree, comm, clade_fun)
+      if(build) comm <- build_tree_ranges(tree, comm, clade_fun, data_type)
 
       # create phylospatial object
       new_phylospatial(comm, tree, spatial, dissim = NULL, data_type, clade_fun)
