@@ -11,18 +11,21 @@
 #'    for options. Can also specify `"all"` to calculate all available metrics.
 #' @param fun Null model function to use. Must be either "tip_shuffle", "nullmodel", "quantize", or an actual function:
 #' \itemize{
-#'    \item "tip_shuffle": randomly shuffles the identities of terminal taxa
+#'    \item "tip_shuffle" (the default): randomly shuffles the identities of terminal taxa
 #'    \item "nullmodel": uses \link[vegan]{nullmodel} and \link[vegan]{simulate.nullmodel}, from the vegan
 #'    package, which offer a wide range of randomization algorithms with different properties.
-#'    \item "quantize": (the default) deploys the function \link{quantize}, a routine that is itself
-#'    a wrapper around \link[vegan]{nullmodel}, allowing the use of binary algorithms for quantitative data.
+#'    \item "quantize": uses \link[nullcat]{quantize}, which converts a quantitative matrix to discrete strata,
+#'    applies a categorical variant of the selected null model, and then maps randomized strata back to values.
 #'    \item Any other function that accepts a community matrix as its first argument and returns a
 #'    randomized version of the matrix.
 #' }
-#' @param method One of the method options listed under \link[vegan]{commsim}. If `fun = "quantize"`, this must
-#'    be one of the "binary" methods. If `fun = "nullmodel"`, be sure to select a method that is appropriate to
-#'    your community `data_type` (binary, quantitative, abundance). This argument is ignored if `fun` is
-#'    `"tip_shuffle"` or if it is a custom function.
+#' @param method Method used by the selected function.
+#' \itemize{
+#'    \item For `fun = "nullmodel"`, one of the method options listed under \link[vegan]{commsim}.
+#'      Be sure to select a method that is appropriate to your community `data_type` (binary, quantitative, abundance),
+#'    \item For `fun = "quantize"`, one of the categorical algorithms listed under \link[nullcat]{nullcat}.
+#'    \item Ignored if `fun` is `"tip_shuffle"` or if it is a custom function.
+#' }
 #' @param n_rand Integer giving the number of random communities to generate.
 #' @param summary Character indicating which summary statistic to return. If `"quantile"`, the default, the function
 #'    returns the proportion of randomizations in which the observed diversity metric was greater than the randomized
@@ -31,8 +34,8 @@
 #' @param spatial Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE).
 #' @param n_cores Integer giving the number of compute cores to use for parallel processing.
 #' @param progress Logical: should a progress bar be displayed?
-#' @param ... Additional arguments passed to \link{quantize}, \link[vegan]{simulate.nullmodel}, or custom function
-#'    `fun`. Note that the `nsim` argument the former two functions should not be used here; specify `n_rand` instead.
+#' @param ... Additional arguments passed to \link[nullcat]{quantize}, \link[vegan]{simulate.nullmodel}, or custom function
+#'    `fun`. Note that the `nsim` argument to simulate.nullmodel should not be used here; specify `n_rand` instead.
 #' @return A matrix with a row for every row of \code{x}, a column for every metric specified in `metric`, and
 #'    values for the `summary` statistic. Or if `spatial = TRUE`, a `sf` or `SpatRaster` object containing these data.
 #' @seealso [ps_diversity()]
@@ -42,23 +45,37 @@
 #' ps <- ps_simulate(data_type = "prob")
 #' rand <- ps_rand(ps)
 #'
-#' # using the default `quantize` function, but with alternative arguments
+#' # using the default `tip_shuffle` function, but with alternative arguments
 #' rand <- ps_rand(ps, transform = sqrt, n_strata = 4, priority = "rows")
 #'
-#' # using binary data
+#' # using the `quantize` function with the `curvecat` algorithm
+#' rand <- ps_rand(ps,
+#'       fun = "quantize", method = "curvecat",
+#'       transform = sqrt, n_strata = 4, fixed = "cell")
+#'
+#' # using binary data, with a vegan `nullmodel` algorithm
 #' ps2 <- ps_simulate(data_type = "binary")
 #' rand <- ps_rand(ps2, fun = "nullmodel", method = "r2")
 #'
 #' # using abundance data, and demonstrating alternative metric choices
 #' ps3 <- ps_simulate(data_type = "abund")
-#' rand <- ps_rand(ps3, metric = c("ShPD", "SiPD"), fun = "nullmodel", method = "abuswap_c")
+#' rand <- ps_rand(ps3, metric = c("ShPD", "SiPD"),
+#'       fun = "nullmodel", method = "abuswap_c")
 #' rand
 #' }
 #' @export
-ps_rand <- function(ps, metric = c("PD", "PE", "RPE", "CE"),
-                    fun = "quantize", method = "curveball", n_rand = 100,
+ps_rand <- function(ps,
+                    metric = c("PD", "PE", "RPE", "CE"),
+                    fun = "tip_shuffle",
+                    method = NULL,
+                    n_rand = 100,
                     summary = "quantile",
-                    spatial = TRUE, n_cores = 1, progress = interactive(), ...){
+                    spatial = TRUE,
+                    n_cores = 1,
+                    progress = interactive(),
+                    ...){
+
+
 
       enforce_ps(ps)
       if(any(metric == "all")) metric <- metrics()
@@ -80,8 +97,6 @@ ps_rand <- function(ps, metric = c("PD", "PE", "RPE", "CE"),
       }else{
             stopifnot("Invalid argument to 'fun'" = fun %in% c("tip_shuffle", "nullmodel", "quantize"))
       }
-      if(fun == "quantize" & ps$data_type == "binary") stop(
-            "The `quantize` function does not work with binary community data; select a different option for `fun`")
       if(fun == "nullmodel"){
             if(ps$data_type == "binary" & ! method %in% binary_models()) stop(
                   "Since this object has binary community data, the requested `method` must be one of the 'binary' algorithms listed under `?vegan::commsim`.")
@@ -94,9 +109,21 @@ ps_rand <- function(ps, metric = c("PD", "PE", "RPE", "CE"),
             return(x)
       }
 
-      perm <- function(comm, tree, ...){
+      # for quantize, compute one-time overhead for efficiency
+      if(fun == "quantize"){
+            if(!requireNamespace("nullcat", quietly = TRUE)){
+                  stop("Package 'nullcat' is required for `fun = 'quantize'`. Install with `remotes::install_github('matthewkling/nullcat')`.",
+                       call. = FALSE)
+            }
+            prep <- nullcat::quantize_prep(tip_comm, method = method, ...)
+      }else{
+            prep <- NULL
+      }
+
+      # core function: randomize tip matrix, convert to phylospatial, and compute diversity
+      div_rand <- function(comm, tree, fun, method, prep, ...){
             if(fun == "tip_shuffle") rcomm <- tip_shuffle(comm)
-            if(fun == "quantize") rcomm <- quantize(comm, method = method, ...)
+            if(fun == "quantize") rcomm <- nullcat::quantize(prep = prep)
             if(fun == "nullmodel") rcomm <- stats::simulate(
                   vegan::nullmodel(comm, method = method), nsim = 1, ...)[,,1]
             if(fun == "custom") rcomm <- fx(comm, ...)
@@ -109,22 +136,25 @@ ps_rand <- function(ps, metric = c("PD", "PE", "RPE", "CE"),
       if(n_cores == 1){
             if(progress) pb <- utils::txtProgressBar(min = 0, max = n_rand, initial = 0, style = 3)
             for(i in 1:n_rand){
-                  rand[,,i+1] <- perm(tip_comm, phy, ...)
+                  rand[,,i+1] <- div_rand(tip_comm, phy, fun = fun, method = method, prep = prep, ...)
                   if(progress) utils::setTxtProgressBar(pb, i)
             }
             if(progress) close(pb)
+
       }else{
             if (!requireNamespace("furrr", quietly = TRUE)) {
                   stop("To use `n_cores` greater than 1, package `furrr` must be installed.", call. = FALSE)
             }
+            plan <- future::plan() # get original future setting
             future::plan(future::multisession, workers = n_cores)
             rnd <- furrr::future_map(1:n_rand,
-                                     function(i) perm(tip_comm, phy, ...),
+                                     function(i) div_rand(tip_comm, phy, fun = fun, method = method, prep = prep, ...),
                                      .progress = progress,
                                      .options = furrr::furrr_options(seed = TRUE))
-            future::plan(future::sequential)
+            future::plan(plan) # reinstate original setting
             for(i in 1:n_rand) rand[,,i+1] <- rnd[[i]]
       }
+
 
       if(summary == "quantile") q <- apply(rand, 1:2, function(x) mean(x[1] > x[2:(n_rand+1)], na.rm = TRUE) )
       if(summary == "zscore") q <- apply(rand, 1:2, function(x) (x[1] - mean(x[2:(n_rand+1)], na.rm = TRUE)) / sd(x[2:(n_rand+1)], na.rm = TRUE) )

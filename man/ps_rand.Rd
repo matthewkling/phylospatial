@@ -7,8 +7,8 @@
 ps_rand(
   ps,
   metric = c("PD", "PE", "RPE", "CE"),
-  fun = "quantize",
-  method = "curveball",
+  fun = "tip_shuffle",
+  method = NULL,
   n_rand = 100,
   summary = "quantile",
   spatial = TRUE,
@@ -25,19 +25,22 @@ for options. Can also specify \code{"all"} to calculate all available metrics.}
 
 \item{fun}{Null model function to use. Must be either "tip_shuffle", "nullmodel", "quantize", or an actual function:
 \itemize{
-\item "tip_shuffle": randomly shuffles the identities of terminal taxa
+\item "tip_shuffle" (the default): randomly shuffles the identities of terminal taxa
 \item "nullmodel": uses \link[vegan]{nullmodel} and \link[vegan]{simulate.nullmodel}, from the vegan
 package, which offer a wide range of randomization algorithms with different properties.
-\item "quantize": (the default) deploys the function \link{quantize}, a routine that is itself
-a wrapper around \link[vegan]{nullmodel}, allowing the use of binary algorithms for quantitative data.
+\item "quantize": uses \link[nullcat]{quantize}, which converts a quantitative matrix to discrete strata,
+applies a categorical variant of the selected null model, and then maps randomized strata back to values.
 \item Any other function that accepts a community matrix as its first argument and returns a
 randomized version of the matrix.
 }}
 
-\item{method}{One of the method options listed under \link[vegan]{commsim}. If \code{fun = "quantize"}, this must
-be one of the "binary" methods. If \code{fun = "nullmodel"}, be sure to select a method that is appropriate to
-your community \code{data_type} (binary, quantitative, abundance). This argument is ignored if \code{fun} is
-\code{"tip_shuffle"} or if it is a custom function.}
+\item{method}{Method used by the selected function.
+\itemize{
+\item For \code{fun = "nullmodel"}, one of the method options listed under \link[vegan]{commsim}.
+Be sure to select a method that is appropriate to your community \code{data_type} (binary, quantitative, abundance),
+\item For \code{fun = "quantize"}, one of the categorical algorithms listed under \link[nullcat]{nullcat}.
+\item Ignored if \code{fun} is \code{"tip_shuffle"} or if it is a custom function.
+}}
 
 \item{n_rand}{Integer giving the number of random communities to generate.}
 
@@ -52,8 +55,8 @@ standard deviation of the randomizations.}
 
 \item{progress}{Logical: should a progress bar be displayed?}
 
-\item{...}{Additional arguments passed to \link{quantize}, \link[vegan]{simulate.nullmodel}, or custom function
-\code{fun}. Note that the \code{nsim} argument the former two functions should not be used here; specify \code{n_rand} instead.}
+\item{...}{Additional arguments passed to \link[nullcat]{quantize}, \link[vegan]{simulate.nullmodel}, or custom function
+\code{fun}. Note that the \code{nsim} argument to simulate.nullmodel should not be used here; specify \code{n_rand} instead.}
 }
 \value{
 A matrix with a row for every row of \code{x}, a column for every metric specified in \code{metric}, and
@@ -71,16 +74,22 @@ binary, probability, and count data.
 ps <- ps_simulate(data_type = "prob")
 rand <- ps_rand(ps)
 
-# using the default `quantize` function, but with alternative arguments
+# using the default `tip_shuffle` function, but with alternative arguments
 rand <- ps_rand(ps, transform = sqrt, n_strata = 4, priority = "rows")
 
-# using binary data
+# using the `quantize` function with the `curvecat` algorithm
+rand <- ps_rand(ps,
+      fun = "quantize", method = "curvecat",
+      transform = sqrt, n_strata = 4, fixed = "cell")
+
+# using binary data, with a vegan `nullmodel` algorithm
 ps2 <- ps_simulate(data_type = "binary")
 rand <- ps_rand(ps2, fun = "nullmodel", method = "r2")
 
 # using abundance data, and demonstrating alternative metric choices
 ps3 <- ps_simulate(data_type = "abund")
-rand <- ps_rand(ps3, metric = c("ShPD", "SiPD"), fun = "nullmodel", method = "abuswap_c")
+rand <- ps_rand(ps3, metric = c("ShPD", "SiPD"),
+      fun = "nullmodel", method = "abuswap_c")
 rand
 }
 }

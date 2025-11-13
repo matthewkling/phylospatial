@@ -16,7 +16,7 @@ test_that("`ps_canape()` runs without error on simulated data", {
 
       expect_no_error(ps_canape(ps_rand(
             ps_simulate(data_type = "prob"),
-            fun = "quantize", method = "curveball",
+            fun = "quantize", method = "curvecat",
             n_rand = 3, progress = FALSE)))
 
       expect_no_error(ps_canape(ps_rand(

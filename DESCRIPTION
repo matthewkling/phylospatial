@@ -32,7 +32,8 @@ Suggests:
     magrittr,
     hillR,
     picante,
-    phytools
+    phytools,
+    nullcat
 URL: https://matthewkling.github.io/phylospatial/, https://github.com/matthewkling/phylospatial
 Config/testthat/edition: 3
 Depends: 

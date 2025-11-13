@@ -4,52 +4,35 @@
 \alias{quantize}
 \title{Stratified randomization of community matrix}
 \usage{
-quantize(x, method = "curveball", ...)
+quantize(x, ...)
 }
 \arguments{
-\item{x}{Community matrix with species in rows, sites in columns, and nonnegative quantities in cells.}
+\item{x}{Community matrix with species in rows, sites in columns,
+and nonnegative quantities in cells.}
 
-\item{method}{Null model algorithm, passed to \code{vegan::nullmodel}. Testing has only been done with the
-"curveball" algorithm, so other options should be use with caution. Only binary methods should be used.}
-
-\item{...}{Additional arguments, including:
-\itemize{
-\item \code{n_strata}: Integer giving the number of strata to split the data into. Must be 2 or greater. Larger values
-will result in randomizations with less mixing but higher fidelity to marginal distributions. The default is \code{5}.
-\item \code{transform}: A function used to transform the values in \code{x} before assigning them to \code{n_strata}
-equal intervals. Examples include \code{sqrt}, \code{log}, \code{rank}, etc.; the default is \code{identity}.
-\item \code{jitter}: Number between 0 and 1, indicating how much to randomly jitter the location of stratum boundaries.
-\item \code{priority}: Either \code{"rows"}, \code{"cols"}, or \code{"neither"}, indicating whether randomization within strata should
-prioritize maintaining the marginal distributions of the rows or columns of the input matrix. The default,
-\code{"neither"}, doesn't give precedence to either dimension. Note that this interacts with \code{method}, and methods
-differ in which margins are fixed.
-\item Other arguments to be passed to \link[vegan]{simulate.nullmodel}, such as \code{seed} or \code{burnin}. The default
-for \code{burnin} is \code{10000}. Note that \code{nsim} and \code{thin} are ignored, as they're internally set to 1.
-}}
+\item{...}{Additional arguments passed to \code{nullcat::quantize()}.}
 }
 \value{
 A randomized version of \code{x}.
 }
 \description{
-This is a community null model method for quantitative community data (e.g. abundance or occurrence probability).
-It is designed to adapt binary null model algorithms for use with quantitative data, which can be useful if
-there is not a quantitative-specific algorithm available that has the desired properties. For example, use with
-the binary "curveball" algorithm preserves row and column totals, and also approximately preserves the marginal
-distributions of rows and columns. For each randomization, the data set is split into strata representing numerical ranges
-of the input quantities, a separate binary randomization is done for each stratum, and the results are
-combined to produce a randomized, quantitative community matrix. See \code{vegan::commsim()} for details about
-other binary and quantitative null models.
+This is a simple wrapper around \code{nullcat::quantize()}, included in
+\code{phylospatial} mainly for backward compatibility.
+}
+\details{
+The nullcat \link[nullcat]{quantize} routine involves three steps: converting a
+quantitative matrix to categorical strata, permuting the resulting categorical
+matrix using one of several categorical null model algorithms, and mapping the
+randomized categories back to quantitative values. Supply arguments via \code{...}
+to control options for each of these stages.
 }
 \examples{
-\donttest{
 # example quantitative community matrix
-comm <- ps_get_comm(moss("polygon"), tips_only = TRUE, spatial = FALSE)[1:50, 1:50]
+comm <- matrix(runif(2500), 50)
 
 # examples of different quantize usage
 rand <- quantize(comm)
-rand <- quantize(comm, n_strata = 4, transform = sqrt, priority = "rows")
-rand <- quantize(comm, method = "swap", burnin = 10)
-# (note: this `burnin` value is far too small for a real analysis)
-}
+rand <- quantize(comm, n_strata = 4, transform = sqrt, fixed = "row")
+rand <- quantize(comm, method = "swapcat", n_iter = 500)
 
 }
