@@ -34,6 +34,7 @@ Suggests:
     picante,
     phytools,
     nullcat
+Remotes: matthewkling/nullcat
 URL: https://matthewkling.github.io/phylospatial/, https://github.com/matthewkling/phylospatial
 Config/testthat/edition: 3
 Depends: 
