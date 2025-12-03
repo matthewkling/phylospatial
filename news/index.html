@@ -39,8 +39,13 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="phylospatial-development-version">phylospatial (development version)<a class="anchor" aria-label="anchor" href="#phylospatial-development-version"></a></h2>
-</div>
+<h2 class="pkg-version" data-toc-text="1.2" id="phylospatial-12">phylospatial 1.2<a class="anchor" aria-label="anchor" href="#phylospatial-12"></a></h2>
+<ul><li><p>CRAN compliance: fixed vignette builds to conditionally load suggested package ‘tmap’.</p></li>
+<li><p><code><a href="../reference/ps_diversity.html">ps_diversity()</a></code> now computes a smaller set of metrics by default, in order to reduce default run times.</p></li>
+<li><p><code><a href="../reference/ps_rand.html">ps_rand()</a></code> includes a new choice of summary statistic: in addition to the default “quantile” function, a new “z-score” option is available.</p></li>
+<li><p><code><a href="../reference/quantize.html">quantize()</a></code> and <code><a href="../reference/ps_rand.html">ps_rand()</a></code> now use <code>nullcat::quantize()</code> internally, addressing a flaw in the earlier implementation.</p></li>
+<li><p><code><a href="../reference/phylospatial.html">phylospatial()</a></code> and other functions that call it now use a compute-optimized internal range constructor.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.1" id="phylospatial-111">phylospatial 1.1.1<a class="anchor" aria-label="anchor" href="#phylospatial-111"></a></h2><p class="text-muted">CRAN release: 2025-05-02</p>
 <ul><li><p><code><a href="../reference/ps_diversity.html">ps_diversity()</a></code> now computes a smaller set of metrics by default, in order to reduce runtimes.</p></li>

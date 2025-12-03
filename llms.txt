@@ -66,10 +66,9 @@ remotes::install_github("matthewkling/phylospatial")
 
 To cite `phylospatial` in publications, please use:
 
-> Kling, M. (2025). [phylospatial: an R package for spatial phylogenetic
-> analysis with quantitative community
-> data](https://doi.org/10.1111/2041-210x.70056). Methods in Ecology and
-> Evolution. <doi:10.1111/2041-210x.70056>
+> Kling, M. (2025). phylospatial: an R package for spatial phylogenetic
+> analysis with quantitative community data. Methods in Ecology and
+> Evolution 16:1075–1083. DOI 10.1111/2041-210x.70056
 
 # Package index
 

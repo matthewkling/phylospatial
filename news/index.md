@@ -1,6 +1,27 @@
 # Changelog
 
-## phylospatial (development version)
+## phylospatial 1.2
+
+- CRAN compliance: fixed vignette builds to conditionally load suggested
+  package ‘tmap’.
+
+- [`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md)
+  now computes a smaller set of metrics by default, in order to reduce
+  default run times.
+
+- [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+  includes a new choice of summary statistic: in addition to the default
+  “quantile” function, a new “z-score” option is available.
+
+- [`quantize()`](https://matthewkling.github.io/phylospatial/reference/quantize.md)
+  and
+  [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+  now use `nullcat::quantize()` internally, addressing a flaw in the
+  earlier implementation.
+
+- [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
+  and other functions that call it now use a compute-optimized internal
+  range constructor.
 
 ## phylospatial 1.1.1
 
