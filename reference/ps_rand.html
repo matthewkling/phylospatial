@@ -13,7 +13,7 @@ binary, probability, and count data."><meta property="og:image" content="https:/
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -149,10 +149,12 @@ values for the <code>summary</code> statistic. Or if <code>spatial = TRUE</code>
 <span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps</span>, transform <span class="op">=</span> <span class="va">sqrt</span>, n_strata <span class="op">=</span> <span class="fl">4</span>, priority <span class="op">=</span> <span class="st">"rows"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># using the `quantize` function with the `curvecat` algorithm</span></span></span>
-<span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps</span>,</span></span>
+<span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"nullcat"</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps</span>,</span></span>
 <span class="r-in"><span>      fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>,</span></span>
 <span class="r-in"><span>      transform <span class="op">=</span> <span class="va">sqrt</span>, n_strata <span class="op">=</span> <span class="fl">4</span>, fixed <span class="op">=</span> <span class="st">"cell"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Package 'nullcat' is required for `fun = 'quantize'`. Install with `remotes::install_github('matthewkling/nullcat')`.</span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required namespace: nullcat</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># using binary data, with a vegan `nullmodel` algorithm</span></span></span>
 <span class="r-in"><span><span class="va">ps2</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"binary"</span><span class="op">)</span></span></span>

@@ -1,6 +1,6 @@
 # Changelog
 
-## phylospatial 1.2
+## phylospatial 1.2.0
 
 - CRAN compliance: fixed vignette builds to conditionally load suggested
   package ‘tmap’.
