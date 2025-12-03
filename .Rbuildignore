@@ -8,8 +8,6 @@
 ^\.github$
 ^\.DS_Store$
 ^data-raw$
-^doc$
-^Meta$
 ^notes$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$

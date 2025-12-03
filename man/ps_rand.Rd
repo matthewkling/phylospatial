@@ -78,9 +78,11 @@ rand <- ps_rand(ps)
 rand <- ps_rand(ps, transform = sqrt, n_strata = 4, priority = "rows")
 
 # using the `quantize` function with the `curvecat` algorithm
-rand <- ps_rand(ps,
+if(requireNamespace("nullcat")){
+    rand <- ps_rand(ps,
       fun = "quantize", method = "curvecat",
       transform = sqrt, n_strata = 4, fixed = "cell")
+}
 
 # using binary data, with a vegan `nullmodel` algorithm
 ps2 <- ps_simulate(data_type = "binary")
