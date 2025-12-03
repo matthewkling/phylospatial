@@ -15,6 +15,16 @@ knitr::opts_chunk$set(
   comment = "#>",
 fig.dim = c(6, 4)
 )
+
+if (!requireNamespace("tmap", quietly = TRUE)) {
+  knitr::opts_chunk$set(eval = FALSE)
+  message("Package 'tmap' needed for this vignette but is not installed. Code will not be evaluated.")
+}
+
+if (!requireNamespace("nullcat", quietly = TRUE)) {
+  knitr::opts_chunk$set(eval = FALSE)
+  message("Package 'nullcat' needed for this vignette but is not installed. Code will not be evaluated.")
+}
 ```
 
 
@@ -74,7 +84,7 @@ tm_shape(div$PE) +
 
 ## Null model randomization
 
-We can also use randomization to calculate the statistical significance of these diversity metrics under a null model, using the `ps_rand()` function. Here let's run our randomization using `quantize`, a stratified randomization scheme designed for use with continuous occurrence data, in combination with a null model algorithm called `"curvecat"`, which is a categorical version of the "curveball" algorithm that holds marginal row and column multisets fixed. 
+We can also use randomization to calculate the statistical significance of these diversity metrics under a null model, using the `ps_rand()` function. Here let's run our randomization using `quantize`, a stratified randomization scheme designed for use with continuous occurrence data, in combination with a null model algorithm called `"curvecat"`, which is a categorical version of the "curveball" algorithm that holds marginal row and column multisets fixed. (Note that this categorical null model requires the `nullcat` library.)
 
 We'll run 1000 randomizations for four diversity metrics, and plot the results for PE. This is a quantile value that gives the proportion of randomizations in which observed PE was greater than randomized PE in a given grid cell. (If you wanted to identify "statistically significant" grid cells in a one-tailed test with alpha = 0.05, these would be cells with values greater than 0.95.)
 

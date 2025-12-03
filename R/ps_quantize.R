@@ -17,8 +17,21 @@
 #'
 #' @param ps Object of class `phylospatial`
 #' @param ... Additional arguments passed to \link[nullcat]{quantize}.
+#' @return A rendomized version of `ps`
+#' @examples
+#' if (requireNamespace("nullcat", quietly = TRUE)) {
+#'   ps <- ps_simulate(data_type = "prob")
+#'   ps_rand <- ps_quantize(ps, n_strata = 4,
+#'     n_iter = 1000, # note: you'd want higher n_iter for a real analysis
+#'     method = "curvecat", fixed = "cell")
+#' }
 #' @export
 ps_quantize <- function(ps, ...) {
+
+      if(!requireNamespace("nullcat", quietly = TRUE)){
+            stop("Package 'nullcat' is required for `ps_quantize`. Install with `remotes::install_github('matthewkling/nullcat')`.",
+                 call. = FALSE)
+      }
 
       enforce_ps(ps)
 
@@ -33,7 +46,7 @@ ps_quantize <- function(ps, ...) {
       a <- occupied(ps)
       tip_comm <- ps_get_comm(ps, spatial = FALSE)
 
-      tip_comm_rand <- quantize(tip_comm[a, ], ...)
+      tip_comm_rand <- nullcat::quantize(tip_comm[a, ], ...)
       tip_comm[] <- NA
       tip_comm[a, ] <- tip_comm_rand
 
@@ -62,13 +75,15 @@ ps_quantize <- function(ps, ...) {
 #' @param ... Additional arguments passed to `nullcat::quantize()`.
 #' @return A randomized version of \code{x}.
 #' @examples
-#' # example quantitative community matrix
-#' comm <- matrix(runif(2500), 50)
+#' if (requireNamespace("nullcat", quietly = TRUE)) {
+#'       # example quantitative community matrix
+#'       comm <- matrix(runif(2500), 50)
 #'
-#' # examples of different quantize usage
-#' rand <- quantize(comm)
-#' rand <- quantize(comm, n_strata = 4, transform = sqrt, fixed = "row")
-#' rand <- quantize(comm, method = "swapcat", n_iter = 500)
+#'       # examples of different quantize usage
+#'       rand <- quantize(comm)
+#'       rand <- quantize(comm, n_strata = 4, transform = sqrt, fixed = "row")
+#'       rand <- quantize(comm, method = "swapcat", n_iter = 500)
+#' }
 #'
 #' @export
 quantize <- function(x, ...){

@@ -15,6 +15,11 @@ knitr::opts_chunk$set(
   comment = "#>",
 fig.dim = c(6, 4)
 )
+
+if (!requireNamespace("tmap", quietly = TRUE)) {
+  knitr::opts_chunk$set(eval = FALSE)
+  message("Package 'tmap' needed for this vignette but is not installed. Code will not be evaluated.")
+}
 ```
 
 This vignette covers topics related to phylogenetic beta diversity, including calculation of pairwise dissimilarity between sites, and use of these dissimilarity values in ordination and regionalization analyses.
