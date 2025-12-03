@@ -26,6 +26,7 @@ Suggests:
     future,
     testthat (>= 3.0.0),
     betapart,
+    nullcat,
     knitr,
     rmarkdown,
     tmap,
@@ -33,6 +34,7 @@ Suggests:
     hillR,
     picante,
     phytools
+Additional_repositories: https://matthewkling.r-universe.dev
 URL: https://matthewkling.github.io/phylospatial/, https://github.com/matthewkling/phylospatial
 Config/testthat/edition: 3
 Depends: 
