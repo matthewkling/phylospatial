@@ -1,6 +1,6 @@
 Package: phylospatial
 Title: Spatial Phylogenetic Analysis
-Version: 1.1.1.9000
+Version: 1.2.0
 Authors@R: 
     person("Matthew", "Kling", , "mattkling@berkeley.edu", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0001-9073-4240"))
