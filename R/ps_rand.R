@@ -77,8 +77,6 @@ ps_rand <- function(ps,
                     progress = interactive(),
                     ...){
 
-
-
       enforce_ps(ps)
       if(any(metric == "all")) metric <- metrics()
       match.arg(metric, metrics(), several.ok = TRUE)
@@ -101,9 +99,9 @@ ps_rand <- function(ps,
       }
       if(fun == "nullmodel"){
             if(ps$data_type == "binary" & ! method %in% binary_models()) stop(
-                  "Since this object has binary community data, the requested `method` must be one of the 'binary' algorithms listed under `?vegan::commsim`.")
+                  "Since this phylospatial dataset has binary community data, the requested `method` must be one of the 'binary' algorithms listed under `?vegan::commsim`.")
             if(ps$data_type != "binary" & method %in% binary_models()) stop(
-                  "This object does not contain binary community data, but a binary `method` was requested. See `?vegan::commsim` for descriptions of methods.")
+                  "This phylospatial dataset does not contain binary community data, but a binary `method` was requested. See `?vegan::commsim` for descriptions of methods.")
       }
 
       tip_shuffle <- function(x){
@@ -114,7 +112,7 @@ ps_rand <- function(ps,
       # for quantize, compute one-time overhead for efficiency
       if(fun == "quantize"){
             if(!requireNamespace("nullcat", quietly = TRUE)){
-                  stop("Package 'nullcat' is required for `fun = 'quantize'`. Install with `remotes::install_github('matthewkling/nullcat')`.",
+                  stop("Package 'nullcat' is required for `fun = 'quantize'`.",
                        call. = FALSE)
             }
             prep <- nullcat::quantize_prep(tip_comm, method = method, ...)
@@ -125,7 +123,7 @@ ps_rand <- function(ps,
       # core function: randomize tip matrix, convert to phylospatial, and compute diversity
       div_rand <- function(comm, tree, fun, method, prep, ...){
             if(fun == "tip_shuffle") rcomm <- tip_shuffle(comm)
-            if(fun == "quantize") rcomm <- nullcat::quantize(prep = prep)
+            if(fun == "quantize") rcomm <- quantize(prep = prep)
             if(fun == "nullmodel") rcomm <- stats::simulate(
                   vegan::nullmodel(comm, method = method), nsim = 1, ...)[,,1]
             if(fun == "custom") rcomm <- fx(comm, ...)

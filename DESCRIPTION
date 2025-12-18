@@ -19,6 +19,7 @@ Imports:
     sf,
     stats,
     terra,
+    utils,
     vegan
 Suggests:
     canaper,
@@ -26,15 +27,14 @@ Suggests:
     future,
     testthat (>= 3.0.0),
     betapart,
-    nullcat,
     knitr,
     rmarkdown,
     tmap,
     magrittr,
     hillR,
     picante,
-    phytools
-Additional_repositories: https://matthewkling.r-universe.dev
+    phytools,
+    nullcat
 URL: https://matthewkling.github.io/phylospatial/, https://github.com/matthewkling/phylospatial
 Config/testthat/edition: 3
 Depends: 

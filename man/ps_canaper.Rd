@@ -29,7 +29,7 @@ This function runs \code{canaper::cpr_rand_test()}; see the help for that functi
 
 It also runs \code{canaper::cpr_classify_endem()} on the result, and includes the resulting classification as an
 additional variable, 'endem_type', in the output. 'endem_type' values 0-4 correspond to not-significant, neo,
-paleo, mixed, and super endemesim, respectively.
+paleo, mixed, and super endemisim, respectively.
 }
 \examples{
 \donttest{

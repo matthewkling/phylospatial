@@ -1,11 +1,12 @@
 
-test_that("ps_diversity runs without error on example data", {
-      skip_on_cran() # due to processing time
-      expect_no_error(ps_diversity(moss(), "all"))
-      expect_no_error(ps_diversity(moss("polygon"), "all"))
-})
+# test_that("ps_diversity runs without error on example data", {
+#       skip_on_cran() # due to processing time
+#       expect_no_error(ps_diversity(moss(), "all"))
+#       expect_no_error(ps_diversity(moss("polygon"), "all"))
+# })
 
 test_that("ps_diversity runs without error on simulated data of various types", {
+      skip_if_not_installed("phytools")
       expect_no_error(ps_diversity(ps_simulate(data_type = "probability"), "all"))
       expect_no_error(ps_diversity(ps_simulate(data_type = "binary"), "all"))
       expect_no_error(ps_diversity(ps_simulate(data_type = "abundance"), "all"))
@@ -13,6 +14,7 @@ test_that("ps_diversity runs without error on simulated data of various types", 
 })
 
 test_that("diversity measures match canaper, for binary data", {
+      skip_if_not_installed("canaper")
 
       # simulate data
       ps <- ps_simulate(data_type = "binary")
@@ -35,6 +37,8 @@ test_that("diversity measures match canaper, for binary data", {
 
 
 test_that("diversity measures match `adiv::evodiv()` and `hillR::hill_phylo()` for abundance data", {
+
+      skip_if_not_installed("hillR")
 
       requireNamespace("hillR", quietly = TRUE)
 

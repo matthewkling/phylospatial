@@ -22,8 +22,10 @@ A matrix of pairwise distances between nodes.
 \description{
 This function runs \code{ape::dist.nodes()} with some additional filtering and sorting. By default,
 it returns distances between every pair of non-nested clades, i.e. every pair of collateral (non-lineal) nodes
-including terminals and internal nodes.
+including terminals and internal nodes. Package \code{phytools} is required for this function.
 }
 \examples{
-clade_dist(ape::rtree(10))
+if(requireNamespace("phytools", quietly = TRUE)){
+  clade_dist(ape::rtree(10))
+}
 }

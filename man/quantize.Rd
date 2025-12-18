@@ -4,7 +4,7 @@
 \alias{quantize}
 \title{Stratified randomization of community matrix}
 \usage{
-quantize(x, ...)
+quantize(x = NULL, ...)
 }
 \arguments{
 \item{x}{Community matrix with species in rows, sites in columns,
@@ -27,6 +27,7 @@ randomized categories back to quantitative values. Supply arguments via \code{..
 to control options for each of these stages.
 }
 \examples{
+\donttest{
 if (requireNamespace("nullcat", quietly = TRUE)) {
       # example quantitative community matrix
       comm <- matrix(runif(2500), 50)
@@ -36,5 +37,5 @@ if (requireNamespace("nullcat", quietly = TRUE)) {
       rand <- quantize(comm, n_strata = 4, transform = sqrt, fixed = "row")
       rand <- quantize(comm, method = "swapcat", n_iter = 500)
 }
-
+}
 }

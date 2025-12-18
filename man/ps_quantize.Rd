@@ -31,10 +31,12 @@ to use \code{ps_rand(fun = "quantize")}, which is structured to avoid unnecessar
 recomputing overhead that is shared across randomizations.
 }
 \examples{
+\donttest{
 if (requireNamespace("nullcat", quietly = TRUE)) {
   ps <- ps_simulate(data_type = "prob")
   ps_rand <- ps_quantize(ps, n_strata = 4,
     n_iter = 1000, # note: you'd want higher n_iter for a real analysis
     method = "curvecat", fixed = "cell")
+}
 }
 }

@@ -172,7 +172,7 @@ mntd_weighted <- function(x, w){
 #'
 #' This function runs `ape::dist.nodes()` with some additional filtering and sorting. By default,
 #' it returns distances between every pair of non-nested clades, i.e. every pair of collateral (non-lineal) nodes
-#' including terminals and internal nodes.
+#' including terminals and internal nodes. Package `phytools` is required for this function.
 #'
 #' @param tree A phylogeny of class `"phylo"`.
 #' @param lineal Logical indicating whether to retain distances for pairs of nodes that are lineal ancestors/descendants.
@@ -182,16 +182,21 @@ mntd_weighted <- function(x, w){
 #'    correspond to nodes as in `ape::dist.nodes()`.
 #' @return A matrix of pairwise distances between nodes.
 #' @examples
-#' clade_dist(ape::rtree(10))
+#' if(requireNamespace("phytools", quietly = TRUE)){
+#'   clade_dist(ape::rtree(10))
+#' }
 #' @export
 clade_dist <- function(tree, lineal = FALSE, edges = TRUE){
-      requireNamespace("phytools", quietly = TRUE)
 
       # node distances
       d <- ape::dist.nodes(tree)
 
       # set distances between nodes and their descendants to NA
       if(!lineal){
+            if(!requireNamespace("phytools", quietly = TRUE)){
+                  stop("Package `phytools` is required for function clade_dist with `lineal = FALSE`.")
+            }
+
             d <- sapply(1:nrow(d), function(i) replace(d[i,], phytools::getDescendants(tree, i), NA))
             d <- d * t(d/d)
             diag(d) <- NA

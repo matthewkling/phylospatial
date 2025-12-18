@@ -90,7 +90,7 @@ ps_canape <- function(rand, alpha = .05){
 #'
 #' It also runs `canaper::cpr_classify_endem()` on the result, and includes the resulting classification as an
 #' additional variable, 'endem_type', in the output. 'endem_type' values 0-4 correspond to not-significant, neo,
-#' paleo, mixed, and super endemesim, respectively.
+#' paleo, mixed, and super endemisim, respectively.
 #'
 #' @return A `matrix `or `SpatRaster`, or `sf` with a column or layer for each metric.
 #' @examples
