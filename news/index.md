@@ -16,8 +16,9 @@
 - [`quantize()`](https://matthewkling.github.io/phylospatial/reference/quantize.md)
   and
   [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
-  now use `nullcat::quantize()` internally, addressing a flaw in the
-  earlier implementation.
+  now use
+  [`nullcat::quantize()`](https://matthewkling.github.io/nullcat/reference/quantize.html)
+  internally, addressing a flaw in the earlier implementation.
 
 - [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
   and other functions that call it now use a compute-optimized internal

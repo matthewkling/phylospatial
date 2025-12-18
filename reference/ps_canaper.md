@@ -53,7 +53,7 @@ It also runs
 on the result, and includes the resulting classification as an
 additional variable, 'endem_type', in the output. 'endem_type' values
 0-4 correspond to not-significant, neo, paleo, mixed, and super
-endemesim, respectively.
+endemisim, respectively.
 
 ## References
 

@@ -53,9 +53,11 @@ ps_rand(
     from the vegan package, which offer a wide range of randomization
     algorithms with different properties.
 
-  - "quantize": uses quantize, which converts a quantitative matrix to
-    discrete strata, applies a categorical variant of the selected null
-    model, and then maps randomized strata back to values.
+  - "quantize": uses
+    [quantize](https://matthewkling.github.io/nullcat/reference/quantize.html),
+    which converts a quantitative matrix to discrete strata, applies a
+    categorical variant of the selected null model, and then maps
+    randomized strata back to values.
 
   - Any other function that accepts a community matrix as its first
     argument and returns a randomized version of the matrix.
@@ -70,7 +72,8 @@ ps_rand(
     `data_type` (binary, quantitative, abundance),
 
   - For `fun = "quantize"`, one of the categorical algorithms listed
-    under nullcat.
+    under
+    [nullcat](https://matthewkling.github.io/nullcat/reference/nullcat.html).
 
   - Ignored if `fun` is `"tip_shuffle"` or if it is a custom function.
 
@@ -103,7 +106,8 @@ ps_rand(
 
 - ...:
 
-  Additional arguments passed to quantize,
+  Additional arguments passed to
+  [quantize](https://matthewkling.github.io/nullcat/reference/quantize.html),
   [simulate.nullmodel](https://vegandevs.github.io/vegan/reference/nullmodel.html),
   or custom function `fun`. Note that the `nsim` argument to
   simulate.nullmodel should not be used here; specify `n_rand` instead.
@@ -135,7 +139,6 @@ if(requireNamespace("nullcat")){
       fun = "quantize", method = "curvecat",
       transform = sqrt, n_strata = 4, fixed = "cell")
 }
-#> Loading required namespace: nullcat
 
 # using binary data, with a vegan `nullmodel` algorithm
 ps2 <- ps_simulate(data_type = "binary")
@@ -156,6 +159,6 @@ rand
 #>               qSiPD 
 #> names       : qShPD, qSiPD 
 #> min values  :  0.00,  0.00 
-#> max values  :  0.02,  0.02 
+#> max values  :  0.03,  0.03 
 # }
 ```

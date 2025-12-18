@@ -45,7 +45,7 @@ the phylospatial object using the permuted tip matrix."><meta property="og:image
 
     <div class="ref-description section level2">
     <p>Generates a randomized version of a phylospatial object by extracting the
-tip community matrix, permuting it using <code>nullcat::quantize()</code>, and rebuilding
+tip community matrix, permuting it using <code><a href="https://matthewkling.github.io/nullcat/reference/quantize.html" class="external-link">nullcat::quantize()</a></code>, and rebuilding
 the phylospatial object using the permuted tip matrix.</p>
     </div>
 
@@ -63,7 +63,7 @@ the phylospatial object using the permuted tip matrix.</p>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to quantize.</p></dd>
+<dd><p>Additional arguments passed to <a href="https://matthewkling.github.io/nullcat/reference/quantize.html" class="external-link">quantize</a>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -72,7 +72,7 @@ the phylospatial object using the permuted tip matrix.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The nullcat quantize routine involves three steps: converting a
+    <p>The nullcat <a href="https://matthewkling.github.io/nullcat/reference/quantize.html" class="external-link">quantize</a> routine involves three steps: converting a
 quantitative matrix to categorical strata, permuting the resulting categorical
 matrix using one of several categorical null model algorithms, and mapping the
 randomized categories back to quantitative values. Supply arguments via <code>...</code>
@@ -84,12 +84,14 @@ recomputing overhead that is shared across randomizations.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"nullcat"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"nullcat"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">ps_rand</span> <span class="op">&lt;-</span> <span class="fu">ps_quantize</span><span class="op">(</span><span class="va">ps</span>, n_strata <span class="op">=</span> <span class="fl">4</span>,</span></span>
 <span class="r-in"><span>    n_iter <span class="op">=</span> <span class="fl">1000</span>, <span class="co"># note: you'd want higher n_iter for a real analysis</span></span></span>
 <span class="r-in"><span>    method <span class="op">=</span> <span class="st">"curvecat"</span>, fixed <span class="op">=</span> <span class="st">"cell"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

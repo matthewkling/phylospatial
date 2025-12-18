@@ -151,10 +151,13 @@ plots of PD and PE:</p>
 <code class="sourceCode R"><span><span class="va">div</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_diversity.html">ps_diversity</a></span><span class="op">(</span><span class="va">ps</span>, metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">div</span><span class="op">$</span><span class="va">PD</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">div</span><span class="op">$</span><span class="va">PE</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="alpha-diversity_files/figure-html/alpha-1.png" class="r-plt" width="576"></p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">div</span><span class="op">$</span><span class="va">PE</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="alpha-diversity_files/figure-html/alpha-2.png" class="r-plt" width="576"></p>
 </div>
 <div class="section level2">
 <h2 id="null-model-randomization">Null model randomization<a class="anchor" aria-label="anchor" href="#null-model-randomization"></a>
@@ -174,13 +177,15 @@ of randomizations in which observed PE was greater than randomized PE in
 a given grid cell. (If you wanted to identify “statistically
 significant” grid cells in a one-tailed test with alpha = 0.05, these
 would be cells with values greater than 0.95.)</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">1000</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/matthewkling/nullcat" class="external-link">nullcat</a></span><span class="op">)</span></span>
+<span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">1000</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span>, <span class="st">"CE"</span>, <span class="st">"RPE"</span><span class="op">)</span>,</span>
 <span>                fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">rand</span><span class="op">$</span><span class="va">qPE</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="alpha-diversity_files/figure-html/postcompute-1.png" class="r-plt" width="576"></p>
 <p>There are numerous alternative options for randomization algorithms,
 a choice that will depend on the type of occurrence data you have
 (probability, binary, or abundance) and on which attributes of the
@@ -192,7 +197,7 @@ above, these include a basic <code>"tip_shuffle"</code> randomization
 randomization function. As a second example, here’s a randomization with
 an abundance data set, using the <code>"abuswap_c"</code> algorithm
 provided by <code><a href="https://vegandevs.github.io/vegan/reference/nullmodel.html" class="external-link">vegan::nullmodel</a></code>:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"abundance"</span><span class="op">)</span></span>
 <span><span class="va">rand2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"abuswap_c"</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>, metric <span class="op">=</span> <span class="st">"PD"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -208,9 +213,10 @@ and CE, which are returned by <code><a href="../reference/ps_rand.html">ps_rand(
 sites into five endemism cateogories. Here’s an example with the moss
 data; note that depending on the randomization, only a subset of the
 five categories may occur in the result here:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_canape.html">ps_canape</a></span><span class="op">(</span><span class="va">rand</span>, alpha <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cp</span><span class="op">)</span></span></code></pre></div>
+<p><img src="alpha-diversity_files/figure-html/canape-1.png" class="r-plt" width="576"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

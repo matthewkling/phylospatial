@@ -42,13 +42,13 @@ phylospatial mainly for backward compatibility."><meta property="og:image" conte
     </div>
 
     <div class="ref-description section level2">
-    <p>This is a simple wrapper around <code>nullcat::quantize()</code>, included in
+    <p>This is a simple wrapper around <code><a href="https://matthewkling.github.io/nullcat/reference/quantize.html" class="external-link">nullcat::quantize()</a></code>, included in
 <code>phylospatial</code> mainly for backward compatibility.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">quantize</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">quantize</span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -61,7 +61,7 @@ and nonnegative quantities in cells.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code>nullcat::quantize()</code>.</p></dd>
+<dd><p>Additional arguments passed to <code><a href="https://matthewkling.github.io/nullcat/reference/quantize.html" class="external-link">nullcat::quantize()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -70,7 +70,7 @@ and nonnegative quantities in cells.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The nullcat quantize routine involves three steps: converting a
+    <p>The nullcat <a href="https://matthewkling.github.io/nullcat/reference/quantize.html" class="external-link">quantize</a> routine involves three steps: converting a
 quantitative matrix to categorical strata, permuting the resulting categorical
 matrix using one of several categorical null model algorithms, and mapping the
 randomized categories back to quantitative values. Supply arguments via <code>...</code>
@@ -79,7 +79,8 @@ to control options for each of these stages.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"nullcat"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"nullcat"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>      <span class="co"># example quantitative community matrix</span></span></span>
 <span class="r-in"><span>      <span class="va">comm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">2500</span><span class="op">)</span>, <span class="fl">50</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -88,7 +89,7 @@ to control options for each of these stages.</p>
 <span class="r-in"><span>      <span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">quantize</span><span class="op">(</span><span class="va">comm</span>, n_strata <span class="op">=</span> <span class="fl">4</span>, transform <span class="op">=</span> <span class="va">sqrt</span>, fixed <span class="op">=</span> <span class="st">"row"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>      <span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">quantize</span><span class="op">(</span><span class="va">comm</span>, method <span class="op">=</span> <span class="st">"swapcat"</span>, n_iter <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

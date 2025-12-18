@@ -5,6 +5,7 @@ This function runs
 with some additional filtering and sorting. By default, it returns
 distances between every pair of non-nested clades, i.e. every pair of
 collateral (non-lineal) nodes including terminals and internal nodes.
+Package `phytools` is required for this function.
 
 ## Usage
 
@@ -40,7 +41,9 @@ A matrix of pairwise distances between nodes.
 ## Examples
 
 ``` r
-clade_dist(ape::rtree(10))
+if(requireNamespace("phytools", quietly = TRUE)){
+  clade_dist(ape::rtree(10))
+}
 #>           12        13        1         2        14         3        15
 #> 12        NA        NA       NA        NA        NA        NA        NA
 #> 13        NA        NA       NA        NA 0.2474030 0.7776155 0.9432269

@@ -85,10 +85,17 @@ div <- ps_diversity(ps, metric = c("PD", "PE"))
 tm_shape(div$PD) + 
       tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
       tm_layout(legend.outside = TRUE)
+```
+
+![](alpha-diversity_files/figure-html/alpha-1.png)
+
+``` r
 tm_shape(div$PE) + 
       tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
       tm_layout(legend.outside = TRUE)
 ```
+
+![](alpha-diversity_files/figure-html/alpha-2.png)
 
 ## Null model randomization
 
@@ -110,6 +117,7 @@ grid cells in a one-tailed test with alpha = 0.05, these would be cells
 with values greater than 0.95.)
 
 ``` r
+library(nullcat)
 rand <- ps_rand(ps, n_rand = 1000, progress = FALSE,
                 metric = c("PD", "PE", "CE", "RPE"),
                 fun = "quantize", method = "curvecat")
@@ -117,6 +125,8 @@ tm_shape(rand$qPE) +
       tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
       tm_layout(legend.outside = TRUE)
 ```
+
+![](alpha-diversity_files/figure-html/postcompute-1.png)
 
 There are numerous alternative options for randomization algorithms, a
 choice that will depend on the type of occurrence data you have
@@ -153,3 +163,5 @@ subset of the five categories may occur in the result here:
 cp <- ps_canape(rand, alpha = .05)
 terra::plot(cp)
 ```
+
+![](alpha-diversity_files/figure-html/canape-1.png)
