@@ -54,6 +54,7 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+          args: ${{ matrix.config.depends-only && 'c("--no-manual", "--ignore-vignettes")' || 'c("--no-manual", "--as-cran")' }}
+          build_args: ${{ matrix.config.depends-only && 'c("--no-build-vignettes")' || 'c("--no-manual","--compact-vignettes=gs+qpdf")' }}
         env:
           _R_CHECK_DEPENDS_ONLY_: ${{ matrix.config.depends-only || 'false' }}
