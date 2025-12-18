@@ -72,6 +72,7 @@ test_that("diversity measures match `adiv::evodiv()` and `hillR::hill_phylo()` f
 
 
 test_that("MPD matches picante", {
+      skip_if_not_installed("picante")
       requireNamespace("picante", quietly = TRUE)
 
       ps <- ps_simulate(data_type = "binary")

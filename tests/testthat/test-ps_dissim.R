@@ -7,7 +7,9 @@ test_that("`ps_dissim` runs without error on example data", {
 })
 
 test_that("`ps_dissim()` matches `betapart::phylo.beta.pair()` when using binary data", {
+      skip_if_not_installed("betapart")
       requireNamespace("betapart", quietly = TRUE)
+
       ps <- ps_simulate(n_tips = 5, n_x = 5, n_y = 5, data_type = "binary")
 
       ps_total <- ps_dissim(ps, method = "sorensen")
@@ -22,6 +24,7 @@ test_that("`ps_dissim()` matches `betapart::phylo.beta.pair()` when using binary
 })
 
 test_that("`ps_dissim()` matches `betapart::beta.pair.abund()` when using non-phylogenetic abundance data", {
+      skip_if_not_installed("betapart")
       requireNamespace("betapart", quietly = TRUE)
       comm <- matrix(sample(1:200), 20)
       colnames(comm) <- paste0("t", 1:10)
@@ -32,6 +35,7 @@ test_that("`ps_dissim()` matches `betapart::beta.pair.abund()` when using non-ph
 })
 
 test_that("equivalent ways to get quantitative Sorensen's do indeed match", {
+      skip_if_not_installed("vegan")
       requireNamespace("vegan", quietly = TRUE)
       ps <- ps_simulate(n_tips = 5, n_x = 5, n_y = 5, data_type = "prob")
       comm <- ps$comm
