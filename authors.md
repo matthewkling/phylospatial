@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/matthewkling/phylospatial/blob/master/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/matthewkling/phylospatial/blob/v1.2.0/DESCRIPTION)
 
 Kling M (2025). *phylospatial: Spatial Phylogenetic Analysis*. R package
 version 1.2.0, <https://matthewkling.github.io/phylospatial/>.

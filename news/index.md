@@ -2,6 +2,8 @@
 
 ## phylospatial 1.2.0
 
+CRAN release: 2025-12-20
+
 - CRAN compliance: fixed vignette builds to conditionally load suggested
   package ‘tmap’.
 
