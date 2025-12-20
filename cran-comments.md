@@ -1,29 +1,31 @@
 
-## R CMD check results
+## Resubmission
 
-0 errors | 1 warning | 1 note
+This is a resubmission following the package's archival due to vignette build 
+issues. This version addresses all issues that led to archival and the previous
+submission rejection.
 
-* checking dependencies in R code ... WARNING
-  '::' or ':::' import not declared from: ‘nullcat’
-  'loadNamespace' or 'requireNamespace' call not declared from: ‘nullcat’
+## Changes since archival
 
-* checking for unstated dependencies in vignettes ... NOTE
-  'library' or 'require' call not declared from: ‘nullcat’
-  
-Both of these are expected. The 'nullcat' package is an optional dependency available 
-only on GitHub (not CRAN). The package functions gracefully when nullcat is 
-not available, with appropriate requireNamespace() checks and informative 
-error messages directing users to install it if needed.
-
-
-## Reverse dependencies
-
-There are no reverse dependencies on this package.
-
+* Fixed vignette builds to conditionally use suggested packages (tmap, nullcat)
+* Vignettes now build successfully when suggested packages are unavailable
+* Added CI testing with _R_CHECK_DEPENDS_ONLY_=true to prevent future issues
+* Added nullcat (now on CRAN) to Suggests for stratified randomization functionality
 
 ## Test environments
 
-* local OS X install, R 4.3.0
-* win-builder (devel and release)
-* GitHub Actions (macos-latest (release); windows-latest (release); ubuntu-latest (devel, release, and oldrel-1))
+* local: [your OS and R version]
+* GitHub Actions (ubuntu-latest): R-devel, R-release, R-oldrel
+* GitHub Actions (windows-latest): R-release  
+* GitHub Actions (macos-latest): R-release
+* GitHub Actions with _R_CHECK_DEPENDS_ONLY_=true: R-release
+
+## R CMD check results
+
+0 errors | 0 warnings | 0 notes
+
+## Reverse dependencies
+
+There are currently no reverse dependencies on this package.
+
 

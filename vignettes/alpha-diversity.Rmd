@@ -16,11 +16,10 @@ knitr::opts_chunk$set(
 fig.dim = c(6, 4)
 )
 
-if (!requireNamespace("tmap", quietly = TRUE)) {
+if (!requireNamespace("tmap", quietly = TRUE) || grepl("devel", R.version.string)) {
   knitr::opts_chunk$set(eval = FALSE)
-  message("Package 'tmap' needed for this vignette but is not installed. Code will not be evaluated.")
+  message("Package 'tmap' needed for this vignette. Either it is not installed, or it is being called from R-devel where it has compatibility issues. Code will not be evaluated.")
 }
-
 ```
 
 
@@ -85,7 +84,6 @@ We can also use randomization to calculate the statistical significance of these
 We'll run 1000 randomizations for four diversity metrics, and plot the results for PE. This is a quantile value that gives the proportion of randomizations in which observed PE was greater than randomized PE in a given grid cell. (If you wanted to identify "statistically significant" grid cells in a one-tailed test with alpha = 0.05, these would be cells with values greater than 0.95.)
 
 ```{r rand, eval=FALSE}
-library(nullcat)
 rand <- ps_rand(ps, n_rand = 1000, progress = FALSE,
                 metric = c("PD", "PE", "CE", "RPE"),
                 fun = "quantize", method = "curvecat")
