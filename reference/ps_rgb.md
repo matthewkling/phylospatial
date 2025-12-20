@@ -50,7 +50,7 @@ values in the range 0-1.
 ## Examples
 
 ``` r
-ps <- ps_add_dissim(moss())
+ps <- ps_add_dissim(ps_simulate(50, 20, 20))
 RGB <- ps_rgb(ps, method = "cmds")
 terra::plotRGB(RGB * 255, smooth = FALSE)
 
