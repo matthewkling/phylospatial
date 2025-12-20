@@ -117,7 +117,6 @@ grid cells in a one-tailed test with alpha = 0.05, these would be cells
 with values greater than 0.95.)
 
 ``` r
-library(nullcat)
 rand <- ps_rand(ps, n_rand = 1000, progress = FALSE,
                 metric = c("PD", "PE", "CE", "RPE"),
                 fun = "quantize", method = "curvecat")

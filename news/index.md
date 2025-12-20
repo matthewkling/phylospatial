@@ -1,5 +1,7 @@
 # Changelog
 
+## phylospatial (development version)
+
 ## phylospatial 1.2.0
 
 CRAN release: 2025-12-20
