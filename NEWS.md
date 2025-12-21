@@ -1,6 +1,8 @@
 # phylospatial (development version)
 
-* Refactored `ps_diversity()`, `ps_rand()`, `ps_dissim()`, and `ps_prioritize()` to optimize compute speed (~2x to 20x speedup).
+* `ps_diversity()`, `ps_rand()`, `ps_dissim()`, and `ps_prioritize()` have been refactored to optimize compute speed (~2x to 20x speedup).
+
+* `ps_ordinate` now defaults to `method = "cmds"`, and has a bug fixed in its `pca` method.
 
 # phylospatial 1.2.0
 
