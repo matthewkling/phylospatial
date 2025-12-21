@@ -2,6 +2,9 @@
 
 ## phylospatial (development version)
 
+- [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+  has been optimized (~10x speedup).
+
 ## phylospatial 1.2.0
 
 CRAN release: 2025-12-20
