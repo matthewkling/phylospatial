@@ -40,6 +40,6 @@ plot.phylospatial <- function(x, y = c("tree", "comm"),
             comm <- ps_get_comm(x, tips_only = FALSE)
             i <- sample(ncol(x$comm), n)
             if(inherits(x$spatial, "SpatRaster")) terra::plot(comm[[i]], ...)
-            if(inherits(x$spatial, "sf")) terra::plot(comm[, i], max.plot = n, ...)
+            if(inherits(x$spatial, "sf")) plot(comm[, i], max.plot = n, ...)
       }
 }

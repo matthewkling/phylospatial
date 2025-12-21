@@ -38,11 +38,31 @@ ps_regions <- function(ps, k = 5, method = "average", endemism = FALSE, normaliz
       r <- a <- occupied(ps)
 
       if(method == "kmeans"){
-            comm <- ps$comm[a,]
-            if(endemism) comm <- apply(comm, 2, function(x) x / sum(x, na.rm = TRUE))
-            if(normalize) comm <- t(apply(comm, 1, function(x) x / sum(x, na.rm = TRUE)))
+            comm <- ps$comm[a, ]
+
+            # Vectorized endemism: divide each column by its sum
+            if(endemism) {
+                  col_sums <- colSums(comm, na.rm = TRUE)
+                  col_sums[col_sums == 0] <- 1
+                  comm <- t(t(comm) / col_sums)
+            }
+
+            # Vectorized normalize: divide each row by its sum
+            if(normalize) {
+                  row_sums <- rowSums(comm, na.rm = TRUE)
+                  row_sums[row_sums == 0] <- 1
+                  comm <- comm / row_sums
+            }
+
             comm[!is.finite(comm)] <- 0
-            comm <- t(apply(comm, 1, function(x) x * ps$tree$edge.length)) # scale by branch length
+
+            # Vectorized branch length scaling
+            comm <- t(t(comm) * ps$tree$edge.length)
+
+            # Remove zero-variance columns to avoid kmeans issues
+            col_var <- apply(comm, 2, var, na.rm = TRUE)
+            comm <- comm[, col_var > 0, drop = FALSE]
+
             regions <- stats::kmeans(comm, k)$cluster
       }else{
             stopifnot("Input data set contains no `dissim` data, which is required for methods other than `kmeans`; add it first using `ps_add_dissim()`." = !is.null(ps$dissim))

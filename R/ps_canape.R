@@ -41,6 +41,12 @@
 #' @export
 ps_canape <- function(rand, alpha = .05){
 
+      required <- c("qCE", "qPE", "qRPE")
+      vars <- if(inherits(rand, "matrix")) colnames(rand) else names(rand)
+      if(!all(required %in% vars)) {
+            stop("ps_canape requires metrics PE, RPE, and CE from ps_rand()")
+      }
+
       if(inherits(rand, "matrix")) rand <- as.data.frame(rand)
       ce <- as.vector(rand$qCE[])
       pe <- as.vector(rand$qPE[])
