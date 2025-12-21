@@ -1,4 +1,3 @@
-
 #' Null model randomization analysis of alpha diversity metrics
 #'
 #' This function compares phylodiversity metrics calculated in \link{ps_diversity} to their null distributions
@@ -78,96 +77,120 @@ ps_rand <- function(ps,
                     ...){
 
       enforce_ps(ps)
-      if(any(metric == "all")) metric <- metrics()
+      if (any(metric == "all")) metric <- metrics()
       match.arg(metric, metrics(), several.ok = TRUE)
       match.arg(summary, c("quantile", "zscore"))
 
-      phy <- ps$tree
+      # --- PRECOMPUTE STATIC VALUES ---
+      tree <- ps$tree
+      data_type <- ps$data_type
+      clade_fun <- ps$clade_fun
       a <- occupied(ps)
       tip_comm <- ps_get_comm(ps, spatial = FALSE)[a, ]
 
-      div <- ps_diversity(ps, metric = metric, spatial = FALSE)[a, ]
-      if(length(metric) == 1) div <- matrix(div, ncol = 1)
-      rand <- array(NA, c(dim(div), n_rand + 1))
-      rand[,,1] <- div
+      # Precompute descendants for fast tree range building
+      descendants <- precompute_descendants(tree)
 
-      if(inherits(fun, "function")){
+      # Observed diversity
+      div <- ps_diversity(ps, metric = metric, spatial = FALSE)[a, , drop = FALSE]
+
+      # Initialize results array
+      rand <- array(NA_real_, c(nrow(div), ncol(div), n_rand + 1))
+      rand[, , 1] <- div
+
+      # --- SETUP RANDOMIZATION FUNCTION ---
+      if (inherits(fun, "function")) {
             fx <- fun
             fun <- "custom"
-      }else{
+      } else {
             stopifnot("Invalid argument to 'fun'" = fun %in% c("tip_shuffle", "nullmodel", "quantize"))
       }
-      if(fun == "nullmodel"){
-            if(ps$data_type == "binary" & ! method %in% binary_models()) stop(
+
+      if (fun == "nullmodel") {
+            if (data_type == "binary" & !method %in% binary_models()) stop(
                   "Since this phylospatial dataset has binary community data, the requested `method` must be one of the 'binary' algorithms listed under `?vegan::commsim`.")
-            if(ps$data_type != "binary" & method %in% binary_models()) stop(
+            if (data_type != "binary" & method %in% binary_models()) stop(
                   "This phylospatial dataset does not contain binary community data, but a binary `method` was requested. See `?vegan::commsim` for descriptions of methods.")
       }
 
-      tip_shuffle <- function(x){
+      tip_shuffle <- function(x) {
             colnames(x) <- sample(colnames(x))
-            return(x)
+            x
       }
 
-      # for quantize, compute one-time overhead for efficiency
-      if(fun == "quantize"){
-            if(!requireNamespace("nullcat", quietly = TRUE)){
-                  stop("Package 'nullcat' is required for `fun = 'quantize'`.",
-                       call. = FALSE)
+      # For quantize, compute one-time overhead
+      if (fun == "quantize") {
+            if (!requireNamespace("nullcat", quietly = TRUE)) {
+                  stop("Package 'nullcat' is required for `fun = 'quantize'`.", call. = FALSE)
             }
             prep <- nullcat::quantize_prep(tip_comm, method = method, ...)
-      }else{
+      } else {
             prep <- NULL
       }
 
-      # core function: randomize tip matrix, convert to phylospatial, and compute diversity
-      div_rand <- function(comm, tree, fun, method, prep, ...){
-            if(fun == "tip_shuffle") rcomm <- tip_shuffle(comm)
-            if(fun == "quantize") rcomm <- quantize(prep = prep)
-            if(fun == "nullmodel") rcomm <- stats::simulate(
-                  vegan::nullmodel(comm, method = method), nsim = 1, ...)[,,1]
-            if(fun == "custom") rcomm <- fx(comm, ...)
+      # --- CORE RANDOMIZATION FUNCTION ---
+      div_rand <- function() {
+            # Randomize tip matrix
+            rcomm <- switch(fun,
+                            "tip_shuffle" = tip_shuffle(tip_comm),
+                            "quantize" = quantize(prep = prep),
+                            "nullmodel" = stats::simulate(
+                                  vegan::nullmodel(tip_comm, method = method), nsim = 1, ...)[, , 1],
+                            "custom" = fx(tip_comm, ...)
+            )
 
-            rsp <- phylospatial(rcomm, tree, check = FALSE,
-                                data_type = ps$data_type, clade_fun = ps$clade_fun)
-            ps_diversity(rsp, metric = metric)
+            # Build clade ranges using precomputed descendants
+            comm_full <- build_tree_ranges_fast(tree, rcomm, data_type, descendants, clade_fun)
+
+            # Create lightweight phylospatial object (skip validation)
+            rps <- list(comm = comm_full, tree = tree, data_type = data_type)
+            class(rps) <- "phylospatial"
+
+            ps_diversity(rps, metric = metric, spatial = FALSE)
       }
 
-      if(n_cores == 1){
-            if(progress) pb <- utils::txtProgressBar(min = 0, max = n_rand, initial = 0, style = 3)
-            for(i in 1:n_rand){
-                  rand[,,i+1] <- div_rand(tip_comm, phy, fun = fun, method = method, prep = prep, ...)
-                  if(progress) utils::setTxtProgressBar(pb, i)
+      # --- RUN RANDOMIZATIONS ---
+      if (n_cores == 1) {
+            if (progress) pb <- utils::txtProgressBar(min = 0, max = n_rand, initial = 0, style = 3)
+            for (i in 1:n_rand) {
+                  rand[, , i + 1] <- div_rand()
+                  if (progress) utils::setTxtProgressBar(pb, i)
             }
-            if(progress) close(pb)
+            if (progress) close(pb)
 
-      }else{
+      } else {
             if (!requireNamespace("furrr", quietly = TRUE)) {
                   stop("To use `n_cores` greater than 1, package `furrr` must be installed.", call. = FALSE)
             }
-            plan <- future::plan() # get original future setting
+            plan <- future::plan()
             future::plan(future::multisession, workers = n_cores)
-            rnd <- furrr::future_map(1:n_rand,
-                                     function(i) div_rand(tip_comm, phy, fun = fun, method = method, prep = prep, ...),
-                                     .progress = progress,
-                                     .options = furrr::furrr_options(seed = TRUE))
-            future::plan(plan) # reinstate original setting
-            for(i in 1:n_rand) rand[,,i+1] <- rnd[[i]]
+            rnd <- furrr::future_map(
+                  1:n_rand,
+                  function(i) div_rand(),
+                  .progress = progress,
+                  .options = furrr::furrr_options(seed = TRUE)
+            )
+            future::plan(plan)
+            for (i in 1:n_rand) rand[, , i + 1] <- rnd[[i]]
       }
 
-
-      if(summary == "quantile") q <- apply(rand, 1:2, function(x) mean(x[1] > x[2:(n_rand+1)], na.rm = TRUE) )
-      if(summary == "zscore") q <- apply(rand, 1:2, function(x) (x[1] - mean(x[2:(n_rand+1)], na.rm = TRUE)) / sd(x[2:(n_rand+1)], na.rm = TRUE) )
+      # --- SUMMARIZE RESULTS ---
+      if (summary == "quantile") {
+            q <- apply(rand, 1:2, function(x) mean(x[1] > x[-1], na.rm = TRUE))
+      } else {
+            q <- apply(rand, 1:2, function(x) {
+                  (x[1] - mean(x[-1], na.rm = TRUE)) / sd(x[-1], na.rm = TRUE)
+            })
+      }
 
       qa <- matrix(NA, length(a), ncol(q))
       qa[a, ] <- q
-      colnames(qa) <- paste0(substr(summary, 1, 1), colnames(div))
+      colnames(qa) <- paste0(substr(summary, 1, 1), metric)
 
-      if(spatial) qa <- to_spatial(qa, ps$spatial)
-      return(qa)
+      if (spatial) qa <- to_spatial(qa, ps$spatial)
+      qa
 }
 
-# return a vector of the binary null model options in vegan::commsim
+# Return a vector of the binary null model options in vegan::commsim
 binary_models <- function() c("r00", "r0", "r1", "r2", "c0", "swap", "tswap",
                               "curveball", "quasiswap", "greedyqswap", "backtracking")
-

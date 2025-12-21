@@ -75,65 +75,79 @@
 #' terra::plot(div)
 #'
 #' @export
-ps_diversity <- function(ps, metric = c("PD", "PE", "CE", "RPE"), spatial = TRUE){
+ps_diversity <- function(ps, metric = c("PD", "PE", "CE", "RPE"), spatial = TRUE) {
 
       enforce_ps(ps)
-      if(any(metric == "all")) metric <- metrics()
+      if (any(metric == "all")) metric <- metrics()
       match.arg(metric, metrics(), several.ok = TRUE)
 
-      # taxon variables
       tree <- ps$tree
-      L <- tree$edge.length # branch lengths
+      comm <- ps$comm
+      L <- tree$edge.length
       L[L == Inf] <- max(L[L != Inf])
-      if(any(grepl("E", metric))) R <- apply(ps$comm, 2, sum, na.rm = TRUE) # range sizes
       tips <- tip_indices(tree)
 
-      # pairwise distances
-      if(any(c("MPDT", "VPDT") %in% metric)) tdist <- ape::cophenetic.phylo(tree)
-      if(any(c("MPDN", "VPDN") %in% metric)) ndist <- clade_dist(tree)
+      # Precompute range sizes once if any endemism metric requested
+      if (any(grepl("E", metric))) {
+            R <- colSums(comm, na.rm = TRUE)
+            invR <- 1 / R
+            invR[!is.finite(invR)] <- 0
+      }
 
-      div <- function(m) switch(m,
-                                TD =  apply(ps$comm[, tips], 1, sum, na.rm = TRUE),
-                                TE =  apply(ps$comm[, tips], 1, function(p) sum(p / R[tips], na.rm = TRUE)),
-                                CD =  apply(ps$comm, 1, sum, na.rm = TRUE),
-                                CE =  apply(ps$comm, 1, function(p) sum(p / R, na.rm = TRUE)),
-                                PD =  apply(ps$comm, 1, function(p) sum(p * L, na.rm = TRUE)),
-                                PE =  apply(ps$comm, 1, function(p) sum(p * L / R, na.rm = TRUE)),
-                                RPD = apply(ps$comm, 1, function(p) weighted.mean(L, w = p, na.rm = TRUE)),
-                                RPE = apply(ps$comm, 1, function(p) weighted.mean(L, w = p / R, na.rm = TRUE)),
+      # Precompute pairwise distances only if needed
+      if (any(c("MPDT", "VPDT") %in% metric)) tdist <- ape::cophenetic.phylo(tree)
+      if (any(c("MPDN", "VPDN") %in% metric)) ndist <- clade_dist(tree)
 
-                                MPDT = apply(ps$comm[, tips], 1, function(p) mpd_weighted(tdist, p)),
-                                MPDN = apply(ps$comm, 1, function(p) mpd_weighted(ndist, p)),
-                                VPDT = apply(ps$comm[, tips], 1, function(p) mpd_weighted(tdist, p, variance = TRUE)),
-                                VPDN = apply(ps$comm, 1, function(p) mpd_weighted(ndist, p, variance = TRUE)),
+      n <- nrow(comm)
+      d <- matrix(NA_real_, n, length(metric))
+      colnames(d) <- metric
 
-                                ShPD = apply(ps$comm, 1, function(p){
-                                      p[p == 0] <- NA
-                                      n <- p / sum(p*L, na.rm = TRUE)
-                                      -sum(L * n * log(n), na.rm = TRUE)
-                                }),
-                                ShPE = apply(ps$comm, 1, function(p){
-                                      p[p == 0] <- NA
-                                      e <- p / sum(p*L/R, na.rm = TRUE)
-                                      -sum(L * e * log(e) / R, na.rm = TRUE)
-                                }),
-                                SiPD = apply(ps$comm, 1, function(p){
-                                      p[p == 0] <- NA
-                                      n <- p / sum(p*L, na.rm = TRUE)
-                                      1 / sum(L * n^2, na.rm = TRUE)
-                                }),
-                                SiPE = apply(ps$comm, 1, function(p){
-                                      p[p == 0] <- NA
-                                      e <- p / sum(p*L/R, na.rm = TRUE)
-                                      1 / sum(L/R * e^2, na.rm = TRUE)
-                                })
-      )
+      for (i in seq_along(metric)) {
+            m <- metric[i]
+            d[, i] <- switch(m,
+                             # === VECTORIZED (fast) ===
+                             "TD"  = rowSums(comm[, tips, drop = FALSE], na.rm = TRUE),
+                             "TE"  = drop(comm[, tips, drop = FALSE] %*% invR[tips]),
+                             "CD"  = rowSums(comm, na.rm = TRUE),
+                             "CE"  = drop(comm %*% invR),
+                             "PD"  = drop(comm %*% L),
+                             "PE"  = drop(comm %*% (L * invR)),
+                             "RPD" = drop(comm %*% L) / rowSums(comm, na.rm = TRUE),
+                             "RPE" = drop(comm %*% (L * invR)) / drop(comm %*% invR),
 
-      d <- sapply(metric, div)
+                             # === ROW-WISE (these need per-row normalization) ===
+                             "ShPD" = apply(comm, 1, function(p) {
+                                   p[p == 0] <- NA
+                                   n <- p / sum(p * L, na.rm = TRUE)
+                                   -sum(L * n * log(n), na.rm = TRUE)
+                             }),
+                             "ShPE" = apply(comm, 1, function(p) {
+                                   p[p == 0] <- NA
+                                   e <- p / sum(p * L * invR, na.rm = TRUE)
+                                   -sum(L * e * log(e) * invR, na.rm = TRUE)
+                             }),
+                             "SiPD" = apply(comm, 1, function(p) {
+                                   p[p == 0] <- NA
+                                   n <- p / sum(p * L, na.rm = TRUE)
+                                   1 / sum(L * n^2, na.rm = TRUE)
+                             }),
+                             "SiPE" = apply(comm, 1, function(p) {
+                                   p[p == 0] <- NA
+                                   e <- p / sum(p * L * invR, na.rm = TRUE)
+                                   1 / sum(L * invR * e^2, na.rm = TRUE)
+                             }),
+
+                             # === PAIRWISE DISTANCE (expensive) ===
+                             "MPDT" = apply(comm[, tips], 1, function(p) mpd_weighted(tdist, p)),
+                             "MPDN" = apply(comm, 1, function(p) mpd_weighted(ndist, p)),
+                             "VPDT" = apply(comm[, tips], 1, function(p) mpd_weighted(tdist, p, variance = TRUE)),
+                             "VPDN" = apply(comm, 1, function(p) mpd_weighted(ndist, p, variance = TRUE))
+            )
+      }
 
       d[!occupied(ps), ] <- NA
-      if(spatial) d <- to_spatial(d, ps$spatial)
-      return(d)
+      if (spatial) d <- to_spatial(d, ps$spatial)
+      d
 }
 
 

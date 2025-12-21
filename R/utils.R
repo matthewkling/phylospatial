@@ -207,3 +207,99 @@ area <- function(spatial){
       }
       list(size = as.vector(size), unit = unit)
 }
+
+
+
+#' Precompute descendant tips for each node
+#'
+#' Called once before randomization loops to avoid recomputing tree structure.
+#'
+#' @param tree A phylo object
+#' @return A list where element i contains the tip indices descending from node i
+#' @keywords internal
+precompute_descendants <- function(tree) {
+      ntaxa <- nrow(tree$edge)
+      nodes <- tree$edge[, 2]
+      ntips <- length(tree$tip.label)
+
+      desc <- vector("list", max(nodes))
+      for (i in 1:ntips) desc[[i]] <- i
+
+      for (i in ntaxa:1) {
+            node <- nodes[i]
+            if (node > ntips) {
+                  children <- tree$edge[tree$edge[, 1] == node, 2]
+                  desc[[node]] <- unique(unlist(desc[children]))
+            }
+      }
+      desc
+}
+
+
+#' Fast clade range building with precomputed descendants
+#'
+#' Lightweight version of build_tree_ranges() that uses precomputed
+#' descendant information and skips validation.
+#'
+#' @param tree A phylo object
+#' @param tip_comm Tip community matrix (sites x tips)
+#' @param data_type Data type string
+#' @param descendants Precomputed list from precompute_descendants()
+#' @param clade_fun Custom aggregation function (used if data_type is "other")
+#' @return Full community matrix (sites x edges)
+#' @keywords internal
+build_tree_ranges_fast <- function(tree, tip_comm, data_type, descendants, clade_fun = NULL) {
+
+      ntaxa <- nrow(tree$edge)
+      nodes <- tree$edge[, 2]
+      ntips <- length(tree$tip.label)
+
+      comm <- matrix(NA_real_, nrow(tip_comm), ntaxa)
+
+      # Tips
+      tip_edges <- which(nodes <= ntips)
+      comm[, tip_edges] <- tip_comm[, nodes[tip_edges]]
+
+      # Internal nodes
+      internal_edges <- which(nodes > ntips)
+
+      if (data_type == "probability") {
+            for (e in internal_edges) {
+                  tips <- descendants[[nodes[e]]]
+                  if (length(tips) == 1) {
+                        comm[, e] <- tip_comm[, tips]
+                  } else {
+                        comm[, e] <- 1 - exp(rowSums(log(1 - tip_comm[, tips, drop = FALSE])))
+                  }
+            }
+      } else if (data_type == "binary") {
+            for (e in internal_edges) {
+                  tips <- descendants[[nodes[e]]]
+                  if (length(tips) == 1) {
+                        comm[, e] <- tip_comm[, tips]
+                  } else {
+                        comm[, e] <- as.integer(rowSums(tip_comm[, tips, drop = FALSE]) > 0)
+                  }
+            }
+      } else if (data_type == "abundance") {
+            for (e in internal_edges) {
+                  tips <- descendants[[nodes[e]]]
+                  if (length(tips) == 1) {
+                        comm[, e] <- tip_comm[, tips]
+                  } else {
+                        comm[, e] <- rowSums(tip_comm[, tips, drop = FALSE])
+                  }
+            }
+      } else {
+            for (e in internal_edges) {
+                  tips <- descendants[[nodes[e]]]
+                  if (length(tips) == 1) {
+                        comm[, e] <- tip_comm[, tips]
+                  } else {
+                        comm[, e] <- apply(tip_comm[, tips, drop = FALSE], 1, clade_fun)
+                  }
+            }
+      }
+
+      comm
+}
