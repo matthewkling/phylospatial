@@ -152,12 +152,12 @@ plots of PD and PE:</p>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">div</span><span class="op">$</span><span class="va">PD</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="alpha-diversity_files/figure-html/alpha-1.png" class="r-plt" width="576"></p>
+<p><img src="alpha-diversity_files/figure-html/alpha-1.png" class="r-plt" alt="" width="576"></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">div</span><span class="op">$</span><span class="va">PE</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="alpha-diversity_files/figure-html/alpha-2.png" class="r-plt" width="576"></p>
+<p><img src="alpha-diversity_files/figure-html/alpha-2.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level2">
 <h2 id="null-model-randomization">Null model randomization<a class="anchor" aria-label="anchor" href="#null-model-randomization"></a>
@@ -184,7 +184,7 @@ would be cells with values greater than 0.95.)</p>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">rand</span><span class="op">$</span><span class="va">qPE</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="alpha-diversity_files/figure-html/postcompute-1.png" class="r-plt" width="576"></p>
+<p><img src="alpha-diversity_files/figure-html/postcompute-1.png" class="r-plt" alt="" width="576"></p>
 <p>There are numerous alternative options for randomization algorithms,
 a choice that will depend on the type of occurrence data you have
 (probability, binary, or abundance) and on which attributes of the
@@ -215,7 +215,7 @@ five categories may occur in the result here:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_canape.html">ps_canape</a></span><span class="op">(</span><span class="va">rand</span>, alpha <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cp</span><span class="op">)</span></span></code></pre></div>
-<p><img src="alpha-diversity_files/figure-html/canape-1.png" class="r-plt" width="576"></p>
+<p><img src="alpha-diversity_files/figure-html/canape-1.png" class="r-plt" alt="" width="576"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

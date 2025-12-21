@@ -162,7 +162,7 @@ lengths of the input tree are scaled to sum to 1. We can use
 <span><span class="co">#&gt; Rooted; includes branch length(s).</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ps</span>, <span class="st">"tree"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="phylospatial-data_files/figure-html/tree-1.png" class="r-plt" width="576"></p>
+<p><img src="phylospatial-data_files/figure-html/tree-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level4">
 <h4 id="community-matrix">Community matrix<a class="anchor" aria-label="anchor" href="#community-matrix"></a>
@@ -191,7 +191,7 @@ it as a spatial data set (a raster, in this case).</p>
 <span><span class="co">#&gt; [6,] 0.76573040</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ps</span>, <span class="st">"comm"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="phylospatial-data_files/figure-html/comm-1.png" class="r-plt" width="576"></p>
+<p><img src="phylospatial-data_files/figure-html/comm-1.png" class="r-plt" alt="" width="576"></p>
 <p>We can see that in addition to our 5 terminal taxa, the data set also
 includes geographic ranges for the 3 larger clades. Internally, the
 <code><a href="../reference/phylospatial.html">phylospatial()</a></code> function constructs ranges for every
@@ -258,10 +258,10 @@ evolutionary relationships. We’ll then pass these to
 <span><span class="va">moss_tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">read.tree</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"moss_tree.nex"</span>, package <span class="op">=</span> <span class="st">"phylospatial"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/phylospatial.html">phylospatial</a></span><span class="op">(</span><span class="va">moss_comm</span>, <span class="va">moss_tree</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ps</span>, <span class="st">"comm"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="phylospatial-data_files/figure-html/moss-1.png" class="r-plt" width="576"></p>
+<p><img src="phylospatial-data_files/figure-html/moss-1.png" class="r-plt" alt="" width="576"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ps</span>, <span class="st">"tree"</span>, type <span class="op">=</span> <span class="st">"fan"</span>, show.tip.label <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="phylospatial-data_files/figure-html/moss-2.png" class="r-plt" width="576"></p>
+<p><img src="phylospatial-data_files/figure-html/moss-2.png" class="r-plt" alt="" width="576"></p>
 <div class="section level4">
 <h4 id="non-phylogenetic-data">Non-phylogenetic data<a class="anchor" aria-label="anchor" href="#non-phylogenetic-data"></a>
 </h4>
@@ -283,7 +283,7 @@ community data we created above:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/phylospatial.html">phylospatial</a></span><span class="op">(</span><span class="va">comm</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ps</span>, <span class="st">"tree"</span>, type <span class="op">=</span> <span class="st">"fan"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="phylospatial-data_files/figure-html/species-1.png" class="r-plt" width="576"></p>
+<p><img src="phylospatial-data_files/figure-html/species-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
