@@ -2,8 +2,12 @@
 
 ## phylospatial (development version)
 
-- [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
-  has been optimized (~10x speedup).
+- Refactored
+  [`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md),
+  [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md),
+  and
+  [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+  to optimize compute speed (~10x speedup).
 
 ## phylospatial 1.2.0
 

@@ -11,6 +11,7 @@
 <url><loc>https://matthewkling.github.io/phylospatial/index.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/news/index.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/benefit.html</loc></url>
+<url><loc>https://matthewkling.github.io/phylospatial/reference/build_tree_ranges_fast.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/clade_dist.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/index.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/moss.html</loc></url>
@@ -18,6 +19,7 @@
 <url><loc>https://matthewkling.github.io/phylospatial/reference/phylospatial.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/plot.phylospatial.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/plot_lambda.html</loc></url>
+<url><loc>https://matthewkling.github.io/phylospatial/reference/precompute_descendants.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_add_dissim.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_canape.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_canaper.html</loc></url>
