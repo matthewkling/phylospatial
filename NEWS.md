@@ -1,5 +1,7 @@
 # phylospatial (development version)
 
+* `ps_prioritize()` has been optimized (~10x speedup).
+
 # phylospatial 1.2.0
 
 * CRAN compliance: fixed vignette builds to conditionally load suggested package 'tmap'.

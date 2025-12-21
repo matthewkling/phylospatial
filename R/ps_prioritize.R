@@ -1,4 +1,3 @@
-
 #' Calculate taxon conservation benefit
 #'
 #' Nonlinear function that converts proportion of range conserved into conservation "benefit."
@@ -179,7 +178,6 @@ ps_prioritize <- function(ps,
                             all(is.finite(cost[a])) & min(cost[a]) >= 0)
       }
 
-
       n_poss <- sum(a & p < 1)
 
       y <- rep(NA, n_sites) # prioritization rankings
@@ -191,35 +189,80 @@ ps_prioritize <- function(ps,
       cost <- cost[a]
 
       n_iter <- ifelse(is.null(max_iter), n_ranks, min(max_iter, n_ranks))
+      n_sites_a <- sum(a)
+
+      # Pre-compute lambda transformation for benefit function
+      lambda_t <- 2^lambda
+      inv_lambda_t <- 1 / lambda_t
+
+      # Inline benefit function for speed
+      benefit_fast <- function(x) {
+            (1 - (1 - pmin(x, 1))^lambda_t)^inv_lambda_t
+      }
 
       ranks <- function(y, progress = TRUE){
+            p_local <- p
+            r_local <- r
 
-            if(progress) pb <- utils::txtProgressBar(min = 0, max = sum(rowSums(m, na.rm = TRUE) > 0),
+            if(progress) pb <- utils::txtProgressBar(min = 0, max = n_iter,
                                                      initial = 0, style = 3)
             for(i in 1:n_iter){
                   if(progress) utils::setTxtProgressBar(pb, i)
 
-                  # value of current reserve network iteration
-                  b <- apply(m, 2, function(x) sum(x * p)) # range protection
-                  v <- sum(e * benefit(b, lambda))
+                  # Range protection: vectorized with colSums
+                  b <- colSums(m * p_local)
 
-                  # marginal value of protecting each cell
-                  mp <- pmax(0, (protection - p)) # marginal protection boost
-                  u <- apply(m, 2, function(x) x * mp) # unprotected value per taxon*cell
-                  mv <- apply(u, 1, function(x) sum(e * benefit(x + b, lambda))) - v
-                  mv <- mv / cost
-                  if(sum(mv) == 0) break()
+                  # Current network value
+                  ben_b <- benefit_fast(b)
+                  v <- sum(e * ben_b)
 
-                  # identify and protect optimal site
-                  if(method == "optimal") o <- which(mv == max(mv, na.rm = TRUE)) # identify optimal site(s)
-                  if(method == "probable") o <- sample(1:length(mv), 1, prob = trans(mv))
-                  if(length(o) > 1) o <- sample(o, 1) # random tiebreaker
-                  if(mv[o] == 0) break()
-                  p[o] <- protection # protect site
-                  r[o] <- i # record ranking
+                  # Marginal protection boost
+                  mp <- protection - p_local
+                  mp[mp < 0] <- 0
+
+                  # Find sites that can still be protected
+                  active <- which(mp > 0)
+                  if(length(active) == 0) break()
+
+                  # Compute marginal values for active sites only
+                  m_active <- m[active, , drop = FALSE]
+                  mp_active <- mp[active]
+                  cost_active <- cost[active]
+
+                  # u_plus_b[i,j] = m_active[i,j] * mp_active[i] + b[j]
+                  u_plus_b <- t(t(m_active * mp_active) + b)
+
+                  # Apply benefit and compute marginal values via matrix multiplication
+                  ben_mat <- benefit_fast(u_plus_b)
+                  mv_active <- (as.vector(ben_mat %*% e) - v) / cost_active
+
+                  # Map back to full vector
+                  mv <- rep(-Inf, n_sites_a)
+                  mv[active] <- mv_active
+
+                  max_mv <- max(mv_active, na.rm = TRUE)
+                  if(max_mv <= 0 || !is.finite(max_mv)) break()
+
+                  # Identify and protect optimal site
+                  if(method == "optimal"){
+                        o <- which.max(mv)
+                        # Tie-breaking (rare)
+                        ties <- which(mv == mv[o])
+                        if(length(ties) > 1) o <- sample(ties, 1)
+                  }
+                  if(method == "probable"){
+                        probs <- trans(mv)
+                        probs[!is.finite(probs) | probs < 0] <- 0
+                        if(sum(probs) == 0) break()
+                        o <- sample.int(length(mv), 1, prob = probs)
+                  }
+
+                  if(mv[o] <= 0) break()
+                  p_local[o] <- protection # protect site
+                  r_local[o] <- i # record ranking
             }
             if(progress) close(pb)
-            y[a] <- r
+            y[a] <- r_local
             return(y)
       }
 
@@ -258,9 +301,9 @@ ps_prioritize <- function(ps,
 
                   prob <- c(.05, .25, .5, .75, .95)
                   ym <- t(apply(ym, 1, function(x) c(mean(x),
-                                                      as.vector(stats::quantile(x, prob, na.rm = TRUE)),
-                                                      sapply(top, function(q) mean(x <= q, na.rm = TRUE)),
-                                                      sapply(top, function(q) mean(x <= q, na.rm = TRUE) / q * n_poss ))))
+                                                     as.vector(stats::quantile(x, prob, na.rm = TRUE)),
+                                                     sapply(top, function(q) mean(x <= q, na.rm = TRUE)),
+                                                     sapply(top, function(q) mean(x <= q, na.rm = TRUE) / q * n_poss ))))
                   colnames(ym) <- c("priority",
                                     paste0("pct", prob*100),
                                     paste0("top", top),
