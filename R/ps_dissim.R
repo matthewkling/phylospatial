@@ -61,10 +61,25 @@ ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", 
                       endemism = FALSE, normalize = FALSE, ...){
       enforce_ps(ps)
       comm <- ps$comm
-      if(endemism) comm <- apply(comm, 2, function(x) x / sum(x, na.rm = TRUE))
-      if(normalize) comm <- t(apply(comm, 1, function(x) x / sum(x, na.rm = TRUE)))
+
+      # Vectorized endemism: divide each column by its sum
+      if (endemism) {
+            col_sums <- colSums(comm, na.rm = TRUE)
+            col_sums[col_sums == 0] <- 1  # avoid division by zero
+            comm <- t(t(comm) / col_sums)  # vectorized column division
+      }
+
+      # Vectorized normalize: divide each row by its sum
+      if (normalize) {
+            row_sums <- rowSums(comm, na.rm = TRUE)
+            row_sums[row_sums == 0] <- 1
+            comm <- comm / row_sums
+      }
+
       comm[!is.finite(comm)] <- 0
-      comm <- t(apply(comm, 1, function(x) x * ps$tree$edge.length)) # scale by branch length
+
+      # Vectorized branch length scaling: multiply each row by edge.length
+      comm <- t(t(comm) * ps$tree$edge.length)
 
       fun <- switch(match.arg(fun),
                     "vegdist" = vegan::vegdist,
