@@ -70,7 +70,7 @@
 <a class="anchor" aria-label="anchor" href="#phylospatial-"></a>
 </h1>
 </div>
-<p><code>phylospatial</code> is an R package for spatial phylogenetic diversity analysis. The field of spatial phylogenetics focuses on accounting for evolutionary relationships among taxa when describing biodiversity patterns, an approach that has a number of advantages over species-based accounting. This package provides a set of functions to build and analyze phylospatial data:</p>
+<p><code>phylospatial</code> is an R package for spatial phylogenetic diversity analysis—accounting for evolutionary relationships among taxa when describing biodiversity patterns. The package provides functions for building and analyzing phylospatial data:</p>
 <ul>
 <li>
 <code><a href="reference/phylospatial.html">phylospatial()</a></code> constructs a spatial phylogenetic data set from community data and a tree.</li>
@@ -87,7 +87,7 @@
 <li>
 <code><a href="reference/ps_prioritize.html">ps_prioritize()</a></code> performs a spatial optimization to identify conservation priorities.</li>
 </ul>
-<p>A key difference between <code>phylospatial</code> and other spatial phylogenetic R libraries is that all functions in this package work not only with binary presence-absence data but also with quantitative community data types including occurrence probabilities or abundances. In particular, support for occurrence probabilities, such as from species distribution models, has not been implemented in other phylogenetic diversity tools and was a central motivation for the creation of this package. Probability, abundance, and binary data are incorporated in distinct ways in all computations throughout the package, avoiding the need to discard information by thresholding continuous data.</p>
+<p>A key feature of <code>phylospatial</code> is full support for quantitative community data, including occurrence probabilities (e.g., from species distribution models) and abundances, in addition to binary presence-absence data. This avoids information loss from thresholding continuous data, and enables new analyses not available in other spatial phylogenetic R packages.</p>
 <div class="section level2">
 <h2 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
 </h2>
@@ -111,6 +111,16 @@
 <span></span>
 <span><span class="co"># or the development version from GitHub:</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"matthewkling/phylospatial"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://matthewkling.github.io/phylospatial/">phylospatial</a></span><span class="op">)</span></span>
+<span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/moss.html">moss</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># load example data</span></span>
+<span><span class="va">div</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ps_diversity.html">ps_diversity</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="co"># calculate diversity metrics</span></span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">div</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-1.png" width="50%"></p>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
@@ -158,6 +168,7 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://github.com/matthewkling/phylospatial/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/matthewkling/phylospatial/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://CRAN.R-project.org/package=phylospatial" class="external-link"><img src="https://www.r-pkg.org/badges/version/phylospatial" alt="CRAN status"></a></li>
 </ul>
 </div>
 

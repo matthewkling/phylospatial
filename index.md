@@ -1,11 +1,9 @@
 # phylospatial
 
 `phylospatial` is an R package for spatial phylogenetic diversity
-analysis. The field of spatial phylogenetics focuses on accounting for
-evolutionary relationships among taxa when describing biodiversity
-patterns, an approach that has a number of advantages over species-based
-accounting. This package provides a set of functions to build and
-analyze phylospatial data:
+analysis—accounting for evolutionary relationships among taxa when
+describing biodiversity patterns. The package provides functions for
+building and analyzing phylospatial data:
 
 - [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
   constructs a spatial phylogenetic data set from community data and a
@@ -25,16 +23,12 @@ analyze phylospatial data:
 - [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
   performs a spatial optimization to identify conservation priorities.
 
-A key difference between `phylospatial` and other spatial phylogenetic R
-libraries is that all functions in this package work not only with
-binary presence-absence data but also with quantitative community data
-types including occurrence probabilities or abundances. In particular,
-support for occurrence probabilities, such as from species distribution
-models, has not been implemented in other phylogenetic diversity tools
-and was a central motivation for the creation of this package.
-Probability, abundance, and binary data are incorporated in distinct
-ways in all computations throughout the package, avoiding the need to
-discard information by thresholding continuous data.
+A key feature of `phylospatial` is full support for quantitative
+community data, including occurrence probabilities (e.g., from species
+distribution models) and abundances, in addition to binary
+presence-absence data. This avoids information loss from thresholding
+continuous data, and enables new analyses not available in other spatial
+phylogenetic R packages.
 
 ## Vignettes
 
@@ -61,6 +55,17 @@ install.packages("phylospatial")
 # or the development version from GitHub:
 remotes::install_github("matthewkling/phylospatial")
 ```
+
+## Quick start
+
+``` r
+library(phylospatial)
+ps <- moss() # load example data
+div <- ps_diversity(ps) # calculate diversity metrics
+terra::plot(div)
+```
+
+![](reference/figures/README-example-1.png)
 
 ## Citation
 

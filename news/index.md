@@ -1,6 +1,6 @@
 # Changelog
 
-## phylospatial (development version)
+## phylospatial 1.2.1
 
 - [`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md),
   [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md),
@@ -9,8 +9,9 @@
   [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
   have been refactored to optimize compute speed (~2x to 20x speedup).
 
-- `ps_ordinate` now defaults to `method = "cmds"`, and has a bug fixed
-  in its `pca` method.
+- [`ps_ordinate()`](https://matthewkling.github.io/phylospatial/reference/ps_ordinate.md)
+  now defaults to `method = "cmds"`, and has a bug fixed in its `"pca"`
+  method.
 
 ## phylospatial 1.2.0
 
