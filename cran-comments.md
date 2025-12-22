@@ -1,28 +1,19 @@
 
-## Resubmission
+## R CMD check results
 
-This is a resubmission following the package's archival due to vignette build 
-issues. This version addresses all issues that led to archival and the previous
-submission rejection.
+0 errors | 0 warnings | 0 notes
 
-## Changes since archival
+## What's changed
 
-* Fixed vignette builds to conditionally use suggested packages (tmap, nullcat)
-* Vignettes now build successfully when suggested packages are unavailable
-* Added CI testing with _R_CHECK_DEPENDS_ONLY_=true to prevent future issues
-* Added nullcat (now on CRAN) to Suggests for stratified randomization functionality
+This is a patch release (1.2.1) with performance optimizations and minor bug fixes.
 
 ## Test environments
 
-* local: [your OS and R version]
+* local: macos, R version 4.3.0 (2023-04-21)
 * GitHub Actions (ubuntu-latest): R-devel, R-release, R-oldrel
 * GitHub Actions (windows-latest): R-release  
 * GitHub Actions (macos-latest): R-release
 * GitHub Actions with _R_CHECK_DEPENDS_ONLY_=true: R-release
-
-## R CMD check results
-
-0 errors | 0 warnings | 0 notes
 
 ## Reverse dependencies
 
