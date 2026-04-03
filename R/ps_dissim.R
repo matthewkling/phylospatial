@@ -25,6 +25,10 @@
 #' @param normalize Logical indicating whether community values should be divided by row totals (community sums) before
 #'    computing distances. If `TRUE`, dissimilarity is based on proportional community composition. Normalization is
 #'    applied after endemism.
+#' @param tips_only Logical indicating whether to compute dissimilarity using only terminal taxa (`TRUE`)
+#'    rather than the full phylogenetic community matrix (`FALSE`, the default). When `TRUE`, branch length
+#'    weighting is skipped and the result is a standard (non-phylogenetic) community dissimilarity.
+#'    Endemism and normalization options still apply.
 #' @param n_cores Integer controlling the computation backend. The default `NULL` uses `parallelDist` with
 #'    all available cores if installed, falling back to `vegan` otherwise. Setting `n_cores = 0` forces the
 #'    `vegan` backend. Setting `n_cores` to a positive integer uses `parallelDist` with that many threads
@@ -63,9 +67,12 @@
 #'
 #' @export
 ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", "chaodist"),
-                      endemism = FALSE, normalize = FALSE, n_cores = NULL, ...){
+                      endemism = FALSE, normalize = FALSE, tips_only = FALSE, n_cores = NULL, ...){
       enforce_ps(ps)
       comm <- ps$comm
+
+      # Optionally restrict to terminal taxa (non-phylogenetic dissimilarity)
+      if (tips_only) comm <- comm[, tip_indices(ps$tree), drop = FALSE]
 
       # Vectorized endemism: divide each column by its sum
       if (endemism) {
@@ -87,8 +94,10 @@ ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", 
       keep <- colSums(comm != 0, na.rm = TRUE) > 0
       comm <- comm[, keep, drop = FALSE]
 
-      # Vectorized branch length scaling: multiply each column by its edge.length
-      comm <- t(t(comm) * ps$tree$edge.length[keep])
+      # Branch length scaling (skip for tips-only non-phylogenetic distances)
+      if (!tips_only) {
+            comm <- t(t(comm) * ps$tree$edge.length[keep])
+      }
 
       # --- Determine computation strategy ---
       meth <- ifelse(method %in% c("sorensen", "sorensen_turnover", "sorensen_nestedness"),

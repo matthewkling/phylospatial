@@ -102,3 +102,10 @@ test_that("`ps_dissim` falls back gracefully for unsupported parallel methods", 
             "does not support")
       expect_s3_class(d, "dist")
 })
+
+test_that("`ps_dissim` tips-only matches `vegan::vegdist` on the raw tip matrix", {
+      ps <- ps_simulate(n_tips = 5, n_x = 5, n_y = 5, data_type = "prob")
+      d1 <- ps_dissim(ps, tips_only = TRUE, n_cores = 0)
+      d2 <- vegan::vegdist(ps_get_comm(ps, spatial = FALSE), method = "bray")
+      expect_equal(as.matrix(d1), as.matrix(d2))
+})
