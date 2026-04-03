@@ -1,6 +1,10 @@
-# phylospatial (development version)
+# phylospatial 1.3.0
 
 ## New features
+
+* `ps_dissim()` now computes distances much faster via `parallelDist` for relevant metrics, while falling back to `vegan` as needed. It also adds support for traditional non-phylogenetic species turnover metrics via a new `tips_only` option.
+
+* New helper function `ps_geodist()` computes pairwise geographic distances between sites.
  
 * The community matrix (`ps$comm`) now stores only occupied sites, improving speed and memory usage for datasets with many unoccupied cells. Speedups are proportional to the fraction of empty sites and affect all major functions, with `ps_dissim()` seeing the largest gains (~4x with 50% unoccupied cells) due to its quadratic scaling.
 
@@ -17,12 +21,6 @@
 * `to_spatial(ps$comm, ps$spatial)` no longer works directly. Use `ps_expand(ps, ps$comm, spatial = TRUE)` or `ps_get_comm(ps)` instead.
  
 * `ps_get_comm()` with `spatial = FALSE` returns an occupied-only matrix.
- 
-## Bug fixes
- 
-* `ps_dissim()` now excludes unoccupied sites before computing distances, fixing a previously undetected issue where all-zero rows inflated the distance matrix.
- 
-* `to_spatial()` now works correctly with `sf` polygon data when the `sf` package is loaded but not attached.
 
 # phylospatial 1.2.1
 
