@@ -12,7 +12,11 @@ to_spatial(m, template)
 
 - m:
 
-  Matrix or vector.
+  Matrix or vector with the same number of rows as sites in `template`.
+  Note that `ps$comm` contains only occupied sites and must be expanded
+  with
+  [`ps_expand()`](https://matthewkling.github.io/phylospatial/reference/ps_expand.md)
+  before passing to this function.
 
 - template:
 
@@ -29,7 +33,8 @@ with a variable for every column in `m`, depending on the data type of
 
 ``` r
 ps <- moss()
-to_spatial(ps$comm[, 1:5], ps$spatial)
+# ps$comm contains only occupied sites, so expand before converting:
+to_spatial(ps_expand(ps, ps$comm[, 1:5]), ps$spatial)
 #> class       : SpatRaster 
 #> size        : 36, 31, 5  (nrow, ncol, nlyr)
 #> resolution  : 30000, 30000  (x, y)

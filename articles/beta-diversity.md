@@ -56,7 +56,7 @@ data:
 ps <- ps_add_dissim(ps, method = "sorensen", endemism = TRUE, normalize = TRUE)
 ps
 #> `phylospatial` object
-#>   - 884 lineages across 1116 sites
+#>   - 884 lineages across 527 occupied sites (1116 total) 
 #>   - community data type: probability 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: sorensen

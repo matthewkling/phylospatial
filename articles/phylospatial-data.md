@@ -57,7 +57,7 @@ names(comm) <- tree$tip.label
 ps <- phylospatial(comm, tree)
 ps
 #> `phylospatial` object
-#>   - 8 lineages across 100 sites
+#>   - 8 lineages across 100 occupied sites (100 total) 
 #>   - community data type: probability 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: none
@@ -67,7 +67,7 @@ ps
 
 #### Phylogeny
 
-Our `phylospatial` object is a list with six elements. Let’s look at
+Our `phylospatial` object is a list with eight elements. Let’s look at
 each of these in turn, starting with the `tree`. This is the phylogeny
 we simulated, a tree of class `phylo` with 5 tips and 3 larger clades.
 Note that the branch lengths of the input tree are scaled to sum to 1.
@@ -77,7 +77,8 @@ function to view the tree.
 
 ``` r
 names(ps)
-#> [1] "comm"      "tree"      "spatial"   "data_type" "clade_fun" "dissim"
+#> [1] "comm"      "tree"      "spatial"   "occupied"  "n_sites"   "data_type"
+#> [7] "clade_fun" "dissim"
 
 ps$tree
 #> 
@@ -97,10 +98,14 @@ plot(ps, "tree")
 
 The other key component is `comm`, which is a `matrix` containing
 occurrence data. Although we supplied community data as a raster, it’s
-stored here as a matrix, with a row for each grid cell and a column for
-each taxon. Let’s take a look at the matrix. We can also `plot` the
-community data, which re-casts it as a spatial data set (a raster, in
-this case).
+stored here as a matrix, with a row for each *occupied* grid cell (i.e.,
+cells where at least one taxon occurs) and a column for each taxon.
+Unoccupied cells are excluded from the community matrix for performance;
+their indices can be recovered from `ps$occupied`, which records which
+rows in the original raster correspond to rows in `comm`. The total
+number of sites including unoccupied cells is stored in `ps$n_sites`.
+Let’s take a look at the matrix. We can also `plot` the community data,
+which re-casts it as a spatial data set (a raster, in this case).
 
 ``` r
 head(ps$comm)
@@ -155,11 +160,11 @@ your data set.
 
 #### Spatial data
 
-The `spatial` component is the last key piece of our phylospatial
-object. (The only other element we haven’t mentioned here is `dissim`,
-which is covered in the vignette on beta diversity.) The spatial
-component of the object contains spatial reference data on the
-geographic locations of the communities found in each row of the
+The `spatial` component and relted metadata are the last key pieces of
+our phylospatial object. (The only other element we haven’t mentioned
+here is `dissim`, which is covered in the vignette on beta diversity.)
+The spatial component of the object contains spatial reference data on
+the geographic locations of the communities found in each row of the
 community matrix.
 
 In this example, the spatial data is a raster layer inherited from the
@@ -168,6 +173,16 @@ data (points, lines, or polygons) as an `sf` object. If the spatial data
 is in raster, polygon, or line format, `phylospatial` will check that
 all features have equal area or length, which is an important assumption
 underlying various functions in the package.
+
+Two additional elements help manage the relationship between the
+community matrix and the spatial data. `ps$occupied` is an integer
+vector giving the row indices (in the original raster or data frame) of
+the occupied sites stored in `comm`. `ps$n_sites` is the total number of
+sites in the original data, including unoccupied cells. Functions that
+return spatial results (like
+[`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md))
+automatically expand occupied-only results back to the full spatial
+extent, inserting `NA` for unoccupied sites.
 
 Also note that spatial data isn’t required; community data provided as a
 matrix works just fine.

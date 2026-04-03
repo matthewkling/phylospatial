@@ -11,7 +11,7 @@ are a phylogenetic tree and an community data set."><meta property="og:image" co
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -125,28 +125,33 @@ other functions in the library assume that sites are equal area. This argument i
 <dd><p>Phylogeny of class <code>phylo</code></p></dd>
 
 <dt>"comm":</dt>
-<dd><p>Community matrix, including a column for every terminal taxon and every larger clade. Column order corresponds to tree edge order.</p></dd>
+<dd><p>Community matrix containing only occupied sites, including a column for every terminal taxon
+and every larger clade. Column order corresponds to tree edge order.</p></dd>
 
 <dt>"spatial":</dt>
-<dd><p>A <code>SpatRaster</code> or <code>sf</code> providing spatial coordinates for the rows in <code>comm</code>. May be missing if no spatial data was supplied.</p></dd>
+<dd><p>A <code>SpatRaster</code> or <code>sf</code> providing spatial coordinates for all sites (including unoccupied).
+May be missing if no spatial data was supplied.</p></dd>
+
+<dt>"occupied":</dt>
+<dd><p>Integer vector of row indices identifying which sites in the original data are occupied.</p></dd>
+
+<dt>"n_sites":</dt>
+<dd><p>Total number of sites in the original data, including unoccupied.</p></dd>
 
 <dt>"dissim":</dt>
-<dd><p>A community dissimilary matrix of class <code>dist</code> indicating pairwise phylogenetic dissimilarity between sites. Missing unless
-<code>ps_dissim(..., add = TRUE)</code> is called.</p></dd>
+<dd><p>A community dissimilarity matrix of class <code>dist</code> indicating pairwise phylogenetic dissimilarity
+between occupied sites. Missing unless <code><a href="ps_add_dissim.html">ps_add_dissim()</a></code> is called.</p></dd>
 
 
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function formats the input data as a <code>phylospatial</code> object. Beyond validating, cleaning, and restructing the data, the main operation
-it performs is to compute community occurrence data for every internal clade on the tree. For a given clade and site, community data for
-all the terminals in the clade are used to calculate the clade's occurrence value in the site. As described above, this calculation can
-happen in various ways, depending on what type of community data you have (e.g. binary, probability, or abundance) and how you want to
-summarize them. By default, the function tries to detect your <code>data_type</code> and use it to automatically select an appropriate summary
-function as described above, but you can override this by providing your own function to <code>clade_fun</code>.</p>
-<p>You can also disable construction of the clade community matrix columns altogether by setting <code>build = FALSE</code>). This is atypical, but you
-might want to use this option if you have your own distribution data data on all clades (e.g. from modeling occurrence probabilities for
-clades in addition to terminal species), or if your community data comes from a previously-constructed <code>phylospatial</code> object.</p>
+it performs is to compute community occurrence data for every internal clade on the tree.</p>
+<p>Unoccupied sites (rows where no taxon occurs) are automatically removed from the community matrix during construction to improve
+performance. The original site indices of occupied rows are stored in <code>ps$occupied</code>, and the total number of sites (including
+unoccupied) in <code>ps$n_sites</code>, enabling reconstruction of full-extent spatial outputs. Functions that return spatial results
+automatically expand occupied-only data back to the full spatial extent.</p>
     </div>
 
     <div class="section level2">
@@ -161,7 +166,7 @@ clades in addition to terminal species), or if your community data comes from a 
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Community data type detected: probability</span>
 <span class="r-in"><span><span class="va">ps</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> `phylospatial` object</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - 884 lineages across 1116 sites</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - 884 lineages across 527 occupied sites (1116 total) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - community data type: probability </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - spatial data class: SpatRaster </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - dissimilarity data: none </span>

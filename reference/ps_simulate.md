@@ -56,7 +56,7 @@ random radius and location. The spatial reference data is a SpatRaster.
 # using all the defaults
 ps_simulate()
 #> `phylospatial` object
-#>   - 18 lineages across 400 sites
+#>   - 18 lineages across 387 occupied sites (400 total) 
 #>   - community data type: probability 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: none 

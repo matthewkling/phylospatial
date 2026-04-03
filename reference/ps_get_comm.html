@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,8 +67,12 @@ if <code>FALSE</code>, a matrix is returned.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Either a <code>SpatRaster</code> with a layer for every taxon, or an <code>sf</code> data frame with a variable for every taxon,
-depending on which data type was used to create <code>ps</code>.</p>
+    <p>If <code>spatial = TRUE</code>, a <code>SpatRaster</code> or <code>sf</code> object with a
+layer/column for every taxon, with <code>NA</code> for unoccupied sites. If
+<code>spatial = FALSE</code>, a matrix containing only occupied sites (i.e.,
+with <code>nrow</code> equal to the number of occupied sites, not the total
+number of grid cells). Use <code><a href="ps_expand.html">ps_expand()</a></code> to expand an occupied-only
+matrix back to the full spatial extent if needed.</p>
     </div>
 
     <div class="section level2">
@@ -83,13 +87,13 @@ depending on which data type was used to create <code>ps</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 0, 20, 0, 20  (xmin, xmax, ymin, ymax)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. :  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> varnames    : t2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> varnames    : t7 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               t3 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               t10 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               t4 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       :        t2,       t10,        t4,        t5,        t7,       t9, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.000000, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 0.7257736, 0.8442026, 0.3792027, 0.1641224, 0.6686734, 0.645587, ... </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       :        t7,        t3,       t10,        t5,       t1,        t9, ... </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.000000, 0.0000000, ... </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 0.3300625, 0.8384584, 0.6874967, 0.7196742, 0.757916, 0.2147487, ... </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get distributions for all taxa, as a matrix</span></span></span>
 <span class="r-in"><span><span class="va">pcomm</span> <span class="op">&lt;-</span> <span class="fu">ps_get_comm</span><span class="op">(</span><span class="va">ps</span>, tips_only <span class="op">=</span> <span class="cn">FALSE</span>, spatial <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>

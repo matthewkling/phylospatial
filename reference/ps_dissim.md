@@ -24,6 +24,8 @@ ps_dissim(
   fun = c("vegdist", "designdist", "chaodist"),
   endemism = FALSE,
   normalize = FALSE,
+  tips_only = FALSE,
+  n_cores = NULL,
   ...
 )
 ```
@@ -77,6 +79,25 @@ ps_dissim(
   dissimilarity is based on proportional community composition.
   Normalization is applied after endemism.
 
+- tips_only:
+
+  Logical indicating whether to compute dissimilarity using only
+  terminal taxa (`TRUE`) rather than the full phylogenetic community
+  matrix (`FALSE`, the default). When `TRUE`, branch length weighting is
+  skipped and the result is a standard (non-phylogenetic) community
+  dissimilarity. Endemism and normalization options still apply.
+
+- n_cores:
+
+  Integer controlling the computation backend. The default `NULL` uses
+  `parallelDist` with all available cores if installed, falling back to
+  `vegan` otherwise. Setting `n_cores = 0` forces the `vegan` backend.
+  Setting `n_cores` to a positive integer uses `parallelDist` with that
+  many threads (requires `parallelDist` package). The `parallelDist`
+  backend is faster than `vegan` even single-threaded for supported
+  methods; unsupported methods (e.g. custom `designdist` formulas,
+  turnover decomposition) always fall back to `vegan` with a message.
+
 - ...:
 
   Additional arguments passed to `fun`.
@@ -116,6 +137,7 @@ d <- ps_dissim(ps)
 # (this is the Bray-Curtis formula, so it's equivalent to the prior example)
 d <- ps_dissim(ps, method = "(b+c)/(2*a+b+c)",
       fun = "designdist", terms = "minimum", abcd = TRUE)
+#> parallelDist does not support method '(b+c)/(2*a+b+c)'; falling back to vegan.
 
 # Alternative arguments can specify a wide range of dissimilarity measures;
 # here's endemism-weighted Jaccard's dissimilarity:

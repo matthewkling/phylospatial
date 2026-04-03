@@ -112,40 +112,46 @@ elements:
 
 - "comm"::
 
-  Community matrix, including a column for every terminal taxon and
-  every larger clade. Column order corresponds to tree edge order.
+  Community matrix containing only occupied sites, including a column
+  for every terminal taxon and every larger clade. Column order
+  corresponds to tree edge order.
 
 - "spatial"::
 
-  A `SpatRaster` or `sf` providing spatial coordinates for the rows in
-  `comm`. May be missing if no spatial data was supplied.
+  A `SpatRaster` or `sf` providing spatial coordinates for all sites
+  (including unoccupied). May be missing if no spatial data was
+  supplied.
+
+- "occupied"::
+
+  Integer vector of row indices identifying which sites in the original
+  data are occupied.
+
+- "n_sites"::
+
+  Total number of sites in the original data, including unoccupied.
 
 - "dissim"::
 
-  A community dissimilary matrix of class `dist` indicating pairwise
-  phylogenetic dissimilarity between sites. Missing unless
-  `ps_dissim(..., add = TRUE)` is called.
+  A community dissimilarity matrix of class `dist` indicating pairwise
+  phylogenetic dissimilarity between occupied sites. Missing unless
+  [`ps_add_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_add_dissim.md)
+  is called.
 
 ## Details
 
 This function formats the input data as a `phylospatial` object. Beyond
 validating, cleaning, and restructing the data, the main operation it
 performs is to compute community occurrence data for every internal
-clade on the tree. For a given clade and site, community data for all
-the terminals in the clade are used to calculate the clade's occurrence
-value in the site. As described above, this calculation can happen in
-various ways, depending on what type of community data you have (e.g.
-binary, probability, or abundance) and how you want to summarize them.
-By default, the function tries to detect your `data_type` and use it to
-automatically select an appropriate summary function as described above,
-but you can override this by providing your own function to `clade_fun`.
+clade on the tree.
 
-You can also disable construction of the clade community matrix columns
-altogether by setting `build = FALSE`). This is atypical, but you might
-want to use this option if you have your own distribution data data on
-all clades (e.g. from modeling occurrence probabilities for clades in
-addition to terminal species), or if your community data comes from a
-previously-constructed `phylospatial` object.
+Unoccupied sites (rows where no taxon occurs) are automatically removed
+from the community matrix during construction to improve performance.
+The original site indices of occupied rows are stored in `ps$occupied`,
+and the total number of sites (including unoccupied) in `ps$n_sites`,
+enabling reconstruction of full-extent spatial outputs. Functions that
+return spatial results automatically expand occupied-only data back to
+the full spatial extent.
 
 ## Examples
 
@@ -160,7 +166,7 @@ ps <- phylospatial(comm, tree)
 #> Community data type detected: probability
 ps
 #> `phylospatial` object
-#>   - 884 lineages across 1116 sites
+#>   - 884 lineages across 527 occupied sites (1116 total) 
 #>   - community data type: probability 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: none 

@@ -64,10 +64,16 @@
 
   Plot a `phylospatial` object
 
+- [`ps_geodist()`](https://matthewkling.github.io/phylospatial/reference/ps_geodist.md)
+  : Geographic distance between sites
+
 - [`ps_get_comm()`](https://matthewkling.github.io/phylospatial/reference/ps_get_comm.md)
   :
 
   Get `phylospatial` community data
+
+- [`ps_expand()`](https://matthewkling.github.io/phylospatial/reference/ps_expand.md)
+  : Expand occupied-only results to full spatial extent
 
 - [`to_spatial()`](https://matthewkling.github.io/phylospatial/reference/to_spatial.md)
   : Convert a site-by-variable matrix into a SpatRaster or sf object

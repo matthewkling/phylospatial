@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -131,7 +131,7 @@ data.) Then we pass them to <code><a href="../reference/phylospatial.html">phylo
 <span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/phylospatial.html">phylospatial</a></span><span class="op">(</span><span class="va">comm</span>, <span class="va">tree</span><span class="op">)</span></span>
 <span><span class="va">ps</span></span>
 <span><span class="co">#&gt; `phylospatial` object</span></span>
-<span><span class="co">#&gt;   - 8 lineages across 100 sites</span></span>
+<span><span class="co">#&gt;   - 8 lineages across 100 occupied sites (100 total) </span></span>
 <span><span class="co">#&gt;   - community data type: probability </span></span>
 <span><span class="co">#&gt;   - spatial data class: SpatRaster </span></span>
 <span><span class="co">#&gt;   - dissimilarity data: none</span></span></code></pre></div>
@@ -142,7 +142,7 @@ data.) Then we pass them to <code><a href="../reference/phylospatial.html">phylo
 <div class="section level4">
 <h4 id="phylogeny">Phylogeny<a class="anchor" aria-label="anchor" href="#phylogeny"></a>
 </h4>
-<p>Our <code>phylospatial</code> object is a list with six elements.
+<p>Our <code>phylospatial</code> object is a list with eight elements.
 Let’s look at each of these in turn, starting with the
 <code>tree</code>. This is the phylogeny we simulated, a tree of class
 <code>phylo</code> with 5 tips and 3 larger clades. Note that the branch
@@ -150,7 +150,8 @@ lengths of the input tree are scaled to sum to 1. We can use
 <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code> function to view the tree.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "comm"      "tree"      "spatial"   "data_type" "clade_fun" "dissim"</span></span>
+<span><span class="co">#&gt; [1] "comm"      "tree"      "spatial"   "occupied"  "n_sites"   "data_type"</span></span>
+<span><span class="co">#&gt; [7] "clade_fun" "dissim"</span></span>
 <span></span>
 <span><span class="va">ps</span><span class="op">$</span><span class="va">tree</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -170,9 +171,15 @@ lengths of the input tree are scaled to sum to 1. We can use
 <p>The other key component is <code>comm</code>, which is a
 <code>matrix</code> containing occurrence data. Although we supplied
 community data as a raster, it’s stored here as a matrix, with a row for
-each grid cell and a column for each taxon. Let’s take a look at the
-matrix. We can also <code>plot</code> the community data, which re-casts
-it as a spatial data set (a raster, in this case).</p>
+each <em>occupied</em> grid cell (i.e., cells where at least one taxon
+occurs) and a column for each taxon. Unoccupied cells are excluded from
+the community matrix for performance; their indices can be recovered
+from <code>ps$occupied</code>, which records which rows in the original
+raster correspond to rows in <code>comm</code>. The total number of
+sites including unoccupied cells is stored in <code>ps$n_sites</code>.
+Let’s take a look at the matrix. We can also <code>plot</code> the
+community data, which re-casts it as a spatial data set (a raster, in
+this case).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ps</span><span class="op">$</span><span class="va">comm</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         clade1    clade2        t5         t4    clade3          t3         t1</span></span>
@@ -223,12 +230,12 @@ to every terminal species in your data set.</p>
 <div class="section level4">
 <h4 id="spatial-data">Spatial data<a class="anchor" aria-label="anchor" href="#spatial-data"></a>
 </h4>
-<p>The <code>spatial</code> component is the last key piece of our
-phylospatial object. (The only other element we haven’t mentioned here
-is <code>dissim</code>, which is covered in the vignette on beta
-diversity.) The spatial component of the object contains spatial
-reference data on the geographic locations of the communities found in
-each row of the community matrix.</p>
+<p>The <code>spatial</code> component and relted metadata are the last
+key pieces of our phylospatial object. (The only other element we
+haven’t mentioned here is <code>dissim</code>, which is covered in the
+vignette on beta diversity.) The spatial component of the object
+contains spatial reference data on the geographic locations of the
+communities found in each row of the community matrix.</p>
 <p>In this example, the spatial data is a raster layer inherited from
 the <code>SpatRaster</code> data we supplied as our <code>comm</code>.
 You can also supply vector data (points, lines, or polygons) as an
@@ -236,6 +243,15 @@ You can also supply vector data (points, lines, or polygons) as an
 line format, <code>phylospatial</code> will check that all features have
 equal area or length, which is an important assumption underlying
 various functions in the package.</p>
+<p>Two additional elements help manage the relationship between the
+community matrix and the spatial data. <code>ps$occupied</code> is an
+integer vector giving the row indices (in the original raster or data
+frame) of the occupied sites stored in <code>comm</code>.
+<code>ps$n_sites</code> is the total number of sites in the original
+data, including unoccupied cells. Functions that return spatial results
+(like <code><a href="../reference/ps_diversity.html">ps_diversity()</a></code>) automatically expand occupied-only
+results back to the full spatial extent, inserting <code>NA</code> for
+unoccupied sites.</p>
 <p>Also note that spatial data isn’t required; community data provided
 as a matrix works just fine.</p>
 </div>

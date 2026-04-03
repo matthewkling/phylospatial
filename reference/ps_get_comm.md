@@ -27,9 +27,13 @@ ps_get_comm(ps, tips_only = TRUE, spatial = TRUE)
 
 ## Value
 
-Either a `SpatRaster` with a layer for every taxon, or an `sf` data
-frame with a variable for every taxon, depending on which data type was
-used to create `ps`.
+If `spatial = TRUE`, a `SpatRaster` or `sf` object with a layer/column
+for every taxon, with `NA` for unoccupied sites. If `spatial = FALSE`, a
+matrix containing only occupied sites (i.e., with `nrow` equal to the
+number of occupied sites, not the total number of grid cells). Use
+[`ps_expand()`](https://matthewkling.github.io/phylospatial/reference/ps_expand.md)
+to expand an occupied-only matrix back to the full spatial extent if
+needed.
 
 ## Examples
 
@@ -44,13 +48,13 @@ ps_get_comm(ps)
 #> extent      : 0, 20, 0, 20  (xmin, xmax, ymin, ymax)
 #> coord. ref. :  
 #> source(s)   : memory
-#> varnames    : t2 
+#> varnames    : t7 
+#>               t3 
 #>               t10 
-#>               t4 
 #>               ...
-#> names       :        t2,       t10,        t4,        t5,        t7,       t9, ... 
-#> min values  : 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.000000, ... 
-#> max values  : 0.7257736, 0.8442026, 0.3792027, 0.1641224, 0.6686734, 0.645587, ... 
+#> names       :        t7,        t3,       t10,        t5,       t1,        t9, ... 
+#> min values  : 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.000000, 0.0000000, ... 
+#> max values  : 0.3300625, 0.8384584, 0.6874967, 0.7196742, 0.757916, 0.2147487, ... 
 
 # get distributions for all taxa, as a matrix
 pcomm <- ps_get_comm(ps, tips_only = FALSE, spatial = FALSE)

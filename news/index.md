@@ -1,6 +1,52 @@
 # Changelog
 
+## phylospatial (development version)
+
+### New features
+
+- The community matrix (`ps$comm`) now stores only occupied sites,
+  improving speed and memory usage for datasets with many unoccupied
+  cells. Speedups are proportional to the fraction of empty sites and
+  affect all major functions, with
+  [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
+  seeing the largest gains (~4x with 50% unoccupied cells) due to its
+  quadratic scaling.
+
+- New fields `ps$occupied` and `ps$n_sites` track which rows in the
+  original data are occupied and the total site count, respectively.
+
+- New exported function
+  [`ps_expand()`](https://matthewkling.github.io/phylospatial/reference/ps_expand.md)
+  expands occupied-only results back to the full spatial extent with
+  `NA` for unoccupied sites.
+
+### Breaking changes
+
+- `nrow(ps$comm)` now equals the number of occupied sites, not total
+  cells. Use `ps$n_sites` for the total.
+
+- `ps$dissim` is now dimensioned to occupied sites only.
+
+- `to_spatial(ps$comm, ps$spatial)` no longer works directly. Use
+  `ps_expand(ps, ps$comm, spatial = TRUE)` or `ps_get_comm(ps)` instead.
+
+- [`ps_get_comm()`](https://matthewkling.github.io/phylospatial/reference/ps_get_comm.md)
+  with `spatial = FALSE` returns an occupied-only matrix.
+
+### Bug fixes
+
+- [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
+  now excludes unoccupied sites before computing distances, fixing a
+  previously undetected issue where all-zero rows inflated the distance
+  matrix.
+
+- [`to_spatial()`](https://matthewkling.github.io/phylospatial/reference/to_spatial.md)
+  now works correctly with `sf` polygon data when the `sf` package is
+  loaded but not attached.
+
 ## phylospatial 1.2.1
+
+CRAN release: 2025-12-23
 
 - [`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md),
   [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md),

@@ -19,7 +19,7 @@ ps_rgb or ps_regions, or used in a variety of statistical analyses."><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,6 +69,8 @@ on proportional differences in community composition. The results from this func
 <span>  fun <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vegdist"</span>, <span class="st">"designdist"</span>, <span class="st">"chaodist"</span><span class="op">)</span>,</span>
 <span>  endemism <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  normalize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  tips_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  n_cores <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -107,6 +109,22 @@ computing distances. If <code>TRUE</code>, dissimilarity is based on proportiona
 applied after endemism.</p></dd>
 
 
+<dt id="arg-tips-only">tips_only<a class="anchor" aria-label="anchor" href="#arg-tips-only"></a></dt>
+<dd><p>Logical indicating whether to compute dissimilarity using only terminal taxa (<code>TRUE</code>)
+rather than the full phylogenetic community matrix (<code>FALSE</code>, the default). When <code>TRUE</code>, branch length
+weighting is skipped and the result is a standard (non-phylogenetic) community dissimilarity.
+Endemism and normalization options still apply.</p></dd>
+
+
+<dt id="arg-n-cores">n_cores<a class="anchor" aria-label="anchor" href="#arg-n-cores"></a></dt>
+<dd><p>Integer controlling the computation backend. The default <code>NULL</code> uses <code>parallelDist</code> with
+all available cores if installed, falling back to <code>vegan</code> otherwise. Setting <code>n_cores = 0</code> forces the
+<code>vegan</code> backend. Setting <code>n_cores</code> to a positive integer uses <code>parallelDist</code> with that many threads
+(requires <code>parallelDist</code> package). The <code>parallelDist</code> backend is faster than <code>vegan</code> even single-threaded
+for supported methods; unsupported methods (e.g. custom <code>designdist</code> formulas, turnover decomposition)
+always fall back to <code>vegan</code> with a message.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments passed to <code>fun</code>.</p></dd>
 
@@ -142,6 +160,7 @@ Oikos, 125(12), 1719-1732.</p>
 <span class="r-in"><span><span class="co"># (this is the Bray-Curtis formula, so it's equivalent to the prior example)</span></span></span>
 <span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">ps_dissim</span><span class="op">(</span><span class="va">ps</span>, method <span class="op">=</span> <span class="st">"(b+c)/(2*a+b+c)"</span>,</span></span>
 <span class="r-in"><span>      fun <span class="op">=</span> <span class="st">"designdist"</span>, terms <span class="op">=</span> <span class="st">"minimum"</span>, abcd <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> parallelDist does not support method '(b+c)/(2*a+b+c)'; falling back to vegan.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Alternative arguments can specify a wide range of dissimilarity measures;</span></span></span>
 <span class="r-in"><span><span class="co"># here's endemism-weighted Jaccard's dissimilarity:</span></span></span>

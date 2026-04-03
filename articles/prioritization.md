@@ -69,9 +69,10 @@ of protecting different sites across the study area. Sites with high
 benefit-to-cost ratios are prioritized. For this example, we’ll just
 specify an arbitrary initial protection gradient from north to south and
 a cost gradient from east to west, though of course a real analysis
-would require actual data. For simplicity we’ll provide these as
-vectors, but we could also provide raster layers matching the `spatial`
-element of our data set.
+would require actual data. For simplicity we’ll provide these as vectors
+(with length equal to `ps$n_sites`, the total number of grid cells
+including unoccupied ones), but we could also provide raster layers
+matching the `spatial` element of our data set.
 
 First let’s load the libraries we’ll need, and initialize a
 `phylospatial` data set using the example data for California mosses.
@@ -85,8 +86,8 @@ values, and `cost` defining some hypothetical land cost data.
 library(phylospatial); library(tmap); library(magrittr)
 
 ps <- moss()
-init <- seq(1, 0, length.out = nrow(ps$comm))
-cost <- runif(nrow(ps$comm), 10, 1000)
+init <- seq(1, 0, length.out = ps$n_sites)
+cost <- runif(ps$n_sites, 10, 1000)
 ```
 
 Now we’ll pass those inputs to

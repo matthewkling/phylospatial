@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,9 @@
 
 
 <dl><dt id="arg-m">m<a class="anchor" aria-label="anchor" href="#arg-m"></a></dt>
-<dd><p>Matrix or vector.</p></dd>
+<dd><p>Matrix or vector with the same number of rows as sites in <code>template</code>. Note that
+<code>ps$comm</code> contains only occupied sites and must be expanded with <code><a href="ps_expand.html">ps_expand()</a></code> before
+passing to this function.</p></dd>
 
 
 <dt id="arg-template">template<a class="anchor" aria-label="anchor" href="#arg-template"></a></dt>
@@ -70,7 +72,8 @@ a variable for every column in <code>m</code>, depending on the data type of <co
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="moss.html">moss</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">to_spatial</span><span class="op">(</span><span class="va">ps</span><span class="op">$</span><span class="va">comm</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="va">ps</span><span class="op">$</span><span class="va">spatial</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># ps$comm contains only occupied sites, so expand before converting:</span></span></span>
+<span class="r-in"><span><span class="fu">to_spatial</span><span class="op">(</span><span class="fu"><a href="ps_expand.html">ps_expand</a></span><span class="op">(</span><span class="va">ps</span>, <span class="va">ps</span><span class="op">$</span><span class="va">comm</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span>, <span class="va">ps</span><span class="op">$</span><span class="va">spatial</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> size        : 36, 31, 5  (nrow, ncol, nlyr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 30000, 30000  (x, y)</span>
