@@ -39,24 +39,21 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="phylospatial-development-version">phylospatial (development version)<a class="anchor" aria-label="anchor" href="#phylospatial-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.3.0" id="phylospatial-130">phylospatial 1.3.0<a class="anchor" aria-label="anchor" href="#phylospatial-130"></a></h2>
 <div class="section level3">
-<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
-<ul><li><p>The community matrix (<code>ps$comm</code>) now stores only occupied sites, improving speed and memory usage for datasets with many unoccupied cells. Speedups are proportional to the fraction of empty sites and affect all major functions, with <code><a href="../reference/ps_dissim.html">ps_dissim()</a></code> seeing the largest gains (~4x with 50% unoccupied cells) due to its quadratic scaling.</p></li>
+<h3 id="new-features-1-3-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-3-0"></a></h3>
+<ul><li><p><code><a href="../reference/ps_dissim.html">ps_dissim()</a></code> now computes distances much faster via <code>parallelDist</code> for relevant metrics, while falling back to <code>vegan</code> as needed. It also adds support for traditional non-phylogenetic species turnover metrics via a new <code>tips_only</code> option.</p></li>
+<li><p>New helper function <code><a href="../reference/ps_geodist.html">ps_geodist()</a></code> computes pairwise geographic distances between sites.</p></li>
+<li><p>The community matrix (<code>ps$comm</code>) now stores only occupied sites, improving speed and memory usage for datasets with many unoccupied cells. Speedups are proportional to the fraction of empty sites and affect all major functions, with <code><a href="../reference/ps_dissim.html">ps_dissim()</a></code> seeing the largest gains (~4x with 50% unoccupied cells) due to its quadratic scaling.</p></li>
 <li><p>New fields <code>ps$occupied</code> and <code>ps$n_sites</code> track which rows in the original data are occupied and the total site count, respectively.</p></li>
 <li><p>New exported function <code><a href="../reference/ps_expand.html">ps_expand()</a></code> expands occupied-only results back to the full spatial extent with <code>NA</code> for unoccupied sites.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h3>
+<h3 id="breaking-changes-1-3-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-1-3-0"></a></h3>
 <ul><li><p><code>nrow(ps$comm)</code> now equals the number of occupied sites, not total cells. Use <code>ps$n_sites</code> for the total.</p></li>
 <li><p><code>ps$dissim</code> is now dimensioned to occupied sites only.</p></li>
 <li><p><code>to_spatial(ps$comm, ps$spatial)</code> no longer works directly. Use <code>ps_expand(ps, ps$comm, spatial = TRUE)</code> or <code>ps_get_comm(ps)</code> instead.</p></li>
 <li><p><code><a href="../reference/ps_get_comm.html">ps_get_comm()</a></code> with <code>spatial = FALSE</code> returns an occupied-only matrix.</p></li>
-</ul></div>
-<div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li><p><code><a href="../reference/ps_dissim.html">ps_dissim()</a></code> now excludes unoccupied sites before computing distances, fixing a previously undetected issue where all-zero rows inflated the distance matrix.</p></li>
-<li><p><code><a href="../reference/to_spatial.html">to_spatial()</a></code> now works correctly with <code>sf</code> polygon data when the <code>sf</code> package is loaded but not attached.</p></li>
 </ul></div>
 </div>
     <div class="section level2">
