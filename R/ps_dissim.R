@@ -1,4 +1,3 @@
-
 #' Quantitative phylogenetic dissimilarity
 #'
 #' This function calculates pairwise phylogenetic dissimilarity between communities. It works with both binary and
@@ -26,6 +25,12 @@
 #' @param normalize Logical indicating whether community values should be divided by row totals (community sums) before
 #'    computing distances. If `TRUE`, dissimilarity is based on proportional community composition. Normalization is
 #'    applied after endemism.
+#' @param n_cores Integer controlling the computation backend. The default `NULL` uses `parallelDist` with
+#'    all available cores if installed, falling back to `vegan` otherwise. Setting `n_cores = 0` forces the
+#'    `vegan` backend. Setting `n_cores` to a positive integer uses `parallelDist` with that many threads
+#'    (requires `parallelDist` package). The `parallelDist` backend is faster than `vegan` even single-threaded
+#'    for supported methods; unsupported methods (e.g. custom `designdist` formulas, turnover decomposition)
+#'    always fall back to `vegan` with a message.
 #' @param ... Additional arguments passed to \code{fun}.
 #' @seealso [ps_add_dissim()]
 #' @references
@@ -58,7 +63,7 @@
 #'
 #' @export
 ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", "chaodist"),
-                      endemism = FALSE, normalize = FALSE, ...){
+                      endemism = FALSE, normalize = FALSE, n_cores = NULL, ...){
       enforce_ps(ps)
       comm <- ps$comm
 
@@ -78,30 +83,99 @@ ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", 
 
       comm[!is.finite(comm)] <- 0
 
-      # Vectorized branch length scaling: multiply each row by edge.length
-      comm <- t(t(comm) * ps$tree$edge.length)
+      # Remove zero-variance columns (they don't affect distances but slow computation)
+      keep <- colSums(comm != 0, na.rm = TRUE) > 0
+      comm <- comm[, keep, drop = FALSE]
 
-      fun <- switch(match.arg(fun),
-                    "vegdist" = vegan::vegdist,
-                    "designdist" = vegan::designdist,
-                    "chaodist" = vegan::chaodist)
+      # Vectorized branch length scaling: multiply each column by its edge.length
+      comm <- t(t(comm) * ps$tree$edge.length[keep])
 
-      meth <- ifelse(method %in% c("sorensen", "sorensen_turnover", "sorensen_nestedness"), method, "other")
-      dist <- switch(meth,
-                     "sorensen" = suppressWarnings(
-                           vegan::vegdist(comm, method = "bray")),
-                     "sorensen_turnover" = suppressWarnings(
-                           vegan::designdist(comm, method = "pmin(b,c)/(a+pmin(b,c))",
-                                             terms = "minimum", abcd = TRUE)),
-                     "sorensen_nestedness" = suppressWarnings(
-                           vegan::vegdist(comm, method = "bray") -
+      # --- Determine computation strategy ---
+      meth <- ifelse(method %in% c("sorensen", "sorensen_turnover", "sorensen_nestedness"),
+                     method, "other")
+
+      # n_cores: NULL = auto (parallelDist if available), 0 = force vegan, 1+ = parallelDist with N threads
+      if (is.null(n_cores)) {
+            use_pardist <- requireNamespace("parallelDist", quietly = TRUE)
+            pd_threads <- NULL  # parallelDist default: all available
+      } else if (n_cores == 0) {
+            use_pardist <- FALSE
+            pd_threads <- NULL
+      } else {
+            use_pardist <- TRUE
+            pd_threads <- n_cores
+            if (!requireNamespace("parallelDist", quietly = TRUE)) {
+                  message("Package 'parallelDist' is required for n_cores >= 1; falling back to vegan.")
+                  use_pardist <- FALSE
+            }
+      }
+
+      if (use_pardist) {
+            # Map phylospatial/vegan method names to parallelDist equivalents
+            pd_method <- switch(meth,
+                                "sorensen" = "bray",
+                                "sorensen_turnover" = NA,
+                                "sorensen_nestedness" = "bray",  # compute total via parallelDist, turnover via vegan
+                                "other" = vegan_to_pardist(method))
+
+            if (is.na(pd_method)) {
+                  message("parallelDist does not support method '", method,
+                          "'; falling back to vegan.")
+                  use_pardist <- FALSE
+            }
+      }
+
+      # --- Compute distances ---
+      if (use_pardist) {
+            if (meth == "sorensen_nestedness") {
+                  dist_total <- parallelDist::parDist(comm, method = "bray", threads = pd_threads)
+                  dist_turn <- suppressWarnings(
+                        vegan::designdist(comm, method = "pmin(b,c)/(a+pmin(b,c))",
+                                          terms = "minimum", abcd = TRUE))
+                  dist <- dist_total - dist_turn
+            } else {
+                  dist <- parallelDist::parDist(comm, method = pd_method, threads = pd_threads)
+            }
+      } else {
+            fun <- switch(match.arg(fun),
+                          "vegdist" = vegan::vegdist,
+                          "designdist" = vegan::designdist,
+                          "chaodist" = vegan::chaodist)
+
+            dist <- switch(meth,
+                           "sorensen" = suppressWarnings(
+                                 vegan::vegdist(comm, method = "bray")),
+                           "sorensen_turnover" = suppressWarnings(
                                  vegan::designdist(comm, method = "pmin(b,c)/(a+pmin(b,c))",
                                                    terms = "minimum", abcd = TRUE)),
-                     "other" = suppressWarnings(
-                           fun(comm, method = method, ...)))
+                           "sorensen_nestedness" = suppressWarnings(
+                                 vegan::vegdist(comm, method = "bray") -
+                                       vegan::designdist(comm, method = "pmin(b,c)/(a+pmin(b,c))",
+                                                         terms = "minimum", abcd = TRUE)),
+                           "other" = suppressWarnings(
+                                 fun(comm, method = method, ...)))
+      }
 
       return(dist)
 }
+
+
+# Map vegan vegdist method names to parallelDist equivalents.
+# Returns NA if no equivalent exists.
+vegan_to_pardist <- function(method) {
+      mapping <- c(
+            "bray"      = "bray",
+            "jaccard"   = "fJaccard",
+            "euclidean" = "euclidean",
+            "canberra"  = "canberra",
+            "manhattan" = "manhattan",
+            "maximum"   = "maximum",
+            "binary"    = "binary",
+            "minkowski" = "minkowski"
+      )
+      unname(mapping[method])
+}
+
 
 #' Add community dissimilarity data to a `phylospatial` object
 #'
