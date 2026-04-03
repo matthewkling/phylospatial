@@ -1,3 +1,5 @@
+# phylospatial (development version)
+
 # phylospatial 1.2.1
 
 * `ps_diversity()`, `ps_rand()`, `ps_dissim()`, and `ps_prioritize()` have been refactored to optimize compute speed (~2x to 20x speedup).
