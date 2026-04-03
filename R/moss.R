@@ -23,13 +23,14 @@ moss <- function(format = "raster"){
       ps <- phylospatial(comm, tree, data_type = "probability", check = FALSE)
 
       if(format == "polygon"){
-            ps <- phylospatial(comm = ps$comm, tree = ps$tree,
-                               spatial = readRDS(system.file("extdata", "moss_polygons.rds",
-                                                             package = "phylospatial")),
+            # expand comm back to full grid to reconstruct with polygon spatial
+            comm_full <- ps_expand(ps, ps$comm, spatial = FALSE)
+            spatial_poly <- readRDS(system.file("extdata", "moss_polygons.rds",
+                                                package = "phylospatial"))
+            ps <- phylospatial(comm = comm_full, tree = ps$tree,
+                               spatial = spatial_poly,
                                build = FALSE, check = FALSE)
-            occ <- occupied(ps)
-            ps$comm <- ps$comm[occ,]
-            ps$spatial <- ps$spatial[occ,]
+            # constructor automatically trims to occupied sites
       }
 
       ps

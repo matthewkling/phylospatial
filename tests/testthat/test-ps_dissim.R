@@ -16,6 +16,8 @@ test_that("`ps_dissim()` matches `betapart::phylo.beta.pair()` when using binary
       ps_turn <- ps_dissim(ps, method = "sorensen_turnover")
       ps_nest <- ps_dissim(ps, method = "sorensen_nestedness")
 
+      # ps_get_comm(spatial=FALSE) returns occupied-only tip matrix,
+      # which matches the occupied-only dissim matrix from ps_dissim
       bp <- betapart::phylo.beta.pair(ps_get_comm(ps, spatial = FALSE), ps$tree)
 
       expect_equal(as.matrix(ps_total), as.matrix(bp$phylo.beta.sor))
@@ -44,4 +46,3 @@ test_that("equivalent ways to get quantitative Sorensen's do indeed match", {
       d2 <- suppressWarnings(vegan::vegdist(comm, method = "bray"))
       expect_equal(as.matrix(d1), as.matrix(d2))
 })
-

@@ -50,7 +50,7 @@ At every step of the iterative `ps_prioritize()` algorithm, the marginal value o
 
 In addition to the required spatial phylogenetic data set, there are two other optional data inputs that one might want to provide. The first is `init`, the location and effectiveness of existing protected areas. This can be binary data representing protected versus unprotected sites, or continuous data with values between 0 and 1 representing the degree of protection (for example, perhaps because a given spatial unit is only partially covered by protected land, or because land management in sites like national forests is only partly oriented toward biodiversity protection). During the conservation optimization, the protection level for newly protected sites is raised to 1 (or to an alternative level specified by the parameter `level`), with greater benefit resulting from sites with lower initial values.
 
-The second optional variable is `cost`, representing the relative cost of protecting different sites across the study area. Sites with high benefit-to-cost ratios are prioritized. For this example, we'll just specify an arbitrary initial protection gradient from north to south and a cost gradient from east to west, though of course a real analysis would require actual data. For simplicity we'll provide these as vectors, but we could also provide raster layers matching the `spatial` element of our data set.
+The second optional variable is `cost`, representing the relative cost of protecting different sites across the study area. Sites with high benefit-to-cost ratios are prioritized. For this example, we'll just specify an arbitrary initial protection gradient from north to south and a cost gradient from east to west, though of course a real analysis would require actual data. For simplicity we'll provide these as vectors (with length equal to `ps$n_sites`, the total number of grid cells including unoccupied ones), but we could also provide raster layers matching the `spatial` element of our data set.
 
 First let's load the libraries we'll need, and initialize a `phylospatial` data set using the example data for California mosses. (See `vignette("phylospatial-data")` for details on constructing `phylospatial` objects.) We'll also create a variable called `init` specifying our (arbitrary) initial conservation values, and `cost` defining some hypothetical land cost data.
 
@@ -58,8 +58,8 @@ First let's load the libraries we'll need, and initialize a `phylospatial` data 
 library(phylospatial); library(tmap); library(magrittr)
 
 ps <- moss()
-init <- seq(1, 0, length.out = nrow(ps$comm))
-cost <- runif(nrow(ps$comm), 10, 1000)
+init <- seq(1, 0, length.out = ps$n_sites)
+cost <- runif(ps$n_sites, 10, 1000)
 ```
 
 Now we'll pass those inputs to `ps_prioritize()`. Plotting the result, the highest-priority sites are those with low rank values, shown in yellow.

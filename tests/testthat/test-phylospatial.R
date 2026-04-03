@@ -7,13 +7,15 @@ test_that("phylospatial function works on example data", {
 
       # test taxonomic reconciliation
       expect_warning(x <- phylospatial(ps_get_comm(ps)[, -3],
-                                   ape::drop.tip(ps$tree, 1)),
+                                       ape::drop.tip(ps$tree, 1)),
                      "Dropping")
 })
 
 test_that("taxa are not scrambled during data transformations", {
       ps <- ps_simulate()
-      comm <- ps_get_comm(ps, spatial = FALSE)
+      # ps_get_comm with spatial=FALSE returns occupied-only matrix;
+      # expand it back to full extent so it can round-trip through the constructor
+      comm <- ps_expand(ps, ps_get_comm(ps, spatial = FALSE))
 
       ps2 <- phylospatial(comm, ps$tree)
       comm2 <- ps_get_comm(ps2, spatial = FALSE)
@@ -24,7 +26,10 @@ test_that("taxa are not scrambled during data transformations", {
 
 test_that("disabling `build` works", {
       ps <- ps_simulate()
-      expect_no_error(phylospatial(ps_get_comm(ps, tips_only = FALSE, spatial = FALSE),
+      # build=FALSE expects a clade comm matching tree edges;
+      # ps$comm is already occupied-only, expand it for the constructor
+      comm_full <- ps_expand(ps, ps_get_comm(ps, tips_only = FALSE, spatial = FALSE))
+      expect_no_error(phylospatial(comm_full,
                                    ps$tree,
                                    build = FALSE))
 })

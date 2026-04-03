@@ -1,11 +1,13 @@
-
 # instantiate a new `phylospatial` object
-new_phylospatial <- function(comm, tree, spatial, dissim = NULL, data_type, clade_fun){
+new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
+                             dissim = NULL, data_type, clade_fun){
       stopifnot(inherits(tree, "phylo"))
       stopifnot(is.character(data_type))
       structure(list(comm = comm,
                      tree = tree,
                      spatial = spatial,
+                     occupied = occupied,
+                     n_sites = n_sites,
                      data_type = data_type,
                      clade_fun = clade_fun,
                      dissim = NULL),
@@ -34,37 +36,38 @@ new_phylospatial <- function(comm, tree, spatial, dissim = NULL, data_type, clad
 #' abundances for terminals in the clade in a site. If "auto," an attempt is made to guess which of these three data types was provided.
 #' This argument is ignored if `clade_fun` is provided, or if `build = FALSE`. If "other", a custom `clade_fun` must be supplied.
 #' @param clade_fun Function to calculate the local community weight for a clade based on community weights for tips found in a given location.
-#' Must be either NULL (the default, in which case the default function for the selected \code{data_type} is used) or a summary function that
+#' Must be either NULL (the default, in which case the default function for the selected `data_type` is used) or a summary function that
 #' takes a numeric vector and returns a single numeric output. Ignored if \code{comm} already includes clade ranges.
-#' @param build Logical indicating whether `comm` already includes clade ranges that should be used instead of building new ones.
-#' Default is `TRUE`. If `FALSE`, `clade_fun` is ignored, no checks are performed to harmonize the tip labels and the community data, and
-#' the columns of `comm` must exactly match the order of `tree` edges including tips and larger clades. If clade ranges are included in
-#' `comm` but `build = TRUE`, they will be dropped and new clade ranges will be built.
+#' @param build Logical indicating whether \code{comm} already includes clade ranges that should be used instead of building new ones.
+#'    Default is `TRUE`. If `FALSE`, `clade_fun` is ignored, no checks are performed to harmonize the tip labels and the community data, and
+#'    the columns of \code{comm} must exactly match the order of `tree` edges including tips and larger clades. If clade ranges are included in
+#'    `comm` but `build = TRUE`, they will be dropped and new clade ranges will be built.
 #' @param check Logical indicating whether community data should be validated. Default is TRUE.
 #' @param area_tol Numeric value giving tolerance for variation in the area of sites. Default is `0.01`. If the coefficient of variation in
-#' the area or length of spatial units (e.g. grid cells) exceeds this value, an error will result. This check is performed because various
-#' other functions in the library assume that sites are equal area. This argument is ignored if `check = FALSE` or if no spatial data is provided.
+#'    the area or length of spatial units (e.g. grid cells) exceeds this value, an error will result. This check is performed because various
+#'    other functions in the library assume that sites are equal area. This argument is ignored if `check = FALSE` or if no spatial data is provided.
 #'
 #' @details
 #' This function formats the input data as a `phylospatial` object. Beyond validating, cleaning, and restructing the data, the main operation
-#' it performs is to compute community occurrence data for every internal clade on the tree. For a given clade and site, community data for
-#' all the terminals in the clade are used to calculate the clade's occurrence value in the site. As described above, this calculation can
-#' happen in various ways, depending on what type of community data you have (e.g. binary, probability, or abundance) and how you want to
-#' summarize them. By default, the function tries to detect your `data_type` and use it to automatically select an appropriate summary
-#' function as described above, but you can override this by providing your own function to `clade_fun`.
+#' it performs is to compute community occurrence data for every internal clade on the tree.
 #'
-#' You can also disable construction of the clade community matrix columns altogether by setting `build = FALSE`). This is atypical, but you
-#' might want to use this option if you have your own distribution data data on all clades (e.g. from modeling occurrence probabilities for
-#' clades in addition to terminal species), or if your community data comes from a previously-constructed `phylospatial` object.
+#' Unoccupied sites (rows where no taxon occurs) are automatically removed from the community matrix during construction to improve
+#' performance. The original site indices of occupied rows are stored in `ps$occupied`, and the total number of sites (including
+#' unoccupied) in `ps$n_sites`, enabling reconstruction of full-extent spatial outputs. Functions that return spatial results
+#' automatically expand occupied-only data back to the full spatial extent.
 #'
 #' @return A `phylospatial` object, which is a list containing the following elements:
 #' \describe{
 #'  \item{"data_type":}{ Character indicating the community data type}
 #'  \item{"tree":}{ Phylogeny of class `phylo`}
-#'  \item{"comm":}{ Community matrix, including a column for every terminal taxon and every larger clade. Column order corresponds to tree edge order.}
-#'  \item{"spatial":}{ A `SpatRaster` or `sf` providing spatial coordinates for the rows in `comm`. May be missing if no spatial data was supplied.}
-#'  \item{"dissim":}{ A community dissimilary matrix of class `dist` indicating pairwise phylogenetic dissimilarity between sites. Missing unless
-#'  \code{ps_dissim(..., add = TRUE)} is called.}
+#'  \item{"comm":}{ Community matrix containing only occupied sites, including a column for every terminal taxon
+#'     and every larger clade. Column order corresponds to tree edge order.}
+#'  \item{"spatial":}{ A `SpatRaster` or `sf` providing spatial coordinates for all sites (including unoccupied).
+#'     May be missing if no spatial data was supplied.}
+#'  \item{"occupied":}{ Integer vector of row indices identifying which sites in the original data are occupied.}
+#'  \item{"n_sites":}{ Total number of sites in the original data, including unoccupied.}
+#'  \item{"dissim":}{ A community dissimilarity matrix of class `dist` indicating pairwise phylogenetic dissimilarity
+#'     between occupied sites. Missing unless \code{ps_add_dissim()} is called.}
 #' }
 #'
 #' @examples
@@ -170,12 +173,27 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
       tree$edge.length <- tree$edge.length / sum(tree$edge.length)
       tree <- ape::reorder.phylo(tree) # because methods like TMPD assume this ordering
 
+      # --- trim to occupied sites ---
+      n_sites <- nrow(comm)
+      occ <- which(rowSums(comm, na.rm = TRUE) > 0)
+
+      if(build){
+            # trim BEFORE building clade ranges for performance
+            comm <- comm[occ, , drop = FALSE]
+      }
+
       # build clade ranges
       if(data_type == "other" & !inherits(clade_fun, "function")) stop("If `data_type = 'other'`, `clade_fun` must be a custom function.")
       if(is.null(clade_fun)) clade_fun <- get_clade_fun(data_type)
       if(build) comm <- build_tree_ranges(tree, comm, clade_fun, data_type)
 
-      # create phylospatial object
-      new_phylospatial(comm, tree, spatial, dissim = NULL, data_type, clade_fun)
-}
+      if(!build){
+            # for pre-built comm matrices, trim AFTER (since columns already match edges)
+            comm <- comm[occ, , drop = FALSE]
+      }
 
+      # create phylospatial object
+      new_phylospatial(comm, tree, spatial,
+                       occupied = occ, n_sites = n_sites,
+                       dissim = NULL, data_type = data_type, clade_fun = clade_fun)
+}

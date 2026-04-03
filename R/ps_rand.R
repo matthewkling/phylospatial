@@ -85,14 +85,15 @@ ps_rand <- function(ps,
       tree <- ps$tree
       data_type <- ps$data_type
       clade_fun <- ps$clade_fun
-      a <- occupied(ps)
-      tip_comm <- ps_get_comm(ps, spatial = FALSE)[a, ]
+
+      # comm is already occupied-only; extract tip community matrix
+      tip_comm <- ps$comm[, tip_indices(tree)]
 
       # Precompute descendants for fast tree range building
       descendants <- precompute_descendants(tree)
 
-      # Observed diversity
-      div <- ps_diversity(ps, metric = metric, spatial = FALSE)[a, , drop = FALSE]
+      # Observed diversity (occupied-only, not expanded)
+      div <- ps_diversity_internal(ps, metric = metric)
 
       # Initialize results array
       rand <- array(NA_real_, c(nrow(div), ncol(div), n_rand + 1))
@@ -139,14 +140,15 @@ ps_rand <- function(ps,
                             "custom" = fx(tip_comm, ...)
             )
 
-            # Build clade ranges using precomputed descendants
-            comm_full <- build_tree_ranges_fast(tree, rcomm, data_type, descendants, clade_fun)
+            # Build clade ranges using precomputed descendants (already occupied-only)
+            comm_full <- build_tree_ranges(tree, rcomm, clade_fun, data_type, descendants = descendants)
 
             # Create lightweight phylospatial object (skip validation)
             rps <- list(comm = comm_full, tree = tree, data_type = data_type)
             class(rps) <- "phylospatial"
 
-            ps_diversity(rps, metric = metric, spatial = FALSE)
+            # compute diversity directly on occupied-only matrix
+            ps_diversity_internal(rps, metric = metric)
       }
 
       # --- RUN RANDOMIZATIONS ---
@@ -183,12 +185,15 @@ ps_rand <- function(ps,
             })
       }
 
-      qa <- matrix(NA, length(a), ncol(q))
-      qa[a, ] <- q
-      colnames(qa) <- paste0(substr(summary, 1, 1), metric)
+      colnames(q) <- paste0(substr(summary, 1, 1), metric)
 
-      if (spatial) qa <- to_spatial(qa, ps$spatial)
-      qa
+      # expand to full extent
+      if (spatial) {
+            q <- ps_expand(ps, q, spatial = TRUE)
+      } else {
+            q <- ps_expand(ps, q, spatial = FALSE)
+      }
+      q
 }
 
 # Return a vector of the binary null model options in vegan::commsim

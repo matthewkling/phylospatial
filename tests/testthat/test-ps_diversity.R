@@ -1,4 +1,3 @@
-
 # test_that("ps_diversity runs without error on example data", {
 #       skip_on_cran() # due to processing time
 #       expect_no_error(ps_diversity(moss(), "all"))
@@ -42,31 +41,23 @@ test_that("diversity measures match `adiv::evodiv()` and `hillR::hill_phylo()` f
 
       requireNamespace("hillR", quietly = TRUE)
 
-      # # disabling adiv test because it fails mysteriously on GHA CI; add adiv to suggests if test is reinstated)
-      # requireNamespace("adiv", quietly = TRUE)
-
-
       # simulate data
       ps <- ps_simulate(data_type = "abundance")
-      occ <- occupied(ps)
 
-      # diversity metrics
-      div <- as.data.frame(ps_diversity(ps, spatial = FALSE, metric = c("ShPD", "SiPD")))[occ,]
-      # a <- as.data.frame(suppressWarnings(
-      #       adiv::evodiv(ps$tree,
-      #                    ps_get_comm(ps, tips_only = TRUE, spatial = FALSE)[occ,],
-      #                    method = c("Shannon", "Simpson"))))
+      # diversity metrics (ps_diversity with spatial=FALSE returns full-extent matrix)
+      div <- as.data.frame(ps_diversity(ps, spatial = FALSE, metric = c("ShPD", "SiPD")))
+      div <- div[ps$occupied, ]
+
+      # ps_get_comm with spatial=FALSE returns occupied-only matrix — use directly
+      tip_comm <- ps_get_comm(ps, tips_only = TRUE, spatial = FALSE)
+
       h <- data.frame(
-            Shannon = hillR::hill_phylo(ps_get_comm(ps, tips_only = TRUE, spatial = FALSE)[occ,],
-                                        ps$tree, q = 1),
-            Simpson = hillR::hill_phylo(ps_get_comm(ps, tips_only = TRUE, spatial = FALSE)[occ,],
-                                        ps$tree, q = 2))
+            Shannon = hillR::hill_phylo(tip_comm, ps$tree, q = 1),
+            Simpson = hillR::hill_phylo(tip_comm, ps$tree, q = 2))
 
       # test
       scl <- function(x) (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
-      # expect_equal(scl(div$SiPD), scl(a$Simpson))
       expect_equal(scl(div$SiPD), scl(h$Simpson))
-      # expect_equal(scl(div$ShPD), scl(a$Shannon))
       expect_equal(scl(div$ShPD), scl(log(h$Shannon))) # hillR's version is exp(entropy)
 })
 
@@ -76,12 +67,9 @@ test_that("MPD matches picante", {
       requireNamespace("picante", quietly = TRUE)
 
       ps <- ps_simulate(data_type = "binary")
-      expect_equal(picante::mpd(terra::values(ps_get_comm(ps)), ape::cophenetic.phylo(ps$tree)),
-                   as.vector(ps_diversity(ps, metric = "MPDT")))
-
-      # # skipping this test since it fails due to picante (problematically) averaging the entire distance matrix, including diagonals
-      # ps <- ps_simulate(data_type = "abundance")
-      # d1 <- picante::mpd(values(ps_get_comm(ps)), cophenetic.phylo(ps$tree), abundance.weighted = TRUE)
-      # d2 <- as.vector(ps_diversity(ps, metric = "MPDN"))
-      # expect_equal(d1, d2)
+      tip_comm <- ps_get_comm(ps, spatial = FALSE)  # occupied-only
+      colnames(tip_comm) <- ps$tree$tip.label
+      dis <- ape::cophenetic.phylo(ps$tree)
+      expect_equal(picante::mpd(tip_comm, dis),
+                   ps_diversity(ps, metric = "MPDT", spatial = FALSE)[ps$occupied, ])
 })

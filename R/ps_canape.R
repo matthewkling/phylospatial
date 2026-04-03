@@ -127,21 +127,20 @@ ps_canaper <- function(ps, null_model = "curveball", spatial = TRUE, ...){
       comm <- ps$comm[, tip_indices(phy)]
       colnames(comm) <- phy$tip.label
       rownames(comm) <- paste0("s", 1:nrow(comm))
-      cm <- comm[occupied(ps),]
 
-      r <- as.matrix(canaper::cpr_rand_test(cm, phy, null_model = null_model, ...))
+      r <- as.matrix(canaper::cpr_rand_test(comm, phy, null_model = null_model, ...))
 
-      ro <- matrix(NA, nrow(comm), ncol(r))
-      ro[occupied(ps), ] <- r
-      rownames(ro) <- rownames(comm)
-      colnames(ro) <- colnames(r)
-
-      ro <- canaper::cpr_classify_endem(as.data.frame(ro))
+      ro <- canaper::cpr_classify_endem(as.data.frame(r))
       ro$endem_type <- as.integer(factor(ro$endem_type,
                                          levels = c("not significant", "neo", "paleo", "mixed", "super"))) - 1
       ro <- as.matrix(ro)
 
-      if(spatial & !is.null(ps$spatial)) ro <- to_spatial(ro, ps$spatial)
+      # expand to full extent
+      if(spatial & !is.null(ps$spatial)){
+            ro <- ps_expand(ps, ro, spatial = TRUE)
+      } else {
+            ro <- ps_expand(ps, ro, spatial = FALSE)
+      }
       return(ro)
 }
 

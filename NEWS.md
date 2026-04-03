@@ -1,5 +1,29 @@
 # phylospatial (development version)
 
+## New features
+ 
+* The community matrix (`ps$comm`) now stores only occupied sites, improving speed and memory usage for datasets with many unoccupied cells. Speedups are proportional to the fraction of empty sites and affect all major functions, with `ps_dissim()` seeing the largest gains (~4x with 50% unoccupied cells) due to its quadratic scaling.
+
+* New fields `ps$occupied` and `ps$n_sites` track which rows in the original data are occupied and the total site count, respectively.
+ 
+* New exported function `ps_expand()` expands occupied-only results back to the full spatial extent with `NA` for unoccupied sites.
+ 
+## Breaking changes
+ 
+* `nrow(ps$comm)` now equals the number of occupied sites, not total cells. Use `ps$n_sites` for the total.
+ 
+* `ps$dissim` is now dimensioned to occupied sites only.
+ 
+* `to_spatial(ps$comm, ps$spatial)` no longer works directly. Use `ps_expand(ps, ps$comm, spatial = TRUE)` or `ps_get_comm(ps)` instead.
+ 
+* `ps_get_comm()` with `spatial = FALSE` returns an occupied-only matrix.
+ 
+## Bug fixes
+ 
+* `ps_dissim()` now excludes unoccupied sites before computing distances, fixing a previously undetected issue where all-zero rows inflated the distance matrix.
+ 
+* `to_spatial()` now works correctly with `sf` polygon data when the `sf` package is loaded but not attached.
+
 # phylospatial 1.2.1
 
 * `ps_diversity()`, `ps_rand()`, `ps_dissim()`, and `ps_prioritize()` have been refactored to optimize compute speed (~2x to 20x speedup).

@@ -26,11 +26,16 @@ ps_ordinate <- function(ps, method = c("cmds", "nmds", "pca"), k = 3, spatial = 
       method <- match.arg(method)
       enforce_ps(ps)
 
-      a <- occupied(ps) # sites with taxa
+      ord <- ps_ordinate_internal(ps, method = method, k = k)
 
+      # expand to full extent
+      ps_expand(ps, ord, spatial = spatial && !is.null(ps$spatial))
+}
+
+# Internal version returning occupied-only ordination matrix
+ps_ordinate_internal <- function(ps, method, k) {
       if(method == "pca") {
             comm <- t(t(ps$comm) * ps$tree$edge.length)
-            comm <- comm[a, ]
             # Remove zero-variance columns to avoid prcomp errors
             col_var <- apply(comm, 2, var, na.rm = TRUE)
             comm <- comm[, col_var > 0, drop = FALSE]
@@ -38,27 +43,20 @@ ps_ordinate <- function(ps, method = c("cmds", "nmds", "pca"), k = 3, spatial = 
       } else {
             stopifnot("Input data set contains no `dissim` data, which is required unless `method = 'pca'`; add it first using `ps_add_dissim()`." = !is.null(ps$dissim))
 
+            # dissim is already occupied-only, use directly
             d <- as.matrix(ps$dissim)
-            rownames(d) <- colnames(d) <- paste("cell", 1:ncol(d))
-            da <- d[a, a]
 
             # sites fully segregated by the 2 basal clades have Inf distance;
             # set distance to 2x max observed distance
-            da[is.infinite(da)] <- max(da[!is.infinite(da)]) * 2
+            d[is.infinite(d)] <- max(d[!is.infinite(d)]) * 2
 
             # ordinate
-            if(method == "cmds") ord <- stats::cmdscale(da, k = k)
-            if(method == "nmds") ord <- vegan::metaMDS(da, k = k, trace = 0)$points
+            if(method == "cmds") ord <- stats::cmdscale(d, k = k)
+            if(method == "nmds") ord <- vegan::metaMDS(stats::as.dist(d), k = k, trace = 0)$points
       }
 
-      # reinsert NA values
-      b <- replicate(k, a)
-      colnames(b) <- paste0("d", 1:k)
-      b[a,] <- ord
-      b[!a,] <- NA
-
-      if(spatial & !is.null(ps$spatial)) b <- to_spatial(b, ps$spatial)
-      return(b)
+      colnames(ord) <- paste0("d", 1:k)
+      ord
 }
 
 
@@ -86,16 +84,17 @@ ps_ordinate <- function(ps, method = c("cmds", "nmds", "pca"), k = 3, spatial = 
 #' @export
 ps_rgb <- function(ps, method = c("nmds", "cmds", "pca"), trans = identity, spatial = TRUE){
 
-      ord <- ps_ordinate(ps, method = method, k = 3, spatial = FALSE)
+      method <- match.arg(method)
+      enforce_ps(ps)
 
-      a <- occupied(ps)
+      # get occupied-only ordination directly
+      ord <- ps_ordinate_internal(ps, method = method, k = 3)
+
       rgb <- apply(ord, 2, function(x){
             x <- trans(x)
-            x[!a] <- NA
             (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
       })
 
       colnames(rgb) <- c("r", "g", "b")
-      if(spatial) rgb <- to_spatial(rgb, ps$spatial)
-      rgb
+      ps_expand(ps, rgb, spatial = spatial && !is.null(ps$spatial))
 }

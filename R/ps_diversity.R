@@ -74,13 +74,24 @@
 #' div <- ps_diversity(ps)
 #' terra::plot(div)
 #'
-#' @export
+##' @export
 ps_diversity <- function(ps, metric = c("PD", "PE", "CE", "RPE"), spatial = TRUE) {
 
       enforce_ps(ps)
       if (any(metric == "all")) metric <- metrics()
       match.arg(metric, metrics(), several.ok = TRUE)
 
+      d <- ps_diversity_internal(ps, metric = metric)
+
+      # expand to full extent and optionally spatialize
+      ps_expand(ps, d, spatial = spatial && !is.null(ps$spatial))
+}
+
+
+# Internal version of ps_diversity that returns occupied-only results (no expansion).
+# Used by ps_rand to avoid repeated expand/contract cycles in the inner loop,
+# and by ps_diversity itself as the core computation engine.
+ps_diversity_internal <- function(ps, metric) {
       tree <- ps$tree
       comm <- ps$comm
       L <- tree$edge.length
@@ -144,9 +155,6 @@ ps_diversity <- function(ps, metric = c("PD", "PE", "CE", "RPE"), spatial = TRUE
                              "VPDN" = apply(comm, 1, function(p) mpd_weighted(ndist, p, variance = TRUE))
             )
       }
-
-      d[!occupied(ps), ] <- NA
-      if (spatial) d <- to_spatial(d, ps$spatial)
       d
 }
 
@@ -158,69 +166,10 @@ metrics <- function() c("TD", "TE", "CD", "CE", "PD", "PE", "RPD", "RPE",
 
 # weighted mean (or variance) in pairwise distances
 mpd_weighted <- function(x, w, variance = FALSE){
-      # if(inherits(x, "phylo")) x <- ape::cophenetic.phylo(x)
       w <- outer(w, w)
       i <- upper.tri(w) & is.finite(x * w)
       w <- w[i]
       m <- sum(x[i] * w) / sum(w)
       if(variance) m <- sum(w * (x[i] - m)^2) / sum(w)
       m
-}
-
-
-# weighted mean nearest taxon/terminal distance
-# NB: works for binary and abundance data but NOT probability
-# (that would require a novel method computing probs of each tip being the nearest taxon, conditional on branch lengths and on joint occurrence probs across all tips)
-mntd_weighted <- function(x, w){
-      diag(x) <- NA
-      i <- which(w > 0)
-      if(length(i) < 2) return(NA)
-      w <- w[i]
-      x <- x[i, i, drop = FALSE]
-      x <- apply(x, 1, min, na.rm = TRUE)
-      sum(x * w) / sum(w)
-}
-
-
-#' Pairwise distances among clades or nodes
-#'
-#' This function runs `ape::dist.nodes()` with some additional filtering and sorting. By default,
-#' it returns distances between every pair of non-nested clades, i.e. every pair of collateral (non-lineal) nodes
-#' including terminals and internal nodes. Package `phytools` is required for this function.
-#'
-#' @param tree A phylogeny of class `"phylo"`.
-#' @param lineal Logical indicating whether to retain distances for pairs of nodes that are lineal ancestors/descendants.
-#'    If `FALSE` (the default), these are set to `NA`, retaining values only for node pairs that are collateral kin.
-#' @param edges Logical indicating whether to return a distance matrix with a row for every edge in `tree`.
-#'    If `TRUE` (the default), rows/columns of the result correspond to `tree$edge`. If `FALSE`, rows/columns
-#'    correspond to nodes as in `ape::dist.nodes()`.
-#' @return A matrix of pairwise distances between nodes.
-#' @examples
-#' if(requireNamespace("phytools", quietly = TRUE)){
-#'   clade_dist(ape::rtree(10))
-#' }
-#' @export
-clade_dist <- function(tree, lineal = FALSE, edges = TRUE){
-
-      # node distances
-      d <- ape::dist.nodes(tree)
-
-      # set distances between nodes and their descendants to NA
-      if(!lineal){
-            if(!requireNamespace("phytools", quietly = TRUE)){
-                  stop("Package `phytools` is required for function clade_dist with `lineal = FALSE`.")
-            }
-
-            d <- sapply(1:nrow(d), function(i) replace(d[i,], phytools::getDescendants(tree, i), NA))
-            d <- d * t(d/d)
-            diag(d) <- NA
-      }
-
-      # switch from node order to edge order, and exclude root node
-      if(edges){
-            d <- d[tree$edge[,2], tree$edge[,2]]
-            colnames(d) <- rownames(d)
-      }
-
-      return(d)
 }

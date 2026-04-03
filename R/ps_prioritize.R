@@ -158,38 +158,37 @@ ps_prioritize <- function(ps,
 
       e <- ps$tree$edge.length / sum(ps$tree$edge.length) # edges evolutionary value
 
-      a <- occupied(ps)
-      n_ranks <- sum(a)
-      n_sites <- nrow(ps$comm)
+      occ <- ps$occupied
+      n_occ <- nrow(ps$comm)
 
+      # extract init/cost values for occupied sites only
       if(is.null(init)){
-            p <- rep(0, n_sites)
+            p <- rep(0, n_occ)
       }else{
-            p <- init[] # p: initial protection
+            p_full <- init[]
+            p <- p_full[occ]
             stopifnot("`init` may not contain NA values, or values outside the 0-1 range, for sites that contain taxa." =
-                            all(is.finite(p[a])) & min(p[a]) >= 0 & max(p[a]) <= 1)
+                            all(is.finite(p)) & min(p) >= 0 & max(p) <= 1)
       }
 
       if(is.null(cost)){
-            cost <- rep(1, n_sites)
+            cost <- rep(1, n_occ)
       }else{
-            cost <- cost[]
+            cost_full <- cost[]
+            cost <- cost_full[occ]
             stopifnot("`cost` may only contain finite, nonnegative values for sites that contain taxa." =
-                            all(is.finite(cost[a])) & min(cost[a]) >= 0)
+                            all(is.finite(cost)) & min(cost) >= 0)
       }
 
-      n_poss <- sum(a & p < 1)
+      n_ranks <- n_occ
+      n_poss <- sum(p < 1)
 
-      y <- rep(NA, n_sites) # prioritization rankings
+      y <- rep(NA_real_, n_occ)  # prioritization rankings (occupied sites only)
       r <- rep(n_ranks, n_ranks)
 
       m <- apply(ps$comm, 2, function(x) x / sum(x, na.rm = TRUE)) # normalize to fraction of range
-      m <- m[a,]
-      p <- p[a]
-      cost <- cost[a]
 
       n_iter <- ifelse(is.null(max_iter), n_ranks, min(max_iter, n_ranks))
-      n_sites_a <- sum(a)
 
       # Pre-compute lambda transformation for benefit function
       lambda_t <- 2^lambda
@@ -217,106 +216,90 @@ ps_prioritize <- function(ps,
                   v <- sum(e * ben_b)
 
                   # Marginal protection boost
-                  mp <- protection - p_local
-                  mp[mp < 0] <- 0
+                  delta_p <- protection - p_local
+                  delta_p[delta_p <= 0] <- NA
 
-                  # Find sites that can still be protected
-                  active <- which(mp > 0)
-                  if(length(active) == 0) break()
+                  # Marginal value per site: the gain from protecting that site
+                  mv <- sapply(1:n_occ, function(j){
+                        if(is.na(delta_p[j])) return(NA)
+                        b_new <- b + m[j,] * delta_p[j]
+                        (sum(e * benefit_fast(b_new)) - v) / cost[j]
+                  })
 
-                  # Compute marginal values for active sites only
-                  m_active <- m[active, , drop = FALSE]
-                  mp_active <- mp[active]
-                  cost_active <- cost[active]
+                  if(all(is.na(mv))) break
 
-                  # u_plus_b[i,j] = m_active[i,j] * mp_active[i] + b[j]
-                  u_plus_b <- t(t(m_active * mp_active) + b)
-
-                  # Apply benefit and compute marginal values via matrix multiplication
-                  ben_mat <- benefit_fast(u_plus_b)
-                  mv_active <- (as.vector(ben_mat %*% e) - v) / cost_active
-
-                  # Map back to full vector
-                  mv <- rep(-Inf, n_sites_a)
-                  mv[active] <- mv_active
-
-                  max_mv <- max(mv_active, na.rm = TRUE)
-                  if(max_mv <= 0 || !is.finite(max_mv)) break()
-
-                  # Identify and protect optimal site
                   if(method == "optimal"){
-                        o <- which.max(mv)
-                        # Tie-breaking (rare)
-                        ties <- which(mv == mv[o])
-                        if(length(ties) > 1) o <- sample(ties, 1)
-                  }
-                  if(method == "probable"){
+                        sel <- which.max(mv)
+                  }else{
                         probs <- trans(mv)
-                        probs[!is.finite(probs) | probs < 0] <- 0
-                        if(sum(probs) == 0) break()
-                        o <- sample.int(length(mv), 1, prob = probs)
+                        probs[is.na(probs)] <- 0
+                        if(sum(probs) == 0) break
+                        sel <- sample(length(probs), 1, prob = probs)
                   }
 
-                  if(mv[o] <= 0) break()
-                  p_local[o] <- protection # protect site
-                  r_local[o] <- i # record ranking
+                  p_local[sel] <- protection
+                  y[sel] <- i
+                  r_local[sel] <- i
             }
             if(progress) close(pb)
-            y[a] <- r_local
             return(y)
       }
 
-
       if(method == "optimal"){
             y <- ranks(y, progress = progress)
-            ym <- matrix(y, ncol = 1)
-            colnames(ym) <- "priority"
-      }
-      if(method == "probable"){
+            result <- matrix(y, ncol = 1)
+            colnames(result) <- "priority"
+      }else{
+            # probabilistic: multiple reps
+            all_ranks <- matrix(NA, n_occ, n_reps)
             if(n_cores == 1){
-                  ym <- matrix(NA, length(y), n_reps)
-                  if(progress) pb <- utils::txtProgressBar(min = 0, max = n_reps, initial = 0, style = 3)
-                  for(i in 1:n_reps){
-                        if(progress) utils::setTxtProgressBar(pb, i)
-                        ym[, i] <- ranks(y, progress = FALSE)
+                  for(rep in 1:n_reps){
+                        all_ranks[, rep] <- ranks(y, progress = FALSE)
                   }
-                  if(progress) close(pb)
             }else{
                   if (!requireNamespace("furrr", quietly = TRUE)) {
                         stop("To use `n_cores` greater than 1, package `furrr` must be installed.", call. = FALSE)
                   }
+                  plan <- future::plan()
                   future::plan(future::multisession, workers = n_cores)
-                  ym <- furrr::future_map(1:n_reps,
-                                          function(i) ranks(y, progress = FALSE),
-                                          .progress = progress,
-                                          .options = furrr::furrr_options(seed = TRUE))
-                  future::plan(future::sequential)
-                  ym <- do.call("cbind", ym)
+                  rnd <- furrr::future_map(
+                        1:n_reps,
+                        function(i) ranks(y, progress = FALSE),
+                        .progress = progress,
+                        .options = furrr::furrr_options(seed = TRUE)
+                  )
+                  future::plan(plan)
+                  for(i in 1:n_reps) all_ranks[, i] <- rnd[[i]]
             }
 
-            # summarize ranks across reps
             if(summarize){
-                  top <- c(1, 5, 10, 25, 50, 100, 250, 500)
-                  top <- top[top <= n_poss & top <= n_iter]
+                  avg_rank <- rowMeans(all_ranks, na.rm = TRUE)
+                  result <- matrix(avg_rank, ncol = 1)
+                  colnames(result) <- "priority"
 
-                  prob <- c(.05, .25, .5, .75, .95)
-                  ym <- t(apply(ym, 1, function(x) c(mean(x),
-                                                     as.vector(stats::quantile(x, prob, na.rm = TRUE)),
-                                                     sapply(top, function(q) mean(x <= q, na.rm = TRUE)),
-                                                     sapply(top, function(q) mean(x <= q, na.rm = TRUE) / q * n_poss ))))
-                  colnames(ym) <- c("priority",
-                                    paste0("pct", prob*100),
-                                    paste0("top", top),
-                                    paste0("tre", top))
+                  # Add summary columns
+                  for(pct in c(5, 25, 50, 75, 95)){
+                        q <- apply(all_ranks, 1, stats::quantile, probs = pct/100, na.rm = TRUE)
+                        result <- cbind(result, q)
+                        colnames(result)[ncol(result)] <- paste0("pct", pct)
+                  }
+                  for(top_n in c(10, 25, 50)){
+                        top_prop <- rowMeans(all_ranks <= top_n, na.rm = TRUE)
+                        tre <- top_prop / (top_n / n_occ)
+                        result <- cbind(result, top_prop, tre)
+                        colnames(result)[(ncol(result)-1):ncol(result)] <- c(paste0("top", top_n), paste0("tre", top_n))
+                  }
             }else{
-                  colnames(ym) <- paste("soln", 1:ncol(ym))
+                  result <- all_ranks
             }
       }
 
-      # return prioritization
-      if(spatial){
-            return(to_spatial(ym, ps$spatial))
-      }else{
-            return(ym)
+      # expand to full extent
+      if(spatial & !is.null(ps$spatial)){
+            result <- ps_expand(ps, result, spatial = TRUE)
+      } else {
+            result <- ps_expand(ps, result, spatial = FALSE)
       }
+      result
 }
+

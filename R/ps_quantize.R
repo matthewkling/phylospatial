@@ -40,14 +40,19 @@ ps_quantize <- function(ps, ...) {
       }
 
       phy <- ps$tree
-      a <- occupied(ps)
-      tip_comm <- ps_get_comm(ps, spatial = FALSE)
+      # comm is already occupied-only; get tip community matrix
+      tip_comm <- ps$comm[, tip_indices(phy)]
+      colnames(tip_comm) <- phy$tip.label
 
-      tip_comm_rand <- quantize(tip_comm[a, ], ...)
-      tip_comm[] <- NA
-      tip_comm[a, ] <- tip_comm_rand
+      # randomize the occupied-only tip matrix
+      tip_comm_rand <- quantize(tip_comm, ...)
 
-      phylospatial(tip_comm, phy, check = FALSE,
+      # expand back to full extent for phylospatial constructor
+      tip_comm_full <- matrix(0, ps$n_sites, ncol(tip_comm_rand))
+      colnames(tip_comm_full) <- colnames(tip_comm_rand)
+      tip_comm_full[ps$occupied, ] <- tip_comm_rand
+
+      phylospatial(tip_comm_full, phy, check = FALSE,
                    data_type = ps$data_type,
                    clade_fun = ps$clade_fun,
                    spatial = ps$spatial)
@@ -84,11 +89,9 @@ ps_quantize <- function(ps, ...) {
 #' }
 #' }
 #' @export
-quantize <- function(x = NULL, ...){
-
-      if(!requireNamespace("nullcat", quietly = TRUE)){
-            stop("Package 'nullcat' is required for quantize", call. = FALSE)
+quantize <- function(x = NULL, ...) {
+      if (!requireNamespace("nullcat", quietly = TRUE)) {
+            stop("Package 'nullcat' is required for this function.", call. = FALSE)
       }
-
-      nullcat::quantize(x, ...)
+      nullcat::quantize(x = x, ...)
 }

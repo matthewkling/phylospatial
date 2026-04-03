@@ -7,7 +7,9 @@
 to_spatial(m, template)
 }
 \arguments{
-\item{m}{Matrix or vector.}
+\item{m}{Matrix or vector with the same number of rows as sites in \code{template}. Note that
+\code{ps$comm} contains only occupied sites and must be expanded with \code{ps_expand()} before
+passing to this function.}
 
 \item{template}{\code{SpatRaster} layer with number of cells equal to the number of rows in m,
 or \code{sf} data frame with same number of rows as m.}
@@ -21,5 +23,6 @@ Convert a site-by-variable matrix into a SpatRaster or sf object
 }
 \examples{
 ps <- moss()
-to_spatial(ps$comm[, 1:5], ps$spatial)
+# ps$comm contains only occupied sites, so expand before converting:
+to_spatial(ps_expand(ps, ps$comm[, 1:5]), ps$spatial)
 }

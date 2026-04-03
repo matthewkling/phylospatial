@@ -34,11 +34,8 @@ ps_regions <- function(ps, k = 5, method = "average", endemism = FALSE, normaliz
 
       enforce_ps(ps)
 
-      # sites with taxa
-      r <- a <- occupied(ps)
-
       if(method == "kmeans"){
-            comm <- ps$comm[a, ]
+            comm <- ps$comm   # already occupied-only
 
             # Vectorized endemism: divide each column by its sum
             if(endemism) {
@@ -65,21 +62,24 @@ ps_regions <- function(ps, k = 5, method = "average", endemism = FALSE, normaliz
 
             regions <- stats::kmeans(comm, k)$cluster
       }else{
-            stopifnot("Input data set contains no `dissim` data, which is required for methods other than `kmeans`; add it first using `ps_add_dissim()`." = !is.null(ps$dissim))
+            stopifnot("Input data set contains no `dissim` data, which is required for methods other than `kmeans`; add it first using `ps_add_dissim()`."
+                      = !is.null(ps$dissim))
+
+            # dissim is already occupied-only, use directly
             d <- as.matrix(ps$dissim)
             rownames(d) <- colnames(d) <- paste("cell", 1:ncol(d))
-            da <- d[a, a]
 
             # sites fully segregated by the 2 basal clades have Inf distance; replace with twice the max observed distance
-            da[is.infinite(da)] <- max(da[!is.infinite(da)]) * 2
-            da <- stats::as.dist(da)
+            d[is.infinite(d)] <- max(d[!is.infinite(d)]) * 2
+            d <- stats::as.dist(d)
 
-            clust <- stats::hclust(da, method = method)
+            clust <- stats::hclust(d, method = method)
             regions <- stats::cutree(clust, k)
       }
 
-      r[a] <- regions
-      r[!a] <- NA
+      # expand region labels to full extent
+      r <- rep(NA_integer_, ps$n_sites)
+      r[ps$occupied] <- regions
 
       if(!is.null(ps$spatial)){
             r <- matrix(r, ncol = 1)
@@ -88,7 +88,6 @@ ps_regions <- function(ps, k = 5, method = "average", endemism = FALSE, normaliz
       }else{
             return(r)
       }
-
 }
 
 
@@ -133,18 +132,25 @@ ps_regions_eval <- function(ps, k = 1:20, plot = TRUE, ...){
             stop("This function does not currently support `method = 'kmeans'`.")
       stopifnot("Input data set contains no `dissim` data, which is required; add it first using `ps_add_dissim()`." = !is.null(ps$dissim))
 
+      # dissim is already occupied-only
       d <- as.matrix(ps$dissim)^2
       diag(d) <- NA
       ss_tot <- sum(d, na.rm = TRUE)
-      n <- sum(occupied(ps))
+      n <- nrow(ps$comm)   # number of occupied sites
       k <- k[k <= n]
 
       # sum of squared variance explained
       sse <- rep(NA, length(k))
       for(i in 1:length(k)){
             kk <- k[i]
-            r <- ps_regions(ps, k = kk, ...)$phyloregion[]
-            sse[i] <- sum(sapply(1:kk, function(i) sum(d[r == i, r != i], na.rm = TRUE))) / ss_tot
+            # ps_regions returns full-extent vector; extract occupied-only region labels
+            r_full <- ps_regions(ps, k = kk, ...)
+            if(!is.null(ps$spatial)){
+                  r_occ <- r_full$phyloregion[][ps$occupied]
+            } else {
+                  r_occ <- r_full[ps$occupied]
+            }
+            sse[i] <- sum(sapply(1:kk, function(j) sum(d[r_occ == j, r_occ != j], na.rm = TRUE))) / ss_tot
       }
 
       # curvature of sse ~ k
@@ -174,5 +180,3 @@ ps_regions_eval <- function(ps, k = 1:20, plot = TRUE, ...){
             return(eval)
       }
 }
-
-

@@ -5,7 +5,8 @@
 #' @export
 print.phylospatial <- function(x, ...){
       cat("`phylospatial` object\n",
-          " -", ncol(x$comm), "lineages across", nrow(x$comm), "sites\n",
+          " -", ncol(x$comm), "lineages across", nrow(x$comm), "occupied sites",
+          paste0("(", x$n_sites, " total)"), "\n",
           " - community data type:", x$data_type, "\n",
           " - spatial data class:", class(x$spatial)[1], "\n",
           " - dissimilarity data:", ifelse(is.null(x$dissim), "none", x$dissim_method), "\n")

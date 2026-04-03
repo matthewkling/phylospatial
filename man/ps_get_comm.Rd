@@ -15,8 +15,12 @@ ps_get_comm(ps, tips_only = TRUE, spatial = TRUE)
 if \code{FALSE}, a matrix is returned.}
 }
 \value{
-Either a \code{SpatRaster} with a layer for every taxon, or an \code{sf} data frame with a variable for every taxon,
-depending on which data type was used to create \code{ps}.
+If \code{spatial = TRUE}, a \code{SpatRaster} or \code{sf} object with a
+layer/column for every taxon, with \code{NA} for unoccupied sites. If
+\code{spatial = FALSE}, a matrix containing only occupied sites (i.e.,
+with \code{nrow} equal to the number of occupied sites, not the total
+number of grid cells). Use \code{ps_expand()} to expand an occupied-only
+matrix back to the full spatial extent if needed.
 }
 \description{
 Get \code{phylospatial} community data
