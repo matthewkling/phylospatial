@@ -47,5 +47,7 @@ reference:
 - title: Utilities
 - contents:
   - plot.phylospatial
+  - ps_geodist
   - ps_get_comm
+  - ps_expand
   - to_spatial
