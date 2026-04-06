@@ -4,15 +4,23 @@
 \alias{ps_quantize}
 \title{Stratified randomization of a phylospatial object}
 \usage{
-ps_quantize(ps, ...)
+ps_quantize(ps, wt_row = NULL, wt_col = NULL, ...)
 }
 \arguments{
 \item{ps}{Object of class \code{phylospatial}}
 
-\item{...}{Additional arguments passed to \link[nullcat]{quantize}.}
+\item{wt_row, wt_col}{Optional square numeric weight matrices controlling which pairs of
+rows (sites) or columns (species) are likely to exchange values during randomization.
+Enables spatially constrained or functional-group constrained null models; e.g. a
+geographic distance decay matrix from \link{ps_geodist} can be transformed and used as
+\code{wt_row}. See \link[nullcat]{nullcat} for details. If left unspecified (the default),
+gives unweighted randomization.}
+
+\item{...}{Additional arguments passed to \link[nullcat]{quantize}, such as \code{method},
+\code{n_strata}, \code{transform}, \code{fixed}, \code{n_iter}, etc.}
 }
 \value{
-A rendomized version of \code{ps}
+A randomized version of \code{ps}
 }
 \description{
 Generates a randomized version of a phylospatial object by extracting the
@@ -35,8 +43,19 @@ recomputing overhead that is shared across randomizations.
 if (requireNamespace("nullcat", quietly = TRUE)) {
   ps <- ps_simulate(data_type = "prob")
   ps_rand <- ps_quantize(ps, n_strata = 4,
-    n_iter = 1000, # note: you'd want higher n_iter for a real analysis
+    n_iter = 1000,
     method = "curvecat", fixed = "cell")
+
+  # spatially constrained randomization
+  geo <- as.matrix(ps_geodist(ps))
+  W <- exp(-geo / median(geo))
+  ps_rand <- ps_quantize(ps, n_strata = 4,
+    n_iter = 1000,
+    method = "curvecat", fixed = "cell",
+    wt_row = W)
 }
 }
+}
+\seealso{
+\code{\link[=ps_rand]{ps_rand()}}, \code{\link[=ps_geodist]{ps_geodist()}}
 }

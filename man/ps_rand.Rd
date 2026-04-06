@@ -9,11 +9,14 @@ ps_rand(
   metric = c("PD", "PE", "RPE", "CE"),
   fun = "tip_shuffle",
   method = NULL,
+  n_iter = 1000,
   n_rand = 100,
   summary = "quantile",
   spatial = TRUE,
   n_cores = 1,
   progress = interactive(),
+  wt_row = NULL,
+  wt_col = NULL,
   ...
 )
 }
@@ -23,13 +26,18 @@ ps_rand(
 \item{metric}{Character vector giving one or more diversity metrics to calculate; see \link{ps_diversity}
 for options. Can also specify \code{"all"} to calculate all available metrics.}
 
-\item{fun}{Null model function to use. Must be either "tip_shuffle", "nullmodel", "quantize", or an actual function:
+\item{fun}{Null model function to use. Must be either "tip_shuffle", "nullmodel", "nullcat", "quantize",
+or an actual function:
 \itemize{
-\item "tip_shuffle" (the default): randomly shuffles the identities of terminal taxa
+\item "tip_shuffle" (the default): randomly shuffles the identities of terminal taxa.
 \item "nullmodel": uses \link[vegan]{nullmodel} and \link[vegan]{simulate.nullmodel}, from the vegan
 package, which offer a wide range of randomization algorithms with different properties.
+\item "nullcat": uses null model algorithms from the \link[nullcat]{nullcat} package. Only works
+with binary community data. This is the recommended path for binary data when mixing diagnostics
+(via \code{ps_suggest_n_iter()}) or spatial weights  (via \code{wt_row} or \code{wt_col}) are desired.
 \item "quantize": uses \link[nullcat]{quantize}, which converts a quantitative matrix to discrete strata,
 applies a categorical variant of the selected null model, and then maps randomized strata back to values.
+Only works with quantitative (probability or abundance) community data.
 \item Any other function that accepts a community matrix as its first argument and returns a
 randomized version of the matrix.
 }}
@@ -37,10 +45,19 @@ randomized version of the matrix.
 \item{method}{Method used by the selected function.
 \itemize{
 \item For \code{fun = "nullmodel"}, one of the method options listed under \link[vegan]{commsim}.
-Be sure to select a method that is appropriate to your community \code{data_type} (binary, quantitative, abundance),
-\item For \code{fun = "quantize"}, one of the categorical algorithms listed under \link[nullcat]{nullcat}.
+Be sure to select a method that is appropriate to your community \code{data_type} (binary, quantitative, abundance).
+\item For \code{fun = "nullcat"} or \code{fun = "quantize"}, one of the categorical algorithms listed
+under \link[nullcat]{nullcat_methods} (e.g. \code{"curvecat"}, \code{"swapcat"}).
 \item Ignored if \code{fun} is \code{"tip_shuffle"} or if it is a custom function.
 }}
+
+\item{n_iter}{Integer giving the number of swap iterations per randomized matrix. Controls
+how thoroughly each null matrix is mixed before sampling. Default is \code{1000}. Used with
+\code{fun = "nullcat"} (passed as \code{n_iter} to \link[nullcat]{nullcat}), \code{fun = "quantize"}
+(passed to \link[nullcat]{quantize_prep}), and \code{fun = "nullmodel"} with sequential
+methods like curveball (passed as \code{burnin} to \link[vegan]{simulate.nullmodel}; ignored
+for non-sequential vegan methods). Use \code{\link[=ps_suggest_n_iter]{ps_suggest_n_iter()}} to estimate an appropriate
+value for your dataset.}
 
 \item{n_rand}{Integer giving the number of random communities to generate.}
 
@@ -55,8 +72,15 @@ standard deviation of the randomizations.}
 
 \item{progress}{Logical: should a progress bar be displayed?}
 
-\item{...}{Additional arguments passed to \link[nullcat]{quantize}, \link[vegan]{simulate.nullmodel}, or custom function
-\code{fun}. Note that the \code{nsim} argument to simulate.nullmodel should not be used here; specify \code{n_rand} instead.}
+\item{wt_row, wt_col}{Optional square numeric weight matrices controlling which pairs of
+rows (sites) or columns (species) are likely to exchange values during randomization.
+Only used with \code{fun = "nullcat"} or \code{fun = "quantize"}. Enables spatially or
+trait-constrained null models; e.g. a geographic distance decay matrix from
+\link{ps_geodist} can be used as \code{wt_row}. See \link[nullcat]{nullcat} for details.}
+
+\item{...}{Additional arguments passed to the selected function: \link[nullcat]{quantize},
+\link[nullcat]{nullcat}, \link[vegan]{simulate.nullmodel}, or a custom function.
+Note that the \code{nsim} argument to simulate.nullmodel should not be used here; specify \code{n_rand} instead.}
 }
 \value{
 A matrix with a row for every row of \code{x}, a column for every metric specified in \code{metric}, and
@@ -74,9 +98,6 @@ binary, probability, and count data.
 ps <- ps_simulate(data_type = "prob")
 rand <- ps_rand(ps)
 
-# using the default `tip_shuffle` function, but with alternative arguments
-rand <- ps_rand(ps, transform = sqrt, n_strata = 4, priority = "rows")
-
 # using the `quantize` function with the `curvecat` algorithm
 if(requireNamespace("nullcat")){
     rand <- ps_rand(ps,
@@ -84,17 +105,29 @@ if(requireNamespace("nullcat")){
       transform = sqrt, n_strata = 4, fixed = "cell")
 }
 
-# using binary data, with a vegan `nullmodel` algorithm
+# binary data with nullcat's curvecat algorithm
 ps2 <- ps_simulate(data_type = "binary")
-rand <- ps_rand(ps2, fun = "nullmodel", method = "r2")
+if(requireNamespace("nullcat")){
+    rand <- ps_rand(ps2, fun = "nullcat", method = "curvecat", n_iter = 1000)
+}
 
-# using abundance data, and demonstrating alternative metric choices
+# spatially constrained randomization using geographic distance weights
+if(requireNamespace("nullcat")){
+    geo <- as.matrix(ps_geodist(ps2))
+    W <- exp(-geo / median(geo))
+    rand <- ps_rand(ps2, fun = "nullcat", method = "curvecat",
+                    n_iter = 1000, wt_row = W)
+}
+
+# using binary data, with a vegan `nullmodel` algorithm
+rand <- ps_rand(ps2, "PD", "nullmodel", "r2")
+
+# using abundance data
 ps3 <- ps_simulate(data_type = "abund")
 rand <- ps_rand(ps3, metric = c("ShPD", "SiPD"),
       fun = "nullmodel", method = "abuswap_c")
-rand
 }
 }
 \seealso{
-\code{\link[=ps_diversity]{ps_diversity()}}
+\code{\link[=ps_diversity]{ps_diversity()}}, \code{\link[=ps_geodist]{ps_geodist()}}
 }

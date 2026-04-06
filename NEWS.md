@@ -1,5 +1,13 @@
 # phylospatial (development version)
 
+* New functions `ps_suggest_n_iter()` and `ps_trace()` provide convergence diagnostics for null model randomizations, wrapping `nullcat::suggest_n_iter()` and `nullcat::trace_cat()` on the occupied-site tip community matrix.
+
+* `ps_rand()` and `ps_quantize()` now expose `wt_row` and `wt_col` as named parameters for spatially or functionally constrained null models. These accept weight matrices (e.g., a geographic distance decay matrix from `ps_geodist()`) that bias which pairs of sites or species exchange values during randomization.
+
+* `ps_rand()` gains a new `fun = "nullcat"` path for binary data. This is the recommended path for binary data when convergence diagnostics or spatial weights are desired.
+
+* `ps_rand()` now exposes `n_iter` as a named parameter controlling the number of swap iterations per null matrix. This is routed to `nullcat::nullcat()`, `nullcat::quantize_prep()`, or `vegan::simulate.nullmodel()` (as `burnin`) depending on the selected `fun`. The default of 1000 fixes a pre-existing issue where the vegan sequential path used only 1 iteration per matrix by default.
+
 # phylospatial 1.3.0
 
 ## New features

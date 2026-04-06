@@ -26,6 +26,8 @@ reference:
 - contents:
   - ps_diversity
   - ps_rand
+  - ps_suggest_n_iter
+  - ps_trace
   - ps_quantize
   - quantize
   - ps_canape

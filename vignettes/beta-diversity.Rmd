@@ -33,24 +33,57 @@ ps <- moss()
 
 ## Dissimilarity
 
-This package provides a range of methods for calculating pairwise community phylogenetic distances among locations. It can calculate phylogenetic versions of any quantitative community dissimilarity metric available trough the `vegan` package, including the various predefined indices provided through `vegan::vegdist` as well as custom indices specified through `vegan::designdist`. The default metric is Bray-Curtis distance, also known as quantitative Sorensen's dissimilarity. Additional choices allow for partitioning dissimilarity in to turnover and nestedness components. 
+The `phylospatial` package provides a range of methods for calculating pairwise community phylogenetic distances among locations. It can calculate phylogenetic versions of any quantitative community dissimilarity metric available trough the `vegan` package, including the various predefined indices provided through `vegan::vegdist` as well as custom indices specified through `vegan::designdist`. The default metric is Bray-Curtis distance, also known as quantitative Sorensen's dissimilarity. Additional choices allow for partitioning dissimilarity in to turnover and nestedness components. 
 
 Dissimilarity is computed using the function `ps_add_dissim()`, which adds a distance matrix to the `dissim` slot of your `phylospatial` data set. Or if you just want the matrix itself, you can use `ps_dissim()`. 
 
 In addition to specifying the dissimilarity index to use, these functions include options for different ways to scale the phylogenetic community matrix before calculating dissimilarity. Setting `endemism = TRUE` will scale every lineage's occurrence values to sum to 1 across all sites, giving greater weight to narrowly distributed taxa. Setting `normalize = TRUE` scales every site's total occurrence value to sum to 1 across taxa, which results in a distance matrix that emphasizes proportional differences in composition rather than alpha diversity gradients.
 
-Let's run an example using quantitative Sorensen's index, weighted by endemism. Printing the result, we can see it now contains dissimilarity data:
+Let's run an example using quantitative Sorensen's index, weighted by endemism. Printing the result, we can see it now contains dissimilarity data; this is a square distance matrix with a row and column for each site:
 
 ```{r beta, message=FALSE, warning=FALSE}
 ps <- ps_add_dissim(ps, method = "sorensen", endemism = TRUE, normalize = TRUE)
 ps
 ```
 
+## Distance decay
 
+One frequent use of dissimilarity matrices is to analyze how commmunity phylogentic similarity declines with geographic distance, environmental difference, or other geographic properties. Common methods for this kind of analysis include generalized dissimilarity modeling and partial Mantel tests. 
+
+Here let's just visualize how phylogenetic turnover changes with the distance between sites. We can compute a pairwise geographic distance matrix using `ps_geodist()`. Let's also compare this to non-phylogenetic species turnover, which we can compute by specifying `tips_only = TRUE`. We can summarize the pattern with a LOESS curve: 
+
+```{r geodist, message=FALSE, warning=FALSE}
+phy_beta <- as.vector(ps_dissim(ps, method = "sorensen"))
+spp_beta <- as.vector(ps_dissim(ps, method = "sorensen", tips_only = TRUE))
+geo_dist <- as.vector(ps_geodist(ps)) / 1000  # convert to km
+
+# subsample for plotting (full pairwise set is huge)
+ss <- sample(length(phy_beta), 5000)
+
+plot(geo_dist[ss], phy_beta[ss],
+     pch = ".", col = adjustcolor("steelblue", 0.3),
+     xlab = "Geographic distance (km)",
+     ylab = "Dissimilarity",
+     ylim = c(0, 1))
+points(geo_dist[ss], spp_beta[ss],
+       pch = ".", col = adjustcolor("tomato", 0.3))
+ 
+# loess trend lines
+lo_phy <- loess(phy_beta[ss] ~ geo_dist[ss])
+lo_spp <- loess(spp_beta[ss] ~ geo_dist[ss])
+ox <- order(geo_dist[ss])
+lines(geo_dist[ss][ox], predict(lo_phy)[ox], col = "steelblue", lwd = 2)
+lines(geo_dist[ss][ox], predict(lo_spp)[ox], col = "tomato", lwd = 2)
+ 
+legend("bottomright",
+       legend = c("Phylogenetic", "Species"),
+       col = c("steelblue", "tomato"),
+       lwd = 2, bty = "n")
+```
 
 ## Ordination
 
-Having done this, we can then assess spatial turnover patterns in a couple ways: ordination or clustering. Ordination, which is implemented in the function `ps_ordinate()`, reduces the dimensionality of the phylogenetic community matrix, making it possible to visualize or analyze the dominant axes of variation. Various ordination algorithms can be selected. Let's perform a PCA, and make maps of the first four dimensions:
+Additional approaches for assessing spatial turnover patterns include ordination or clustering, both of which reduce a dissimilarity matrix into a lower-dimensional summary. Ordination, which is implemented in the function `ps_ordinate()`, identifies the dominant axes of variation in phylogenetic turnover, which can then be used for visualization or analysis. The funtion offers various ordination methods. Let's perform a PCA, and make maps of the first four dimensions:
 
 ```{r ordinate, message=FALSE, warning=FALSE}
 ps %>%
