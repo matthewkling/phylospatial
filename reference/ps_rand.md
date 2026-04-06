@@ -15,11 +15,14 @@ ps_rand(
   metric = c("PD", "PE", "RPE", "CE"),
   fun = "tip_shuffle",
   method = NULL,
+  n_iter = 1000,
   n_rand = 100,
   summary = "quantile",
   spatial = TRUE,
   n_cores = 1,
   progress = interactive(),
+  wt_row = NULL,
+  wt_col = NULL,
   ...
 )
 ```
@@ -41,10 +44,10 @@ ps_rand(
 - fun:
 
   Null model function to use. Must be either "tip_shuffle", "nullmodel",
-  "quantize", or an actual function:
+  "nullcat", "quantize", or an actual function:
 
   - "tip_shuffle" (the default): randomly shuffles the identities of
-    terminal taxa
+    terminal taxa.
 
   - "nullmodel": uses
     [nullmodel](https://vegandevs.github.io/vegan/reference/nullmodel.html)
@@ -53,11 +56,19 @@ ps_rand(
     from the vegan package, which offer a wide range of randomization
     algorithms with different properties.
 
+  - "nullcat": uses null model algorithms from the
+    [nullcat](https://matthewkling.github.io/nullcat/reference/nullcat.html)
+    package. Only works with binary community data. This is the
+    recommended path for binary data when mixing diagnostics (via
+    [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md))
+    or spatial weights (via `wt_row` or `wt_col`) are desired.
+
   - "quantize": uses
     [quantize](https://matthewkling.github.io/nullcat/reference/quantize.html),
     which converts a quantitative matrix to discrete strata, applies a
     categorical variant of the selected null model, and then maps
-    randomized strata back to values.
+    randomized strata back to values. Only works with quantitative
+    (probability or abundance) community data.
 
   - Any other function that accepts a community matrix as its first
     argument and returns a randomized version of the matrix.
@@ -69,13 +80,29 @@ ps_rand(
   - For `fun = "nullmodel"`, one of the method options listed under
     [commsim](https://vegandevs.github.io/vegan/reference/commsim.html).
     Be sure to select a method that is appropriate to your community
-    `data_type` (binary, quantitative, abundance),
+    `data_type` (binary, quantitative, abundance).
 
-  - For `fun = "quantize"`, one of the categorical algorithms listed
-    under
-    [nullcat](https://matthewkling.github.io/nullcat/reference/nullcat.html).
+  - For `fun = "nullcat"` or `fun = "quantize"`, one of the categorical
+    algorithms listed under
+    [nullcat_methods](https://matthewkling.github.io/nullcat/reference/nullcat_methods.html)
+    (e.g. `"curvecat"`, `"swapcat"`).
 
   - Ignored if `fun` is `"tip_shuffle"` or if it is a custom function.
+
+- n_iter:
+
+  Integer giving the number of swap iterations per randomized matrix.
+  Controls how thoroughly each null matrix is mixed before sampling.
+  Default is `1000`. Used with `fun = "nullcat"` (passed as `n_iter` to
+  [nullcat](https://matthewkling.github.io/nullcat/reference/nullcat.html)),
+  `fun = "quantize"` (passed to
+  [quantize_prep](https://matthewkling.github.io/nullcat/reference/quantize_prep.html)),
+  and `fun = "nullmodel"` with sequential methods like curveball (passed
+  as `burnin` to
+  [simulate.nullmodel](https://vegandevs.github.io/vegan/reference/nullmodel.html);
+  ignored for non-sequential vegan methods). Use
+  [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md)
+  to estimate an appropriate value for your dataset.
 
 - n_rand:
 
@@ -104,12 +131,25 @@ ps_rand(
 
   Logical: should a progress bar be displayed?
 
+- wt_row, wt_col:
+
+  Optional square numeric weight matrices controlling which pairs of
+  rows (sites) or columns (species) are likely to exchange values during
+  randomization. Only used with `fun = "nullcat"` or `fun = "quantize"`.
+  Enables spatially or trait-constrained null models; e.g. a geographic
+  distance decay matrix from
+  [ps_geodist](https://matthewkling.github.io/phylospatial/reference/ps_geodist.md)
+  can be used as `wt_row`. See
+  [nullcat](https://matthewkling.github.io/nullcat/reference/nullcat.html)
+  for details.
+
 - ...:
 
-  Additional arguments passed to
+  Additional arguments passed to the selected function:
   [quantize](https://matthewkling.github.io/nullcat/reference/quantize.html),
+  [nullcat](https://matthewkling.github.io/nullcat/reference/nullcat.html),
   [simulate.nullmodel](https://vegandevs.github.io/vegan/reference/nullmodel.html),
-  or custom function `fun`. Note that the `nsim` argument to
+  or a custom function. Note that the `nsim` argument to
   simulate.nullmodel should not be used here; specify `n_rand` instead.
 
 ## Value
@@ -120,7 +160,8 @@ specified in `metric`, and values for the `summary` statistic. Or if
 
 ## See also
 
-[`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md)
+[`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md),
+[`ps_geodist()`](https://matthewkling.github.io/phylospatial/reference/ps_geodist.md)
 
 ## Examples
 
@@ -130,35 +171,37 @@ specified in `metric`, and values for the `summary` statistic. Or if
 ps <- ps_simulate(data_type = "prob")
 rand <- ps_rand(ps)
 
-# using the default `tip_shuffle` function, but with alternative arguments
-rand <- ps_rand(ps, transform = sqrt, n_strata = 4, priority = "rows")
-
 # using the `quantize` function with the `curvecat` algorithm
 if(requireNamespace("nullcat")){
     rand <- ps_rand(ps,
       fun = "quantize", method = "curvecat",
       transform = sqrt, n_strata = 4, fixed = "cell")
 }
+#> Error in nullcat::quantize_prep(tip_comm, method = method, n_iter = n_iter,     wt_row = wt_row, wt_col = wt_col, ...): unused arguments (wt_row = wt_row, wt_col = wt_col)
+
+# binary data with nullcat's curvecat algorithm
+ps2 <- ps_simulate(data_type = "binary")
+if(requireNamespace("nullcat")){
+    rand <- ps_rand(ps2, fun = "nullcat", method = "curvecat", n_iter = 1000)
+}
+#> Error in nullcat::nullcat(tip_comm, method = method, n_iter = n_iter,     wt_row = wt_row, wt_col = wt_col, ...): unused arguments (wt_row = wt_row, wt_col = wt_col)
+
+# spatially constrained randomization using geographic distance weights
+if(requireNamespace("nullcat")){
+    geo <- as.matrix(ps_geodist(ps2))
+    W <- exp(-geo / median(geo))
+    rand <- ps_rand(ps2, fun = "nullcat", method = "curvecat",
+                    n_iter = 1000, wt_row = W)
+}
+#> Warning: [is.lonlat] unknown crs
+#> Error in nullcat::nullcat(tip_comm, method = method, n_iter = n_iter,     wt_row = wt_row, wt_col = wt_col, ...): unused arguments (wt_row = wt_row, wt_col = wt_col)
 
 # using binary data, with a vegan `nullmodel` algorithm
-ps2 <- ps_simulate(data_type = "binary")
-rand <- ps_rand(ps2, fun = "nullmodel", method = "r2")
+rand <- ps_rand(ps2, "PD", "nullmodel", "r2")
 
-# using abundance data, and demonstrating alternative metric choices
+# using abundance data
 ps3 <- ps_simulate(data_type = "abund")
 rand <- ps_rand(ps3, metric = c("ShPD", "SiPD"),
       fun = "nullmodel", method = "abuswap_c")
-rand
-#> class       : SpatRaster 
-#> size        : 20, 20, 2  (nrow, ncol, nlyr)
-#> resolution  : 1, 1  (x, y)
-#> extent      : 0, 20, 0, 20  (xmin, xmax, ymin, ymax)
-#> coord. ref. :  
-#> source(s)   : memory
-#> varnames    : qShPD 
-#>               qSiPD 
-#> names       : qShPD, qSiPD 
-#> min values  :  0.00,  0.00 
-#> max values  :  0.03,  0.03 
 # }
 ```

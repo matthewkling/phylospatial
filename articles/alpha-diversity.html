@@ -164,23 +164,38 @@ plots of PD and PE:</p>
 </h2>
 <p>We can also use randomization to calculate the statistical
 significance of these diversity metrics under a null model, using the
-<code><a href="../reference/ps_rand.html">ps_rand()</a></code> function. Here let’s run our randomization using
+<code><a href="../reference/ps_rand.html">ps_rand()</a></code> function. <code>phylospatial</code> supports a
+wide range of randomization schemes via the <code>vegan</code> and
+<code>nullcat</code> libraries. Here let’s run our randomization using
 <code>quantize</code>, a stratified randomization scheme designed for
 use with continuous occurrence data, in combination with a null model
 algorithm called <code>"curvecat"</code>, which is a categorical version
 of the “curveball” algorithm that holds marginal row and column
-multisets fixed. (Note that this categorical null model requires the
-<code>nullcat</code> library.)</p>
-<p>We’ll run 1000 randomizations for four diversity metrics, and plot
-the results for PE. This is a quantile value that gives the proportion
-of randomizations in which observed PE was greater than randomized PE in
-a given grid cell. (If you wanted to identify “statistically
-significant” grid cells in a one-tailed test with alpha = 0.05, these
-would be cells with values greater than 0.95.)</p>
+multisets fixed.</p>
+<p>This is a sequential (Markov chain) randomization algorithm and
+requires sufficient iterations to reach stationarity, so before running
+our randomizations, we need to decide how many consecutive iterations to
+run each randomization for. To get an estimate of how many iterations
+are necessary for convergence based on our particular data and algorithm
+choice, we can pass the same parameters we plan to use for
+<code><a href="../reference/ps_rand.html">ps_rand()</a></code> to <code><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter()</a></code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">suggested_iter</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter</a></span><span class="op">(</span><span class="va">ps</span>, fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, n_iter <span class="op">=</span> <span class="fl">3e5</span><span class="op">)</span></span></code></pre></div>
+<p>This tells us we need around 200,000 iterations for our matrix to mix
+sufficiently, so we’ll pass that value to <code><a href="../reference/ps_rand.html">ps_rand()</a></code>. Let’s
+generate a null distribution of <code>n_rand = 1000</code> randomized
+matrices against which to compare our actual data. Then we’ll plot the
+results for PE. This is a quantile value that gives the proportion of
+randomizations in which observed PE was greater than randomized PE in a
+given grid cell. (If you wanted to identify “statistically significant”
+grid cells in a one-tailed test with alpha = 0.05, these would be cells
+with values greater than 0.95.)</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">1000</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span>, <span class="st">"CE"</span>, <span class="st">"RPE"</span><span class="op">)</span>,</span>
-<span>                fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span><span class="op">)</span></span>
+<span>                fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>,</span>
+<span>                n_iter <span class="op">=</span> <span class="va">suggested_iter</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">rand</span><span class="op">$</span><span class="va">qPE</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -196,14 +211,55 @@ above, these include a basic <code>"tip_shuffle"</code> randomization
 randomization function. As a second example, here’s a randomization with
 an abundance data set, using the <code>"abuswap_c"</code> algorithm
 provided by <code><a href="https://vegandevs.github.io/vegan/reference/nullmodel.html" class="external-link">vegan::nullmodel</a></code>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"abundance"</span><span class="op">)</span></span>
 <span><span class="va">rand2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"abuswap_c"</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>, metric <span class="op">=</span> <span class="st">"PD"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="spatially-constrained-randomization">Spatially constrained randomization<a class="anchor" aria-label="anchor" href="#spatially-constrained-randomization"></a>
+</h2>
+<p>Standard null models treat all sites as exchangeable, meaning that
+species can be shuffled between any pair of sites regardless of how far
+apart they are. This may not be ecologically realistic: species are more
+likely to co-occur at nearby sites than distant ones. Spatially
+constrained null models address this by weighting the randomization so
+that exchanges occur more frequently between nearby sites. Weights can
+be continuous or binary and can reflect geographic proximity,
+environmental similarity, presence in discrete geographic regions, or
+other spatial properties.</p>
+<p>Weighting is available for <code>fun = "quantize"</code> (for
+quantitative data) and <code>fun = "nullcat"</code> (for binary data),
+but not for <code>fun = "vegan"</code> methods. For eligible methods,
+the <code>wt_row</code> argument to <code><a href="../reference/ps_rand.html">ps_rand()</a></code> accepts a
+square weight matrix controlling which pairs of sites are likely to
+exchange species during randomization. A natural choice is a
+distance-decay function of geographic distance, which can be computed
+using <code><a href="../reference/ps_geodist.html">ps_geodist()</a></code>:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># geographic distance between occupied sites</span></span>
+<span><span class="va">geo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="../reference/ps_geodist.html">ps_geodist</a></span><span class="op">(</span><span class="va">ps_bin</span><span class="op">)</span><span class="op">)</span></span>
+<span> </span>
+<span><span class="co"># Gaussian distance decay: nearby sites exchange species frequently,</span></span>
+<span><span class="co"># distant sites rarely</span></span>
+<span><span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">geo</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">geo</span><span class="op">)</span><span class="op">)</span></span>
+<span> </span>
+<span><span class="co"># spatially constrained randomization</span></span>
+<span><span class="va">rand_spatial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps_bin</span>, n_rand <span class="op">=</span> <span class="fl">1000</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                        metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span><span class="op">)</span>,</span>
+<span>                        fun <span class="op">=</span> <span class="st">"nullcat"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>,</span>
+<span>                        n_iter <span class="op">=</span> <span class="fl">1000</span>, wt_row <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></code></pre></div>
+<p>The choice of decay function and bandwidth (here
+<code>median(geo)</code>) will affect the strength of the spatial
+constraint. Smaller bandwidths produce stronger spatial structure in the
+null distribution (exchanges restricted to very nearby sites), while
+larger bandwidths approach the unconstrained case. The appropriate
+choice depends on the spatial scale of ecological processes in the study
+system.</p>
+</div>
+<div class="section level2">
 <h2 id="canape">CANAPE<a class="anchor" aria-label="anchor" href="#canape"></a>
 </h2>
-<p>Many things can be done with randomization results like the ones we
+<p>A lot can be done with randomization results like the ones we
 generated above. One thing you can do is use them to classify
 significant endemism hotspots in a “categorical analysis of neo- and
 paleo-endemism” (CANAPE, <a href="https://doi.org/10.1038/ncomms5473" class="external-link">Mishler et al. 2014</a>). The
@@ -212,7 +268,7 @@ and CE, which are returned by <code><a href="../reference/ps_rand.html">ps_rand(
 sites into five endemism cateogories. Here’s an example with the moss
 data; note that depending on the randomization, only a subset of the
 five categories may occur in the result here:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_canape.html">ps_canape</a></span><span class="op">(</span><span class="va">rand</span>, alpha <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cp</span><span class="op">)</span></span></code></pre></div>
 <p><img src="alpha-diversity_files/figure-html/canape-1.png" class="r-plt" alt="" width="576"></p>

@@ -67,6 +67,7 @@ ps <- ps_simulate(data_type = "binary")
 rand <- ps_rand(ps, metric = c("PE", "RPE", "CE"),
                 fun = "nullmodel", method = "curveball",
                 n_rand = 25, burnin = 10000, progress = FALSE)
+#> Warning: `burnin` is set via `n_iter`; ignoring `burnin` in `...`.
 canape <- ps_canape(rand)
 terra::plot(canape)
 

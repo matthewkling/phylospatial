@@ -102,14 +102,34 @@ tm_shape(div$PE) +
 We can also use randomization to calculate the statistical significance
 of these diversity metrics under a null model, using the
 [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
-function. Here let’s run our randomization using `quantize`, a
-stratified randomization scheme designed for use with continuous
-occurrence data, in combination with a null model algorithm called
-`"curvecat"`, which is a categorical version of the “curveball”
-algorithm that holds marginal row and column multisets fixed. (Note that
-this categorical null model requires the `nullcat` library.)
+function. `phylospatial` supports a wide range of randomization schemes
+via the `vegan` and `nullcat` libraries. Here let’s run our
+randomization using `quantize`, a stratified randomization scheme
+designed for use with continuous occurrence data, in combination with a
+null model algorithm called `"curvecat"`, which is a categorical version
+of the “curveball” algorithm that holds marginal row and column
+multisets fixed.
 
-We’ll run 1000 randomizations for four diversity metrics, and plot the
+This is a sequential (Markov chain) randomization algorithm and requires
+sufficient iterations to reach stationarity, so before running our
+randomizations, we need to decide how many consecutive iterations to run
+each randomization for. To get an estimate of how many iterations are
+necessary for convergence based on our particular data and algorithm
+choice, we can pass the same parameters we plan to use for
+[`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+to
+[`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md):
+
+``` r
+set.seed(123)
+suggested_iter <- ps_suggest_n_iter(ps, fun = "quantize", method = "curvecat", n_iter = 3e5)
+```
+
+This tells us we need around 200,000 iterations for our matrix to mix
+sufficiently, so we’ll pass that value to
+[`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md).
+Let’s generate a null distribution of `n_rand = 1000` randomized
+matrices against which to compare our actual data. Then we’ll plot the
 results for PE. This is a quantile value that gives the proportion of
 randomizations in which observed PE was greater than randomized PE in a
 given grid cell. (If you wanted to identify “statistically significant”
@@ -119,7 +139,8 @@ with values greater than 0.95.)
 ``` r
 rand <- ps_rand(ps, n_rand = 1000, progress = FALSE,
                 metric = c("PD", "PE", "CE", "RPE"),
-                fun = "quantize", method = "curvecat")
+                fun = "quantize", method = "curvecat",
+                n_iter = suggested_iter)
 tm_shape(rand$qPE) + 
       tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
       tm_layout(legend.outside = TRUE)
@@ -144,13 +165,56 @@ ps2 <- ps_simulate(data_type = "abundance")
 rand2 <- ps_rand(ps2, fun = "nullmodel", method = "abuswap_c", progress = FALSE, metric = "PD")
 ```
 
+## Spatially constrained randomization
+
+Standard null models treat all sites as exchangeable, meaning that
+species can be shuffled between any pair of sites regardless of how far
+apart they are. This may not be ecologically realistic: species are more
+likely to co-occur at nearby sites than distant ones. Spatially
+constrained null models address this by weighting the randomization so
+that exchanges occur more frequently between nearby sites. Weights can
+be continuous or binary and can reflect geographic proximity,
+environmental similarity, presence in discrete geographic regions, or
+other spatial properties.
+
+Weighting is available for `fun = "quantize"` (for quantitative data)
+and `fun = "nullcat"` (for binary data), but not for `fun = "vegan"`
+methods. For eligible methods, the `wt_row` argument to
+[`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+accepts a square weight matrix controlling which pairs of sites are
+likely to exchange species during randomization. A natural choice is a
+distance-decay function of geographic distance, which can be computed
+using
+[`ps_geodist()`](https://matthewkling.github.io/phylospatial/reference/ps_geodist.md):
+
+``` r
+# geographic distance between occupied sites
+geo <- as.matrix(ps_geodist(ps_bin))
+ 
+# Gaussian distance decay: nearby sites exchange species frequently,
+# distant sites rarely
+W <- exp(-geo / median(geo))
+ 
+# spatially constrained randomization
+rand_spatial <- ps_rand(ps_bin, n_rand = 1000, progress = FALSE,
+                        metric = c("PD", "PE"),
+                        fun = "nullcat", method = "curvecat",
+                        n_iter = 1000, wt_row = W)
+```
+
+The choice of decay function and bandwidth (here `median(geo)`) will
+affect the strength of the spatial constraint. Smaller bandwidths
+produce stronger spatial structure in the null distribution (exchanges
+restricted to very nearby sites), while larger bandwidths approach the
+unconstrained case. The appropriate choice depends on the spatial scale
+of ecological processes in the study system.
+
 ## CANAPE
 
-Many things can be done with randomization results like the ones we
-generated above. One thing you can do is use them to classify
-significant endemism hotspots in a “categorical analysis of neo- and
-paleo-endemism” (CANAPE, [Mishler et
-al. 2014](https://doi.org/10.1038/ncomms5473)). The function
+A lot can be done with randomization results like the ones we generated
+above. One thing you can do is use them to classify significant endemism
+hotspots in a “categorical analysis of neo- and paleo-endemism” (CANAPE,
+[Mishler et al. 2014](https://doi.org/10.1038/ncomms5473)). The function
 [`ps_canape()`](https://matthewkling.github.io/phylospatial/reference/ps_canape.md)
 uses significance values for PE, RPE, and CE, which are returned by
 [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md),

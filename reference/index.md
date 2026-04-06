@@ -15,6 +15,10 @@
   : Calculate spatial phylogenetic diversity and endemism metrics
 - [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
   : Null model randomization analysis of alpha diversity metrics
+- [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md)
+  : Suggest number of iterations for null model convergence
+- [`ps_trace()`](https://matthewkling.github.io/phylospatial/reference/ps_trace.md)
+  : Trace diagnostics for null model mixing
 - [`ps_quantize()`](https://matthewkling.github.io/phylospatial/reference/ps_quantize.md)
   : Stratified randomization of a phylospatial object
 - [`quantize()`](https://matthewkling.github.io/phylospatial/reference/quantize.md)

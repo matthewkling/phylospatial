@@ -59,11 +59,14 @@ binary, probability, and count data.</p>
 <span>  metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span>, <span class="st">"RPE"</span>, <span class="st">"CE"</span><span class="op">)</span>,</span>
 <span>  fun <span class="op">=</span> <span class="st">"tip_shuffle"</span>,</span>
 <span>  method <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_iter <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  n_rand <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  summary <span class="op">=</span> <span class="st">"quantile"</span>,</span>
 <span>  spatial <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_cores <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  progress <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  wt_row <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  wt_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -82,11 +85,16 @@ for options. Can also specify <code>"all"</code> to calculate all available metr
 
 
 <dt id="arg-fun">fun<a class="anchor" aria-label="anchor" href="#arg-fun"></a></dt>
-<dd><p>Null model function to use. Must be either "tip_shuffle", "nullmodel", "quantize", or an actual function:</p><ul><li><p>"tip_shuffle" (the default): randomly shuffles the identities of terminal taxa</p></li>
+<dd><p>Null model function to use. Must be either "tip_shuffle", "nullmodel", "nullcat", "quantize",
+or an actual function:</p><ul><li><p>"tip_shuffle" (the default): randomly shuffles the identities of terminal taxa.</p></li>
 <li><p>"nullmodel": uses <a href="https://vegandevs.github.io/vegan/reference/nullmodel.html" class="external-link">nullmodel</a> and <a href="https://vegandevs.github.io/vegan/reference/nullmodel.html" class="external-link">simulate.nullmodel</a>, from the vegan
 package, which offer a wide range of randomization algorithms with different properties.</p></li>
+<li><p>"nullcat": uses null model algorithms from the <a href="https://matthewkling.github.io/nullcat/reference/nullcat.html" class="external-link">nullcat</a> package. Only works
+with binary community data. This is the recommended path for binary data when mixing diagnostics
+(via <code><a href="ps_suggest_n_iter.html">ps_suggest_n_iter()</a></code>) or spatial weights  (via <code>wt_row</code> or <code>wt_col</code>) are desired.</p></li>
 <li><p>"quantize": uses <a href="https://matthewkling.github.io/nullcat/reference/quantize.html" class="external-link">quantize</a>, which converts a quantitative matrix to discrete strata,
-applies a categorical variant of the selected null model, and then maps randomized strata back to values.</p></li>
+applies a categorical variant of the selected null model, and then maps randomized strata back to values.
+Only works with quantitative (probability or abundance) community data.</p></li>
 <li><p>Any other function that accepts a community matrix as its first argument and returns a
 randomized version of the matrix.</p></li>
 </ul></dd>
@@ -94,10 +102,21 @@ randomized version of the matrix.</p></li>
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>Method used by the selected function.</p><ul><li><p>For <code>fun = "nullmodel"</code>, one of the method options listed under <a href="https://vegandevs.github.io/vegan/reference/commsim.html" class="external-link">commsim</a>.
-Be sure to select a method that is appropriate to your community <code>data_type</code> (binary, quantitative, abundance),</p></li>
-<li><p>For <code>fun = "quantize"</code>, one of the categorical algorithms listed under <a href="https://matthewkling.github.io/nullcat/reference/nullcat.html" class="external-link">nullcat</a>.</p></li>
+Be sure to select a method that is appropriate to your community <code>data_type</code> (binary, quantitative, abundance).</p></li>
+<li><p>For <code>fun = "nullcat"</code> or <code>fun = "quantize"</code>, one of the categorical algorithms listed
+under <a href="https://matthewkling.github.io/nullcat/reference/nullcat_methods.html" class="external-link">nullcat_methods</a> (e.g. <code>"curvecat"</code>, <code>"swapcat"</code>).</p></li>
 <li><p>Ignored if <code>fun</code> is <code>"tip_shuffle"</code> or if it is a custom function.</p></li>
 </ul></dd>
+
+
+<dt id="arg-n-iter">n_iter<a class="anchor" aria-label="anchor" href="#arg-n-iter"></a></dt>
+<dd><p>Integer giving the number of swap iterations per randomized matrix. Controls
+how thoroughly each null matrix is mixed before sampling. Default is <code>1000</code>. Used with
+<code>fun = "nullcat"</code> (passed as <code>n_iter</code> to <a href="https://matthewkling.github.io/nullcat/reference/nullcat.html" class="external-link">nullcat</a>), <code>fun = "quantize"</code>
+(passed to <a href="https://matthewkling.github.io/nullcat/reference/quantize_prep.html" class="external-link">quantize_prep</a>), and <code>fun = "nullmodel"</code> with sequential
+methods like curveball (passed as <code>burnin</code> to <a href="https://vegandevs.github.io/vegan/reference/nullmodel.html" class="external-link">simulate.nullmodel</a>; ignored
+for non-sequential vegan methods). Use <code><a href="ps_suggest_n_iter.html">ps_suggest_n_iter()</a></code> to estimate an appropriate
+value for your dataset.</p></dd>
 
 
 <dt id="arg-n-rand">n_rand<a class="anchor" aria-label="anchor" href="#arg-n-rand"></a></dt>
@@ -123,9 +142,18 @@ standard deviation of the randomizations.</p></dd>
 <dd><p>Logical: should a progress bar be displayed?</p></dd>
 
 
+<dt id="arg-wt-row-wt-col">wt_row, wt_col<a class="anchor" aria-label="anchor" href="#arg-wt-row-wt-col"></a></dt>
+<dd><p>Optional square numeric weight matrices controlling which pairs of
+rows (sites) or columns (species) are likely to exchange values during randomization.
+Only used with <code>fun = "nullcat"</code> or <code>fun = "quantize"</code>. Enables spatially or
+trait-constrained null models; e.g. a geographic distance decay matrix from
+<a href="ps_geodist.html">ps_geodist</a> can be used as <code>wt_row</code>. See <a href="https://matthewkling.github.io/nullcat/reference/nullcat.html" class="external-link">nullcat</a> for details.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <a href="https://matthewkling.github.io/nullcat/reference/quantize.html" class="external-link">quantize</a>, <a href="https://vegandevs.github.io/vegan/reference/nullmodel.html" class="external-link">simulate.nullmodel</a>, or custom function
-<code>fun</code>. Note that the <code>nsim</code> argument to simulate.nullmodel should not be used here; specify <code>n_rand</code> instead.</p></dd>
+<dd><p>Additional arguments passed to the selected function: <a href="https://matthewkling.github.io/nullcat/reference/quantize.html" class="external-link">quantize</a>,
+<a href="https://matthewkling.github.io/nullcat/reference/nullcat.html" class="external-link">nullcat</a>, <a href="https://vegandevs.github.io/vegan/reference/nullmodel.html" class="external-link">simulate.nullmodel</a>, or a custom function.
+Note that the <code>nsim</code> argument to simulate.nullmodel should not be used here; specify <code>n_rand</code> instead.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -135,7 +163,7 @@ values for the <code>summary</code> statistic. Or if <code>spatial = TRUE</code>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="ps_diversity.html">ps_diversity()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="ps_diversity.html">ps_diversity()</a></code>, <code><a href="ps_geodist.html">ps_geodist()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -145,36 +173,38 @@ values for the <code>summary</code> statistic. Or if <code>spatial = TRUE</code>
 <span class="r-in"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># using the default `tip_shuffle` function, but with alternative arguments</span></span></span>
-<span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps</span>, transform <span class="op">=</span> <span class="va">sqrt</span>, n_strata <span class="op">=</span> <span class="fl">4</span>, priority <span class="op">=</span> <span class="st">"rows"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># using the `quantize` function with the `curvecat` algorithm</span></span></span>
 <span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"nullcat"</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
 <span class="r-in"><span>    <span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps</span>,</span></span>
 <span class="r-in"><span>      fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>,</span></span>
 <span class="r-in"><span>      transform <span class="op">=</span> <span class="va">sqrt</span>, n_strata <span class="op">=</span> <span class="fl">4</span>, fixed <span class="op">=</span> <span class="st">"cell"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in nullcat::quantize_prep(tip_comm, method = method, n_iter = n_iter,     wt_row = wt_row, wt_col = wt_col, ...):</span> unused arguments (wt_row = wt_row, wt_col = wt_col)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># binary data with nullcat's curvecat algorithm</span></span></span>
+<span class="r-in"><span><span class="va">ps2</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"binary"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"nullcat"</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullcat"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, n_iter <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in nullcat::nullcat(tip_comm, method = method, n_iter = n_iter,     wt_row = wt_row, wt_col = wt_col, ...):</span> unused arguments (wt_row = wt_row, wt_col = wt_col)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># spatially constrained randomization using geographic distance weights</span></span></span>
+<span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"nullcat"</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="va">geo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="ps_geodist.html">ps_geodist</a></span><span class="op">(</span><span class="va">ps2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">geo</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">geo</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullcat"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>,</span></span>
+<span class="r-in"><span>                    n_iter <span class="op">=</span> <span class="fl">1000</span>, wt_row <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>[is.lonlat] unknown crs</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in nullcat::nullcat(tip_comm, method = method, n_iter = n_iter,     wt_row = wt_row, wt_col = wt_col, ...):</span> unused arguments (wt_row = wt_row, wt_col = wt_col)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># using binary data, with a vegan `nullmodel` algorithm</span></span></span>
-<span class="r-in"><span><span class="va">ps2</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"binary"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"r2"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps2</span>, <span class="st">"PD"</span>, <span class="st">"nullmodel"</span>, <span class="st">"r2"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># using abundance data, and demonstrating alternative metric choices</span></span></span>
+<span class="r-in"><span><span class="co"># using abundance data</span></span></span>
 <span class="r-in"><span><span class="va">ps3</span> <span class="op">&lt;-</span> <span class="fu"><a href="ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"abund"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu">ps_rand</span><span class="op">(</span><span class="va">ps3</span>, metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ShPD"</span>, <span class="st">"SiPD"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>      fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"abuswap_c"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">rand</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> size        : 20, 20, 2  (nrow, ncol, nlyr)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 1, 1  (x, y)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 0, 20, 0, 20  (xmin, xmax, ymin, ymax)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. :  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> varnames    : qShPD </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               qSiPD </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       : qShPD, qSiPD </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  :  0.00,  0.00 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  :  0.03,  0.03 </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

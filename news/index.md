@@ -2,7 +2,46 @@
 
 ## phylospatial (development version)
 
+- New functions
+  [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md)
+  and
+  [`ps_trace()`](https://matthewkling.github.io/phylospatial/reference/ps_trace.md)
+  provide convergence diagnostics for null model randomizations,
+  wrapping
+  [`nullcat::suggest_n_iter()`](https://matthewkling.github.io/nullcat/reference/suggest_n_iter.html)
+  and
+  [`nullcat::trace_cat()`](https://matthewkling.github.io/nullcat/reference/trace_cat.html)
+  on the occupied-site tip community matrix.
+
+- [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+  and
+  [`ps_quantize()`](https://matthewkling.github.io/phylospatial/reference/ps_quantize.md)
+  now expose `wt_row` and `wt_col` as named parameters for spatially or
+  functionally constrained null models. These accept weight matrices
+  (e.g., a geographic distance decay matrix from
+  [`ps_geodist()`](https://matthewkling.github.io/phylospatial/reference/ps_geodist.md))
+  that bias which pairs of sites or species exchange values during
+  randomization.
+
+- [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+  gains a new `fun = "nullcat"` path for binary data. This is the
+  recommended path for binary data when convergence diagnostics or
+  spatial weights are desired.
+
+- [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+  now exposes `n_iter` as a named parameter controlling the number of
+  swap iterations per null matrix. This is routed to
+  [`nullcat::nullcat()`](https://matthewkling.github.io/nullcat/reference/nullcat.html),
+  [`nullcat::quantize_prep()`](https://matthewkling.github.io/nullcat/reference/quantize_prep.html),
+  or
+  [`vegan::simulate.nullmodel()`](https://vegandevs.github.io/vegan/reference/nullmodel.html)
+  (as `burnin`) depending on the selected `fun`. The default of 1000
+  fixes a pre-existing issue where the vegan sequential path used only 1
+  iteration per matrix by default.
+
 ## phylospatial 1.3.0
+
+CRAN release: 2026-04-03
 
 ### New features
 

@@ -20,11 +20,11 @@ ps <- moss()
 
 ## Dissimilarity
 
-This package provides a range of methods for calculating pairwise
-community phylogenetic distances among locations. It can calculate
-phylogenetic versions of any quantitative community dissimilarity metric
-available trough the `vegan` package, including the various predefined
-indices provided through
+The `phylospatial` package provides a range of methods for calculating
+pairwise community phylogenetic distances among locations. It can
+calculate phylogenetic versions of any quantitative community
+dissimilarity metric available trough the `vegan` package, including the
+various predefined indices provided through
 [`vegan::vegdist`](https://vegandevs.github.io/vegan/reference/vegdist.html)
 as well as custom indices specified through
 [`vegan::designdist`](https://vegandevs.github.io/vegan/reference/designdist.html).
@@ -50,7 +50,8 @@ gradients.
 
 Let’s run an example using quantitative Sorensen’s index, weighted by
 endemism. Printing the result, we can see it now contains dissimilarity
-data:
+data; this is a square distance matrix with a row and column for each
+site:
 
 ``` r
 ps <- ps_add_dissim(ps, method = "sorensen", endemism = TRUE, normalize = TRUE)
@@ -62,16 +63,64 @@ ps
 #>   - dissimilarity data: sorensen
 ```
 
+## Distance decay
+
+One frequent use of dissimilarity matrices is to analyze how commmunity
+phylogentic similarity declines with geographic distance, environmental
+difference, or other geographic properties. Common methods for this kind
+of analysis include generalized dissimilarity modeling and partial
+Mantel tests.
+
+Here let’s just visualize how phylogenetic turnover changes with the
+distance between sites. We can compute a pairwise geographic distance
+matrix using
+[`ps_geodist()`](https://matthewkling.github.io/phylospatial/reference/ps_geodist.md).
+Let’s also compare this to non-phylogenetic species turnover, which we
+can compute by specifying `tips_only = TRUE`. We can summarize the
+pattern with a LOESS curve:
+
+``` r
+phy_beta <- as.vector(ps_dissim(ps, method = "sorensen"))
+spp_beta <- as.vector(ps_dissim(ps, method = "sorensen", tips_only = TRUE))
+geo_dist <- as.vector(ps_geodist(ps)) / 1000  # convert to km
+
+# subsample for plotting (full pairwise set is huge)
+ss <- sample(length(phy_beta), 5000)
+
+plot(geo_dist[ss], phy_beta[ss],
+     pch = ".", col = adjustcolor("steelblue", 0.3),
+     xlab = "Geographic distance (km)",
+     ylab = "Dissimilarity",
+     ylim = c(0, 1))
+points(geo_dist[ss], spp_beta[ss],
+       pch = ".", col = adjustcolor("tomato", 0.3))
+ 
+# loess trend lines
+lo_phy <- loess(phy_beta[ss] ~ geo_dist[ss])
+lo_spp <- loess(spp_beta[ss] ~ geo_dist[ss])
+ox <- order(geo_dist[ss])
+lines(geo_dist[ss][ox], predict(lo_phy)[ox], col = "steelblue", lwd = 2)
+lines(geo_dist[ss][ox], predict(lo_spp)[ox], col = "tomato", lwd = 2)
+ 
+legend("bottomright",
+       legend = c("Phylogenetic", "Species"),
+       col = c("steelblue", "tomato"),
+       lwd = 2, bty = "n")
+```
+
+![](beta-diversity_files/figure-html/geodist-1.png)
+
 ## Ordination
 
-Having done this, we can then assess spatial turnover patterns in a
-couple ways: ordination or clustering. Ordination, which is implemented
-in the function
+Additional approaches for assessing spatial turnover patterns include
+ordination or clustering, both of which reduce a dissimilarity matrix
+into a lower-dimensional summary. Ordination, which is implemented in
+the function
 [`ps_ordinate()`](https://matthewkling.github.io/phylospatial/reference/ps_ordinate.md),
-reduces the dimensionality of the phylogenetic community matrix, making
-it possible to visualize or analyze the dominant axes of variation.
-Various ordination algorithms can be selected. Let’s perform a PCA, and
-make maps of the first four dimensions:
+identifies the dominant axes of variation in phylogenetic turnover,
+which can then be used for visualization or analysis. The funtion offers
+various ordination methods. Let’s perform a PCA, and make maps of the
+first four dimensions:
 
 ``` r
 ps %>%
