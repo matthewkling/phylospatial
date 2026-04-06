@@ -83,7 +83,7 @@ We can also use randomization to calculate the statistical significance of these
 
 This is a sequential (Markov chain) randomization algorithm and requires sufficient iterations to reach stationarity, so before running our randomizations, we need to decide how many consecutive iterations to run each randomization for. To get an estimate of how many iterations are necessary for convergence based on our particular data and algorithm choice, we can pass the same parameters we plan to use for `ps_rand()` to `ps_suggest_n_iter()`:
 
-```{r rand, eval=FALSE}
+```{r n_iter, eval=FALSE}
 set.seed(123)
 suggested_iter <- ps_suggest_n_iter(ps, fun = "quantize", method = "curvecat", n_iter = 3e5)
 ```
