@@ -1,4 +1,4 @@
-# phylospatial (development version)
+# phylospatial 1.4.0
 
 * New functions `ps_suggest_n_iter()` and `ps_trace()` provide convergence diagnostics for null model randomizations, wrapping `nullcat::suggest_n_iter()` and `nullcat::trace_cat()` on the occupied-site tip community matrix.
 
