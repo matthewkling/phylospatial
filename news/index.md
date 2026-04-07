@@ -1,6 +1,6 @@
 # Changelog
 
-## phylospatial (development version)
+## phylospatial 1.4.0
 
 - New functions
   [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md)
