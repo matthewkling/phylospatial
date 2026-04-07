@@ -172,16 +172,17 @@ use with continuous occurrence data, in combination with a null model
 algorithm called <code>"curvecat"</code>, which is a categorical version
 of the “curveball” algorithm that holds marginal row and column
 multisets fixed.</p>
-<p>This is a sequential (Markov chain) randomization algorithm and
-requires sufficient iterations to reach stationarity, so before running
-our randomizations, we need to decide how many consecutive iterations to
-run each randomization for. To get an estimate of how many iterations
-are necessary for convergence based on our particular data and algorithm
-choice, we can pass the same parameters we plan to use for
-<code><a href="../reference/ps_rand.html">ps_rand()</a></code> to <code><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter()</a></code>:</p>
+<p>This is a “sequential” (Markov chain) randomization algorithm and
+thus requires sufficient iterations to reach stationarity, so before
+running our randomizations, we need to decide how many iterations to run
+each randomization for. To get an estimate of how many iterations are
+necessary for convergence based on our particular data and algorithm
+choice, we can call <code><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter()</a></code> (importantly, using
+all the same parameters we plan to use for <code><a href="../reference/ps_rand.html">ps_rand()</a></code>):</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">suggested_iter</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter</a></span><span class="op">(</span><span class="va">ps</span>, fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, n_iter <span class="op">=</span> <span class="fl">3e5</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">iters</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter</a></span><span class="op">(</span><span class="va">ps</span>, fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, </span>
+<span>                           n_iter <span class="op">=</span> <span class="fl">3e5</span>, plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>This tells us we need around 200,000 iterations for our matrix to mix
 sufficiently, so we’ll pass that value to <code><a href="../reference/ps_rand.html">ps_rand()</a></code>. Let’s
 generate a null distribution of <code>n_rand = 1000</code> randomized
@@ -195,7 +196,7 @@ with values greater than 0.95.)</p>
 <code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">1000</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span>, <span class="st">"CE"</span>, <span class="st">"RPE"</span><span class="op">)</span>,</span>
 <span>                fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>,</span>
-<span>                n_iter <span class="op">=</span> <span class="va">suggested_iter</span><span class="op">)</span></span>
+<span>                n_iter <span class="op">=</span> <span class="va">iters</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">rand</span><span class="op">$</span><span class="va">qPE</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -204,16 +205,21 @@ with values greater than 0.95.)</p>
 a choice that will depend on the type of occurrence data you have
 (probability, binary, or abundance) and on which attributes of the
 terminal community matrix (fill, row and column sums, etc.) you want to
-hold fixed. In addition to the <code>quantize</code> function used
-above, these include a basic <code>"tip_shuffle"</code> randomization
-(the default algorithm), a range of algorithms defined in the
-<code>vegan</code> package, and an option to supply a custom
-randomization function. As a second example, here’s a randomization with
-an abundance data set, using the <code>"abuswap_c"</code> algorithm
-provided by <code><a href="https://vegandevs.github.io/vegan/reference/nullmodel.html" class="external-link">vegan::nullmodel</a></code>:</p>
+hold fixed. In addition to the <code>"quantize"</code> function used
+above, these include “<code>nullcat"</code> randomizations for binary
+data, a basic <code>"tip_shuffle"</code> randomization (the default
+algorithm), a range of algorithms defined in the <code>vegan</code>
+package <code>"nullmodel"</code> function, and an option to supply a
+custom randomization function. As a second example, here’s a
+randomization with an abundance data set, using the
+<code>"abuswap_c"</code> algorithm provided by
+<code><a href="https://vegandevs.github.io/vegan/reference/nullmodel.html" class="external-link">vegan::nullmodel</a></code> (note that since
+<code><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter()</a></code> doesn’t work with <code>vegan</code>,
+we need to set <code>n_iter</code> arbitrarily):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"abundance"</span><span class="op">)</span></span>
-<span><span class="va">rand2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"abuswap_c"</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>, metric <span class="op">=</span> <span class="st">"PD"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">rand2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"abuswap_c"</span>, metric <span class="op">=</span> <span class="st">"PD"</span>, </span>
+<span>                 n_iter <span class="op">=</span> <span class="fl">1e6</span>, n_rand <span class="op">=</span> <span class="fl">999</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="spatially-constrained-randomization">Spatially constrained randomization<a class="anchor" aria-label="anchor" href="#spatially-constrained-randomization"></a>
@@ -234,27 +240,30 @@ the <code>wt_row</code> argument to <code><a href="../reference/ps_rand.html">ps
 square weight matrix controlling which pairs of sites are likely to
 exchange species during randomization. A natural choice is a
 distance-decay function of geographic distance, which can be computed
-using <code><a href="../reference/ps_geodist.html">ps_geodist()</a></code>:</p>
+using <code><a href="../reference/ps_geodist.html">ps_geodist()</a></code>; the choice of decay function and
+bandwidth will affect the strength of the spatial constraint, and should
+be based on the spatial scale of ecological processes in the study
+system. The code below demonstrates weight matrix construction for a few
+common shapes of decay function (Gaussian, exponential, threshold), and
+also for a scheme involving isolated subregions (e.g. islands) that
+never exchange species. Note that adding weights generally increases the
+value of <code>n_iter</code> needed for convergence.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># geographic distance between occupied sites</span></span>
-<span><span class="va">geo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="../reference/ps_geodist.html">ps_geodist</a></span><span class="op">(</span><span class="va">ps_bin</span><span class="op">)</span><span class="op">)</span></span>
-<span> </span>
-<span><span class="co"># Gaussian distance decay: nearby sites exchange species frequently,</span></span>
-<span><span class="co"># distant sites rarely</span></span>
-<span><span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">geo</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">geo</span><span class="op">)</span><span class="op">)</span></span>
-<span> </span>
-<span><span class="co"># spatially constrained randomization</span></span>
-<span><span class="va">rand_spatial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps_bin</span>, n_rand <span class="op">=</span> <span class="fl">1000</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                        metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span><span class="op">)</span>,</span>
-<span>                        fun <span class="op">=</span> <span class="st">"nullcat"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>,</span>
-<span>                        n_iter <span class="op">=</span> <span class="fl">1000</span>, wt_row <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></code></pre></div>
-<p>The choice of decay function and bandwidth (here
-<code>median(geo)</code>) will affect the strength of the spatial
-constraint. Smaller bandwidths produce stronger spatial structure in the
-null distribution (exchanges restricted to very nearby sites), while
-larger bandwidths approach the unconstrained case. The appropriate
-choice depends on the spatial scale of ecological processes in the study
-system.</p>
+<code class="sourceCode R"><span><span class="co"># Weight matrices for several alternative distance functions</span></span>
+<span><span class="va">geo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="../reference/ps_geodist.html">ps_geodist</a></span><span class="op">(</span><span class="va">ps_bin</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">1000</span> <span class="co"># distance in km</span></span>
+<span><span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">geo</span>, sd <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="co"># Gaussian decay w0th 100 km SD</span></span>
+<span><span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">geo</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">geo</span><span class="op">)</span><span class="op">)</span> <span class="co"># exponential kernel</span></span>
+<span><span class="va">W</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">geo</span> <span class="op">&lt;</span> <span class="fl">200</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0</span> <span class="co">#  hard distance threshold</span></span>
+<span></span>
+<span><span class="co"># Weights matrix for discrete isolated regions</span></span>
+<span><span class="va">island</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ps</span><span class="op">$</span><span class="va">comm</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span><span class="va">W</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/dist.html" class="external-link">dist</a></span><span class="op">(</span><span class="va">island</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0</span></span>
+<span></span>
+<span><span class="co"># Spatially constrained randomization</span></span>
+<span><span class="va">iters</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter</a></span><span class="op">(</span><span class="va">ps_bin</span>, fun <span class="op">=</span> <span class="st">"nullcat"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, n_iter <span class="op">=</span> <span class="fl">3e5</span><span class="op">)</span></span>
+<span><span class="va">rand_spatial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps_bin</span>, fun <span class="op">=</span> <span class="st">"nullcat"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, n_iter <span class="op">=</span> <span class="va">iters</span>, </span>
+<span>                        n_rand <span class="op">=</span> <span class="fl">1000</span>, metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span><span class="op">)</span>,</span>
+<span>                        wt_row <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="canape">CANAPE<a class="anchor" aria-label="anchor" href="#canape"></a>

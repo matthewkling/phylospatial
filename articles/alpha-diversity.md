@@ -110,19 +110,20 @@ null model algorithm called `"curvecat"`, which is a categorical version
 of the “curveball” algorithm that holds marginal row and column
 multisets fixed.
 
-This is a sequential (Markov chain) randomization algorithm and requires
-sufficient iterations to reach stationarity, so before running our
-randomizations, we need to decide how many consecutive iterations to run
-each randomization for. To get an estimate of how many iterations are
+This is a “sequential” (Markov chain) randomization algorithm and thus
+requires sufficient iterations to reach stationarity, so before running
+our randomizations, we need to decide how many iterations to run each
+randomization for. To get an estimate of how many iterations are
 necessary for convergence based on our particular data and algorithm
-choice, we can pass the same parameters we plan to use for
-[`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
-to
-[`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md):
+choice, we can call
+[`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md)
+(importantly, using all the same parameters we plan to use for
+[`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)):
 
 ``` r
 set.seed(123)
-suggested_iter <- ps_suggest_n_iter(ps, fun = "quantize", method = "curvecat", n_iter = 3e5)
+iters <- ps_suggest_n_iter(ps, fun = "quantize", method = "curvecat", 
+                           n_iter = 3e5, plot = TRUE)
 ```
 
 This tells us we need around 200,000 iterations for our matrix to mix
@@ -140,7 +141,7 @@ with values greater than 0.95.)
 rand <- ps_rand(ps, n_rand = 1000, progress = FALSE,
                 metric = c("PD", "PE", "CE", "RPE"),
                 fun = "quantize", method = "curvecat",
-                n_iter = suggested_iter)
+                n_iter = iters)
 tm_shape(rand$qPE) + 
       tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
       tm_layout(legend.outside = TRUE)
@@ -152,17 +153,22 @@ There are numerous alternative options for randomization algorithms, a
 choice that will depend on the type of occurrence data you have
 (probability, binary, or abundance) and on which attributes of the
 terminal community matrix (fill, row and column sums, etc.) you want to
-hold fixed. In addition to the `quantize` function used above, these
-include a basic `"tip_shuffle"` randomization (the default algorithm), a
-range of algorithms defined in the `vegan` package, and an option to
-supply a custom randomization function. As a second example, here’s a
-randomization with an abundance data set, using the `"abuswap_c"`
-algorithm provided by
-[`vegan::nullmodel`](https://vegandevs.github.io/vegan/reference/nullmodel.html):
+hold fixed. In addition to the `"quantize"` function used above, these
+include “`nullcat"` randomizations for binary data, a basic
+`"tip_shuffle"` randomization (the default algorithm), a range of
+algorithms defined in the `vegan` package `"nullmodel"` function, and an
+option to supply a custom randomization function. As a second example,
+here’s a randomization with an abundance data set, using the
+`"abuswap_c"` algorithm provided by
+[`vegan::nullmodel`](https://vegandevs.github.io/vegan/reference/nullmodel.html)
+(note that since
+[`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md)
+doesn’t work with `vegan`, we need to set `n_iter` arbitrarily):
 
 ``` r
 ps2 <- ps_simulate(data_type = "abundance")
-rand2 <- ps_rand(ps2, fun = "nullmodel", method = "abuswap_c", progress = FALSE, metric = "PD")
+rand2 <- ps_rand(ps2, fun = "nullmodel", method = "abuswap_c", metric = "PD", 
+                 n_iter = 1e6, n_rand = 999)
 ```
 
 ## Spatially constrained randomization
@@ -185,29 +191,33 @@ accepts a square weight matrix controlling which pairs of sites are
 likely to exchange species during randomization. A natural choice is a
 distance-decay function of geographic distance, which can be computed
 using
-[`ps_geodist()`](https://matthewkling.github.io/phylospatial/reference/ps_geodist.md):
+[`ps_geodist()`](https://matthewkling.github.io/phylospatial/reference/ps_geodist.md);
+the choice of decay function and bandwidth will affect the strength of
+the spatial constraint, and should be based on the spatial scale of
+ecological processes in the study system. The code below demonstrates
+weight matrix construction for a few common shapes of decay function
+(Gaussian, exponential, threshold), and also for a scheme involving
+isolated subregions (e.g. islands) that never exchange species. Note
+that adding weights generally increases the value of `n_iter` needed for
+convergence.
 
 ``` r
-# geographic distance between occupied sites
-geo <- as.matrix(ps_geodist(ps_bin))
- 
-# Gaussian distance decay: nearby sites exchange species frequently,
-# distant sites rarely
-W <- exp(-geo / median(geo))
- 
-# spatially constrained randomization
-rand_spatial <- ps_rand(ps_bin, n_rand = 1000, progress = FALSE,
-                        metric = c("PD", "PE"),
-                        fun = "nullcat", method = "curvecat",
-                        n_iter = 1000, wt_row = W)
-```
+# Weight matrices for several alternative distance functions
+geo <- as.matrix(ps_geodist(ps_bin)) / 1000 # distance in km
+W <- dnorm(geo, sd = 100) # Gaussian decay w0th 100 km SD
+W <- exp(-geo / median(geo)) # exponential kernel
+W <- (geo < 200) + 0 #  hard distance threshold
 
-The choice of decay function and bandwidth (here `median(geo)`) will
-affect the strength of the spatial constraint. Smaller bandwidths
-produce stronger spatial structure in the null distribution (exchanges
-restricted to very nearby sites), while larger bandwidths approach the
-unconstrained case. The appropriate choice depends on the spatial scale
-of ecological processes in the study system.
+# Weights matrix for discrete isolated regions
+island <- sample(1:5, nrow(ps$comm), replace = T)
+W <- (as.matrix(dist(island)) == 0) + 0
+
+# Spatially constrained randomization
+iters <- ps_suggest_n_iter(ps_bin, fun = "nullcat", method = "curvecat", n_iter = 3e5)
+rand_spatial <- ps_rand(ps_bin, fun = "nullcat", method = "curvecat", n_iter = iters, 
+                        n_rand = 1000, metric = c("PD", "PE"),
+                        wt_row = W)
+```
 
 ## CANAPE
 

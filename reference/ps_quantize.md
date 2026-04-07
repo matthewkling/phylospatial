@@ -77,6 +77,6 @@ if (requireNamespace("nullcat", quietly = TRUE)) {
     method = "curvecat", fixed = "cell",
     wt_row = W)
 }
-#> Error in nullcat::quantize(x = x, ...): unused arguments (wt_row = NULL, wt_col = NULL)
+#> Warning: [is.lonlat] unknown crs
 # }
 ```

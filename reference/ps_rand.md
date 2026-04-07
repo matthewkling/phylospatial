@@ -177,14 +177,12 @@ if(requireNamespace("nullcat")){
       fun = "quantize", method = "curvecat",
       transform = sqrt, n_strata = 4, fixed = "cell")
 }
-#> Error in nullcat::quantize_prep(tip_comm, method = method, n_iter = n_iter,     wt_row = wt_row, wt_col = wt_col, ...): unused arguments (wt_row = wt_row, wt_col = wt_col)
 
 # binary data with nullcat's curvecat algorithm
 ps2 <- ps_simulate(data_type = "binary")
 if(requireNamespace("nullcat")){
     rand <- ps_rand(ps2, fun = "nullcat", method = "curvecat", n_iter = 1000)
 }
-#> Error in nullcat::nullcat(tip_comm, method = method, n_iter = n_iter,     wt_row = wt_row, wt_col = wt_col, ...): unused arguments (wt_row = wt_row, wt_col = wt_col)
 
 # spatially constrained randomization using geographic distance weights
 if(requireNamespace("nullcat")){
@@ -194,7 +192,6 @@ if(requireNamespace("nullcat")){
                     n_iter = 1000, wt_row = W)
 }
 #> Warning: [is.lonlat] unknown crs
-#> Error in nullcat::nullcat(tip_comm, method = method, n_iter = n_iter,     wt_row = wt_row, wt_col = wt_col, ...): unused arguments (wt_row = wt_row, wt_col = wt_col)
 
 # using binary data, with a vegan `nullmodel` algorithm
 rand <- ps_rand(ps2, "PD", "nullmodel", "r2")
