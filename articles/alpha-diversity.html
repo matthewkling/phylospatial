@@ -183,20 +183,22 @@ all the same parameters we plan to use for <code><a href="../reference/ps_rand.h
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">iters</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter</a></span><span class="op">(</span><span class="va">ps</span>, fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, </span>
 <span>                           n_iter <span class="op">=</span> <span class="fl">3e5</span>, plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p>This tells us we need around 200,000 iterations for our matrix to mix
+<p><img src="alpha-diversity_files/figure-html/n_iter-1.png" class="r-plt" alt="" width="576"></p>
+<p>This suggests we need around 200,000 iterations for our matrix to mix
 sufficiently, so we’ll pass that value to <code><a href="../reference/ps_rand.html">ps_rand()</a></code>. Let’s
 generate a null distribution of <code>n_rand = 1000</code> randomized
-matrices against which to compare our actual data. Then we’ll plot the
-results for PE. This is a quantile value that gives the proportion of
-randomizations in which observed PE was greater than randomized PE in a
-given grid cell. (If you wanted to identify “statistically significant”
-grid cells in a one-tailed test with alpha = 0.05, these would be cells
-with values greater than 0.95.)</p>
+matrices against which to compare our actual data; we can use
+parallelization to speed things up by setting <code>n_cores</code>. Then
+we’ll plot the results for PE. This is a quantile value that gives the
+proportion of randomizations in which observed PE was greater than
+randomized PE in a given grid cell. (If you wanted to identify
+“statistically significant” grid cells in a one-tailed test with alpha =
+0.05, these would be cells with values greater than 0.95.)</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">1000</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span>, <span class="st">"CE"</span>, <span class="st">"RPE"</span><span class="op">)</span>,</span>
 <span>                fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>,</span>
-<span>                n_iter <span class="op">=</span> <span class="va">iters</span><span class="op">)</span></span>
+<span>                n_iter <span class="op">=</span> <span class="va">iters</span>, n_cores <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">rand</span><span class="op">$</span><span class="va">qPE</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"inferno"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>

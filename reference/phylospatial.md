@@ -153,6 +153,18 @@ enabling reconstruction of full-extent spatial outputs. Functions that
 return spatial results automatically expand occupied-only data back to
 the full spatial extent.
 
+If your data are in the form of occurrence point localities (e.g. from
+GBIF or BIEN) rather than a gridded community data set, use
+[`ps_grid()`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)
+to rasterize the points onto a spatial grid before passing the result to
+this function.
+
+## See also
+
+[`ps_grid()`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)
+to convert occurrence point data into a binary or abundance raster that
+can be used with phylospatial.
+
 ## Examples
 
 ``` r

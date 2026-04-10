@@ -152,6 +152,14 @@ it performs is to compute community occurrence data for every internal clade on 
 performance. The original site indices of occupied rows are stored in <code>ps$occupied</code>, and the total number of sites (including
 unoccupied) in <code>ps$n_sites</code>, enabling reconstruction of full-extent spatial outputs. Functions that return spatial results
 automatically expand occupied-only data back to the full spatial extent.</p>
+<p>If your data are in the form of occurrence point localities (e.g. from GBIF or BIEN) rather
+than a gridded community data set, use <code><a href="ps_grid.html">ps_grid()</a></code> to rasterize the points onto a spatial grid
+before passing the result to this function.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="ps_grid.html">ps_grid()</a></code> to convert occurrence point data into a binary or abundance raster that
+can be used with phylospatial.</p></div>
     </div>
 
     <div class="section level2">

@@ -79,5 +79,8 @@
 - [`ps_expand()`](https://matthewkling.github.io/phylospatial/reference/ps_expand.md)
   : Expand occupied-only results to full spatial extent
 
+- [`ps_grid()`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)
+  : Convert occurrence point data to a gridded community data set
+
 - [`to_spatial()`](https://matthewkling.github.io/phylospatial/reference/to_spatial.md)
   : Convert a site-by-variable matrix into a SpatRaster or sf object

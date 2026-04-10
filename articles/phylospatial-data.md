@@ -187,6 +187,62 @@ extent, inserting `NA` for unoccupied sites.
 Also note that spatial data isn’t required; community data provided as a
 matrix works just fine.
 
+## Starting from occurrence points
+
+If your data are occurrence point localities rather than a gridded
+community data set—for example, records downloaded from GBIF or BIEN—you
+can use
+[`ps_grid()`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)
+to rasterize them before building a `phylospatial` object. This function
+takes a data frame of species occurrence records and produces a
+`SpatRaster` with one layer per species, which can be passed directly to
+[`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md).
+
+``` r
+# simulate occurrence records
+set.seed(42)
+occ <- data.frame(
+  species = sample(tree$tip.label, 600, replace = TRUE),
+  x = runif(600, 0, 10),
+  y = runif(600, 0, 10)
+)
+ 
+# rasterize onto a grid (here we specify a resolution in the auto-generated CRS)
+comm_grid <- ps_grid(occ, res = 50000)
+comm_grid
+#> class       : SpatRaster 
+#> size        : 23, 23, 5  (nrow, ncol, nlyr)
+#> resolution  : 50000, 50000  (x, y)
+#> extent      : -581580.4, 568419.6, -577702.5, 572297.5  (xmin, xmax, ymin, ymax)
+#> coord. ref. : +proj=aea +lat_0=5.000684 +lon_0=5.003258 +lat_1=1.669384 +lat_2=8.331983 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs 
+#> source(s)   : memory
+#> names       : t1, t2, t3, t4, t5 
+#> min values  :  0,  0,  0,  0,  0 
+#> max values  :  1,  1,  1,  1,  1
+ 
+# build phylospatial object
+ps_from_points <- phylospatial(comm_grid, tree)
+ps_from_points
+#> `phylospatial` object
+#>   - 8 lineages across 369 occupied sites (529 total) 
+#>   - community data type: binary 
+#>   - spatial data class: SpatRaster 
+#>   - dissimilarity data: none
+```
+
+By default,
+[`ps_grid()`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)
+generates an Albers Equal Area grid centered on the data, so the output
+is ready for use with functions that assume equal-area sites. If you
+have an existing grid you want to match (e.g., from environmental raster
+layers), you can pass it as the `grid` argument. See
+[`?ps_grid`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)
+for details. Note that
+[`ps_grid()`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)
+handles only the spatial gridding step; coordinate cleaning (e.g.,
+removing records in the ocean or with swapped lat/lon) and taxonomic
+name matching should be done beforehand.
+
 ## A realistic example
 
 Now let’s look at creating a phylospatial data set using real data. To

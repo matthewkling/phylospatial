@@ -126,22 +126,25 @@ iters <- ps_suggest_n_iter(ps, fun = "quantize", method = "curvecat",
                            n_iter = 3e5, plot = TRUE)
 ```
 
-This tells us we need around 200,000 iterations for our matrix to mix
+![](alpha-diversity_files/figure-html/n_iter-1.png)
+
+This suggests we need around 200,000 iterations for our matrix to mix
 sufficiently, so we’ll pass that value to
 [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md).
 Let’s generate a null distribution of `n_rand = 1000` randomized
-matrices against which to compare our actual data. Then we’ll plot the
-results for PE. This is a quantile value that gives the proportion of
-randomizations in which observed PE was greater than randomized PE in a
-given grid cell. (If you wanted to identify “statistically significant”
-grid cells in a one-tailed test with alpha = 0.05, these would be cells
-with values greater than 0.95.)
+matrices against which to compare our actual data; we can use
+parallelization to speed things up by setting `n_cores`. Then we’ll plot
+the results for PE. This is a quantile value that gives the proportion
+of randomizations in which observed PE was greater than randomized PE in
+a given grid cell. (If you wanted to identify “statistically
+significant” grid cells in a one-tailed test with alpha = 0.05, these
+would be cells with values greater than 0.95.)
 
 ``` r
 rand <- ps_rand(ps, n_rand = 1000, progress = FALSE,
                 metric = c("PD", "PE", "CE", "RPE"),
                 fun = "quantize", method = "curvecat",
-                n_iter = iters)
+                n_iter = iters, n_cores = 8)
 tm_shape(rand$qPE) + 
       tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
       tm_layout(legend.outside = TRUE)
