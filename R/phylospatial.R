@@ -56,6 +56,10 @@ new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
 #' unoccupied) in `ps$n_sites`, enabling reconstruction of full-extent spatial outputs. Functions that return spatial results
 #' automatically expand occupied-only data back to the full spatial extent.
 #'
+#' If your data are in the form of occurrence point localities (e.g. from GBIF or BIEN) rather
+#' than a gridded community data set, use [ps_grid()] to rasterize the points onto a spatial grid
+#' before passing the result to this function.
+#'
 #' @return A `phylospatial` object, which is a list containing the following elements:
 #' \describe{
 #'  \item{"data_type":}{ Character indicating the community data type}
@@ -69,6 +73,9 @@ new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
 #'  \item{"dissim":}{ A community dissimilarity matrix of class `dist` indicating pairwise phylogenetic dissimilarity
 #'     between occupied sites. Missing unless \code{ps_add_dissim()} is called.}
 #' }
+#'
+#' @seealso [ps_grid()] to convert occurrence point data into a binary or abundance raster that
+#' can be used with phylospatial.
 #'
 #' @examples
 #' \donttest{
@@ -88,7 +95,9 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
       # checks
       data_type <- match.arg(data_type)
       stopifnot("Tree must be an object of class 'phylo'." = inherits(tree, c("phylo", "NULL")))
-      stopifnot("Community data must be a `matrix`, `SpatRaster`, or `sf`." = inherits(comm, c("matrix", "SpatRaster", "sf")))
+      if (!inherits(comm, c("matrix", "SpatRaster", "sf")))
+            stop("`comm` must be a `matrix`, `SpatRaster`, or `sf` object. ",
+                 "If you have occurrence point data, use `ps_grid()` to convert it to a gridded community data set first.")
       stopifnot("Spatial reference must be a `SpatRaster` or `sf` object." = inherits(spatial, c("NULL", "SpatRaster", "sf")))
       if(inherits(spatial, "SpatRaster")) stopifnot("`spatial` must have the same number of grid cells as rows in `comm` data matrix." =
                                                           terra::ncell(spatial) == nrow(comm))

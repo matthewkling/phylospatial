@@ -1,5 +1,7 @@
 # phylospatial 1.4.0
 
+* New function `ps_grid()` converts point occurrence data (e.g. GBIF records) into raster format suitable for use with phylospatial functions.
+
 * New functions `ps_suggest_n_iter()` and `ps_trace()` provide convergence diagnostics for null model randomizations, wrapping `nullcat::suggest_n_iter()` and `nullcat::trace_cat()` on the occupied-site tip community matrix.
 
 * `ps_rand()` and `ps_quantize()` now expose `wt_row` and `wt_col` as named parameters for spatially or functionally constrained null models. These accept weight matrices (e.g., a geographic distance decay matrix from `ps_geodist()`) that bias which pairs of sites or species exchange values during randomization.

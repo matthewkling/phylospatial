@@ -77,6 +77,10 @@ Unoccupied sites (rows where no taxon occurs) are automatically removed from the
 performance. The original site indices of occupied rows are stored in \code{ps$occupied}, and the total number of sites (including
 unoccupied) in \code{ps$n_sites}, enabling reconstruction of full-extent spatial outputs. Functions that return spatial results
 automatically expand occupied-only data back to the full spatial extent.
+
+If your data are in the form of occurrence point localities (e.g. from GBIF or BIEN) rather
+than a gridded community data set, use \code{\link[=ps_grid]{ps_grid()}} to rasterize the points onto a spatial grid
+before passing the result to this function.
 }
 \examples{
 \donttest{
@@ -88,4 +92,8 @@ tree <- ape::read.tree(system.file("extdata", "moss_tree.nex", package = "phylos
 ps <- phylospatial(comm, tree)
 ps
 }
+}
+\seealso{
+\code{\link[=ps_grid]{ps_grid()}} to convert occurrence point data into a binary or abundance raster that
+can be used with phylospatial.
 }

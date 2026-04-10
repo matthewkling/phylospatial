@@ -52,4 +52,5 @@ reference:
   - ps_geodist
   - ps_get_comm
   - ps_expand
+  - ps_grid
   - to_spatial

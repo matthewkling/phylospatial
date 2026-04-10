@@ -90,6 +90,32 @@ Two additional elements help manage the relationship between the community matri
 Also note that spatial data isn't required; community data provided as a matrix works just fine.
 
 
+## Starting from occurrence points
+ 
+If your data are occurrence point localities rather than a gridded community data set---for example, records downloaded from GBIF or BIEN---you can use `ps_grid()` to rasterize them before building a `phylospatial` object. This function takes a data frame of species
+occurrence records and produces a `SpatRaster` with one layer per species, which can be passed directly to `phylospatial()`.
+ 
+```{r ps_grid, message=FALSE}
+# simulate occurrence records
+set.seed(42)
+occ <- data.frame(
+  species = sample(tree$tip.label, 600, replace = TRUE),
+  x = runif(600, 0, 10),
+  y = runif(600, 0, 10)
+)
+ 
+# rasterize onto a grid (here we specify a resolution in the auto-generated CRS)
+comm_grid <- ps_grid(occ, res = 50000)
+comm_grid
+ 
+# build phylospatial object
+ps_from_points <- phylospatial(comm_grid, tree)
+ps_from_points
+```
+ 
+By default, `ps_grid()` generates an Albers Equal Area grid centered on the data, so the output is ready for use with functions that assume equal-area sites. If you have an existing grid you want to match (e.g., from environmental raster layers), you can pass it as the `grid` argument. See `?ps_grid` for details. Note that `ps_grid()` handles only the spatial gridding step; coordinate cleaning (e.g., removing records in the ocean or with swapped lat/lon) and taxonomic name matching should be done beforehand.
+
+
 ## A realistic example
 
 Now let's look at creating a phylospatial data set using real data. To do this, we'll use the example "moss" data set that ships with the package, representing a phylogeny and modeled occurrence probabilities for several hundred species of moss in California. The function `moss()` returns a pre-constructed `phylospatial` object based on these data, but here let's build one from scratch. In the code below we'll load a raster data set with a layer of occurrence probabilities for each species, and a phylogeny representing their evolutionary relationships. We'll then pass these to `phylospatial()`.
