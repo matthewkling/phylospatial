@@ -2,6 +2,8 @@
 
 ## phylospatial 1.4.0
 
+CRAN release: 2026-04-16
+
 - New function
   [`ps_grid()`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)
   converts point occurrence data (e.g. GBIF records) into raster format

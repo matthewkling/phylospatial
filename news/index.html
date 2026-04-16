@@ -35,11 +35,11 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/matthewkling/phylospatial/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/matthewkling/phylospatial/blob/v1.4.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.4.0" id="phylospatial-140">phylospatial 1.4.0<a class="anchor" aria-label="anchor" href="#phylospatial-140"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.4.0" id="phylospatial-140">phylospatial 1.4.0<a class="anchor" aria-label="anchor" href="#phylospatial-140"></a></h2><p class="text-muted">CRAN release: 2026-04-16</p>
 <ul><li><p>New function <code><a href="../reference/ps_grid.html">ps_grid()</a></code> converts point occurrence data (e.g. GBIF records) into raster format suitable for use with phylospatial functions.</p></li>
 <li><p>New functions <code><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter()</a></code> and <code><a href="../reference/ps_trace.html">ps_trace()</a></code> provide convergence diagnostics for null model randomizations, wrapping <code><a href="https://matthewkling.github.io/nullcat/reference/suggest_n_iter.html" class="external-link">nullcat::suggest_n_iter()</a></code> and <code><a href="https://matthewkling.github.io/nullcat/reference/trace_cat.html" class="external-link">nullcat::trace_cat()</a></code> on the occupied-site tip community matrix.</p></li>
 <li><p><code><a href="../reference/ps_rand.html">ps_rand()</a></code> and <code><a href="../reference/ps_quantize.html">ps_quantize()</a></code> now expose <code>wt_row</code> and <code>wt_col</code> as named parameters for spatially or functionally constrained null models. These accept weight matrices (e.g., a geographic distance decay matrix from <code><a href="../reference/ps_geodist.html">ps_geodist()</a></code>) that bias which pairs of sites or species exchange values during randomization.</p></li>
