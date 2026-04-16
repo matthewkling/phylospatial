@@ -63,6 +63,12 @@
 
 ## Utilities
 
+- [`rescale_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  [`slice_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  [`delta_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  [`uniform_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  : Scale branch lengths on a phylogenetic tree
+
 - [`plot(`*`<phylospatial>`*`)`](https://matthewkling.github.io/phylospatial/reference/plot.phylospatial.md)
   :
 

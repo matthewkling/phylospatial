@@ -42,12 +42,14 @@ ps_add_dissim(ps)
 #> `phylospatial` object
 #>   - 18 lineages across 400 occupied sites (400 total) 
 #>   - community data type: probability 
+#>   - branch length rescaling: sum1 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: sorensen 
 ps_add_dissim(ps, fun = "vegdist", method = "jaccard", endemism = TRUE)
 #> `phylospatial` object
 #>   - 18 lineages across 400 occupied sites (400 total) 
 #>   - community data type: probability 
+#>   - branch length rescaling: sum1 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: jaccard 
 ```

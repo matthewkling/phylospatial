@@ -2,6 +2,8 @@
 
 ## phylospatial (development version)
 
+- Added tree rescaling and transformation utilities.
+
 ## phylospatial 1.4.0
 
 CRAN release: 2026-04-16

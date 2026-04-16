@@ -16,7 +16,8 @@ phylospatial(
   clade_fun = NULL,
   build = TRUE,
   check = TRUE,
-  area_tol = 0.01
+  area_tol = 0.01,
+  rescale = c("sum1", "tip1", "raw")
 )
 ```
 
@@ -97,6 +98,19 @@ phylospatial(
   in the library assume that sites are equal area. This argument is
   ignored if `check = FALSE` or if no spatial data is provided.
 
+- rescale:
+
+  Character giving the branch-length rescaling method applied to the
+  tree during construction. Must be `"sum1"` (default), `"tip1"`, or
+  `"raw"`. `"sum1"` divides all branch lengths so they sum to 1.
+  `"tip1"` divides all branch lengths by the longest root-to-tip path.
+  `"raw"` applies no rescaling, preserving the original branch-length
+  units. See
+  [`rescale_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  for details. Note that rescaling does not affect spatial patterns or
+  statistical significance of diversity metrics—only their numeric
+  scale.
+
 ## Value
 
 A `phylospatial` object, which is a list containing the following
@@ -137,6 +151,10 @@ elements:
   phylogenetic dissimilarity between occupied sites. Missing unless
   [`ps_add_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_add_dissim.md)
   is called.
+
+- "rescale"::
+
+  Character indicating which branch-length rescaling was applied.
 
 ## Details
 
@@ -180,6 +198,7 @@ ps
 #> `phylospatial` object
 #>   - 884 lineages across 527 occupied sites (1116 total) 
 #>   - community data type: probability 
+#>   - branch length rescaling: sum1 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: none 
 # }

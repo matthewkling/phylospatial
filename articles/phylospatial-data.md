@@ -59,6 +59,7 @@ ps
 #> `phylospatial` object
 #>   - 8 lineages across 100 occupied sites (100 total) 
 #>   - community data type: probability 
+#>   - branch length rescaling: sum1 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: none
 ```
@@ -78,7 +79,7 @@ function to view the tree.
 ``` r
 names(ps)
 #> [1] "comm"      "tree"      "spatial"   "occupied"  "n_sites"   "data_type"
-#> [7] "clade_fun" "dissim"
+#> [7] "clade_fun" "rescale"   "dissim"
 
 ps$tree
 #> 
@@ -226,6 +227,7 @@ ps_from_points
 #> `phylospatial` object
 #>   - 8 lineages across 369 occupied sites (529 total) 
 #>   - community data type: binary 
+#>   - branch length rescaling: sum1 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: none
 ```
@@ -272,7 +274,7 @@ plot(ps, "tree", type = "fan", show.tip.label = FALSE)
 
 ![](phylospatial-data_files/figure-html/moss-2.png)
 
-#### Non-phylogenetic data
+## Non-phylogenetic data
 
 While the `phylospatial` library is obviously designed for phylogenetic
 analyses, it’s worth noting that it also supports non-phylogenetic
@@ -298,3 +300,80 @@ plot(ps, "tree", type = "fan")
 ```
 
 ![](phylospatial-data_files/figure-html/species-1.png)
+
+## Tree scaling
+
+Branch lengths encode evolutionary information—divergence time,
+molecular change, or another measure of evolutionary distance—and
+different ways of transforming them before analysis can reveal different
+facets of spatial phylogenetic structure. The `phylospatial` package
+provides a family of tree-scaling functions for this purpose. See
+[`?tree_scaling`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+for full documentation. These functions fall into two categories: affine
+rescaling and differential transforms. All these tree scaling functions
+return a `phylo` object with the same topology, so they can be passed
+directly to
+[`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md).
+
+#### Affine rescaling
+
+Affine rescaling applies a uniform multiplicative factor to every
+branch, changing units without changing relative lengths or spatial
+patterns.
+[`rescale_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+provides three options, which are also available through the `rescale`
+parameter of
+[`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md):
+
+- `"raw"` (no change)
+- `"sum1"` (branch lengths sum to 1; this is the default for
+  [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md))
+- `"tip1"` (longest root-to-tip path equals 1).
+
+#### Differential transforms
+
+Differential transforms change the shape of the branch-length
+distribution, treating different branches differently based on their
+position or length. These change what your diversity metrics are
+measuring.
+
+- [`uniform_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  sets all branch lengths to 1, producing a cladogram. On a cladogram,
+  PD reduces to clade richness, which represents the diversification or
+  net speciation facet of macroevolution (Kling et al. 2019). Cladograms
+  can be used in CANAPE-style analyses that compare PE on the original
+  tree to PE on a cladogram to distinguish neo- from paleo-endemism
+  (Mishler et al. 2014).
+- [`slice_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  retains only the portions of each branch that fall within a specified
+  depth window, zeroing out the rest. This isolates evolutionary history
+  attributable to a particular time range, enabling questions like
+  “where is recently-evolved phylogenetic endemism concentrated?” The
+  window can be defined on the tree itself or on a separate `reference`
+  tree with the same topology (e.g., slicing a phylogram by a chronogram
+  to isolate molecular divergence within a specific age range).
+- [`delta_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  applies Pagel’s (1999) delta transformation, a continuous alternative
+  to slicing. It raises each node depth to the power `delta`,
+  redistributing branch length along the depth axis while preserving
+  total tree height. Values of `delta < 1` emphasize deeper divergence;
+  `delta > 1` emphasizes recent divergence.
+
+As an example, let’s rescale our tree to \[0, 1\] using `"tip1"`, then
+slice it into deep and shallow halves and compare these to a cladogram:
+
+``` r
+moss_tree <- read.tree(system.file("extdata", "moss_tree.nex", package = "phylospatial"))
+tree_01 <- rescale_tree(moss_tree, "tip1")
+tree_deep <- slice_tree(tree_01, min = 0, max = 0.5, from = "root")
+tree_shallow <- slice_tree(tree_01, min = 0, max = 0.5, from = "tips")
+tree_clado <- uniform_tree(moss_tree)
+
+par(mfrow = c(1, 4), mar = c(2, 1, 2, 1))
+plot(moss_tree, show.tip.label = FALSE, main = "original")
+plot(tree_shallow, show.tip.label = FALSE, main = "sliced (recent)")
+plot(tree_deep, show.tip.label = FALSE, main = "sliced (ancient)")
+plot(tree_clado, show.tip.label = FALSE, main = "cladogram")
+```
+
+![](phylospatial-data_files/figure-html/tree_scaling-1.png)

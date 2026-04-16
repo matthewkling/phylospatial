@@ -133,6 +133,7 @@ data.) Then we pass them to <code><a href="../reference/phylospatial.html">phylo
 <span><span class="co">#&gt; `phylospatial` object</span></span>
 <span><span class="co">#&gt;   - 8 lineages across 100 occupied sites (100 total) </span></span>
 <span><span class="co">#&gt;   - community data type: probability </span></span>
+<span><span class="co">#&gt;   - branch length rescaling: sum1 </span></span>
 <span><span class="co">#&gt;   - spatial data class: SpatRaster </span></span>
 <span><span class="co">#&gt;   - dissimilarity data: none</span></span></code></pre></div>
 </div>
@@ -151,7 +152,7 @@ lengths of the input tree are scaled to sum to 1. We can use
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "comm"      "tree"      "spatial"   "occupied"  "n_sites"   "data_type"</span></span>
-<span><span class="co">#&gt; [7] "clade_fun" "dissim"</span></span>
+<span><span class="co">#&gt; [7] "clade_fun" "rescale"   "dissim"</span></span>
 <span></span>
 <span><span class="va">ps</span><span class="op">$</span><span class="va">tree</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -294,6 +295,7 @@ one layer per species, which can be passed directly to
 <span><span class="co">#&gt; `phylospatial` object</span></span>
 <span><span class="co">#&gt;   - 8 lineages across 369 occupied sites (529 total) </span></span>
 <span><span class="co">#&gt;   - community data type: binary </span></span>
+<span><span class="co">#&gt;   - branch length rescaling: sum1 </span></span>
 <span><span class="co">#&gt;   - spatial data class: SpatRaster </span></span>
 <span><span class="co">#&gt;   - dissimilarity data: none</span></span></code></pre></div>
 <p>By default, <code><a href="../reference/ps_grid.html">ps_grid()</a></code> generates an Albers Equal Area
@@ -327,9 +329,10 @@ evolutionary relationships. We’ll then pass these to
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ps</span>, <span class="st">"tree"</span>, type <span class="op">=</span> <span class="st">"fan"</span>, show.tip.label <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="phylospatial-data_files/figure-html/moss-2.png" class="r-plt" alt="" width="576"></p>
-<div class="section level4">
-<h4 id="non-phylogenetic-data">Non-phylogenetic data<a class="anchor" aria-label="anchor" href="#non-phylogenetic-data"></a>
-</h4>
+</div>
+<div class="section level2">
+<h2 id="non-phylogenetic-data">Non-phylogenetic data<a class="anchor" aria-label="anchor" href="#non-phylogenetic-data"></a>
+</h2>
 <p>While the <code>phylospatial</code> library is obviously designed for
 phylogenetic analyses, it’s worth noting that it also supports
 non-phylogenetic analyses. In cases where a phylogeny is unavailable or
@@ -349,6 +352,86 @@ community data we created above:</p>
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/phylospatial.html">phylospatial</a></span><span class="op">(</span><span class="va">comm</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ps</span>, <span class="st">"tree"</span>, type <span class="op">=</span> <span class="st">"fan"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="phylospatial-data_files/figure-html/species-1.png" class="r-plt" alt="" width="576"></p>
+</div>
+<div class="section level2">
+<h2 id="tree-scaling">Tree scaling<a class="anchor" aria-label="anchor" href="#tree-scaling"></a>
+</h2>
+<p>Branch lengths encode evolutionary information—divergence time,
+molecular change, or another measure of evolutionary distance—and
+different ways of transforming them before analysis can reveal different
+facets of spatial phylogenetic structure. The <code>phylospatial</code>
+package provides a family of tree-scaling functions for this purpose.
+See <code><a href="../reference/tree_scaling.html">?tree_scaling</a></code> for full documentation. These functions
+fall into two categories: affine rescaling and differential transforms.
+All these tree scaling functions return a <code>phylo</code> object with
+the same topology, so they can be passed directly to
+<code><a href="../reference/phylospatial.html">phylospatial()</a></code>.</p>
+<div class="section level4">
+<h4 id="affine-rescaling">Affine rescaling<a class="anchor" aria-label="anchor" href="#affine-rescaling"></a>
+</h4>
+<p>Affine rescaling applies a uniform multiplicative factor to every
+branch, changing units without changing relative lengths or spatial
+patterns. <code><a href="../reference/tree_scaling.html">rescale_tree()</a></code> provides three options, which are
+also available through the <code>rescale</code> parameter of
+<code><a href="../reference/phylospatial.html">phylospatial()</a></code>:</p>
+<ul>
+<li>
+<code>"raw"</code> (no change)</li>
+<li>
+<code>"sum1"</code> (branch lengths sum to 1; this is the default
+for <code><a href="../reference/phylospatial.html">phylospatial()</a></code>)</li>
+<li>
+<code>"tip1"</code> (longest root-to-tip path equals 1).</li>
+</ul>
+</div>
+<div class="section level4">
+<h4 id="differential-transforms">Differential transforms<a class="anchor" aria-label="anchor" href="#differential-transforms"></a>
+</h4>
+<p>Differential transforms change the shape of the branch-length
+distribution, treating different branches differently based on their
+position or length. These change what your diversity metrics are
+measuring.</p>
+<ul>
+<li>
+<code><a href="../reference/tree_scaling.html">uniform_tree()</a></code> sets all branch lengths to 1, producing
+a cladogram. On a cladogram, PD reduces to clade richness, which
+represents the diversification or net speciation facet of macroevolution
+(Kling et al. 2019). Cladograms can be used in CANAPE-style analyses
+that compare PE on the original tree to PE on a cladogram to distinguish
+neo- from paleo-endemism (Mishler et al. 2014).</li>
+<li>
+<code><a href="../reference/tree_scaling.html">slice_tree()</a></code> retains only the portions of each branch
+that fall within a specified depth window, zeroing out the rest. This
+isolates evolutionary history attributable to a particular time range,
+enabling questions like “where is recently-evolved phylogenetic endemism
+concentrated?” The window can be defined on the tree itself or on a
+separate <code>reference</code> tree with the same topology (e.g.,
+slicing a phylogram by a chronogram to isolate molecular divergence
+within a specific age range).</li>
+<li>
+<code><a href="../reference/tree_scaling.html">delta_tree()</a></code> applies Pagel’s (1999) delta
+transformation, a continuous alternative to slicing. It raises each node
+depth to the power <code>delta</code>, redistributing branch length
+along the depth axis while preserving total tree height. Values of
+<code>delta &lt; 1</code> emphasize deeper divergence;
+<code>delta &gt; 1</code> emphasizes recent divergence.</li>
+</ul>
+<p>As an example, let’s rescale our tree to [0, 1] using
+<code>"tip1"</code>, then slice it into deep and shallow halves and
+compare these to a cladogram:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">moss_tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">read.tree</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"moss_tree.nex"</span>, package <span class="op">=</span> <span class="st">"phylospatial"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">tree_01</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tree_scaling.html">rescale_tree</a></span><span class="op">(</span><span class="va">moss_tree</span>, <span class="st">"tip1"</span><span class="op">)</span></span>
+<span><span class="va">tree_deep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tree_scaling.html">slice_tree</a></span><span class="op">(</span><span class="va">tree_01</span>, min <span class="op">=</span> <span class="fl">0</span>, max <span class="op">=</span> <span class="fl">0.5</span>, from <span class="op">=</span> <span class="st">"root"</span><span class="op">)</span></span>
+<span><span class="va">tree_shallow</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tree_scaling.html">slice_tree</a></span><span class="op">(</span><span class="va">tree_01</span>, min <span class="op">=</span> <span class="fl">0</span>, max <span class="op">=</span> <span class="fl">0.5</span>, from <span class="op">=</span> <span class="st">"tips"</span><span class="op">)</span></span>
+<span><span class="va">tree_clado</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tree_scaling.html">uniform_tree</a></span><span class="op">(</span><span class="va">moss_tree</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">moss_tree</span>, show.tip.label <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">"original"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tree_shallow</span>, show.tip.label <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">"sliced (recent)"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tree_deep</span>, show.tip.label <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">"sliced (ancient)"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tree_clado</span>, show.tip.label <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">"cladogram"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="phylospatial-data_files/figure-html/tree_scaling-1.png" class="r-plt" alt="" width="960"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

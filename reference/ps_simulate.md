@@ -58,6 +58,7 @@ ps_simulate()
 #> `phylospatial` object
 #>   - 18 lineages across 399 occupied sites (400 total) 
 #>   - community data type: probability 
+#>   - branch length rescaling: sum1 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: none 
 
