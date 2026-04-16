@@ -48,6 +48,7 @@ reference:
   - benefit
 - title: Utilities
 - contents:
+  - tree_scaling
   - plot.phylospatial
   - ps_geodist
   - ps_get_comm

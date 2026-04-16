@@ -12,7 +12,8 @@ phylospatial(
   clade_fun = NULL,
   build = TRUE,
   check = TRUE,
-  area_tol = 0.01
+  area_tol = 0.01,
+  rescale = c("sum1", "tip1", "raw")
 )
 }
 \arguments{
@@ -48,6 +49,14 @@ the columns of \code{comm} must exactly match the order of \code{tree} edges inc
 \item{area_tol}{Numeric value giving tolerance for variation in the area of sites. Default is \code{0.01}. If the coefficient of variation in
 the area or length of spatial units (e.g. grid cells) exceeds this value, an error will result. This check is performed because various
 other functions in the library assume that sites are equal area. This argument is ignored if \code{check = FALSE} or if no spatial data is provided.}
+
+\item{rescale}{Character giving the branch-length rescaling method applied
+to the tree during construction. Must be \code{"sum1"} (default), \code{"tip1"}, or \code{"raw"}.
+\code{"sum1"} divides all branch lengths so they sum to 1. \code{"tip1"} divides all branch
+lengths by the longest root-to-tip path. \code{"raw"} applies no rescaling, preserving
+the original branch-length units. See \code{\link[=rescale_tree]{rescale_tree()}} for details. Note that
+rescaling does not affect spatial patterns or statistical significance of diversity
+metrics---only their numeric scale.}
 }
 \value{
 A \code{phylospatial} object, which is a list containing the following elements:
@@ -62,6 +71,7 @@ May be missing if no spatial data was supplied.}
 \item{"n_sites":}{ Total number of sites in the original data, including unoccupied.}
 \item{"dissim":}{ A community dissimilarity matrix of class \code{dist} indicating pairwise phylogenetic dissimilarity
 between occupied sites. Missing unless \code{ps_add_dissim()} is called.}
+\item{"rescale":}{ Character indicating which branch-length rescaling was applied.}
 }
 }
 \description{

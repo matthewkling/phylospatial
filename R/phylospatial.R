@@ -1,6 +1,6 @@
 # instantiate a new `phylospatial` object
 new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
-                             dissim = NULL, data_type, clade_fun){
+                             dissim = NULL, data_type, clade_fun, rescale){
       stopifnot(inherits(tree, "phylo"))
       stopifnot(is.character(data_type))
       structure(list(comm = comm,
@@ -10,6 +10,7 @@ new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
                      n_sites = n_sites,
                      data_type = data_type,
                      clade_fun = clade_fun,
+                     rescale = rescale,
                      dissim = NULL),
                 class = "phylospatial")
 }
@@ -46,6 +47,13 @@ new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
 #' @param area_tol Numeric value giving tolerance for variation in the area of sites. Default is `0.01`. If the coefficient of variation in
 #'    the area or length of spatial units (e.g. grid cells) exceeds this value, an error will result. This check is performed because various
 #'    other functions in the library assume that sites are equal area. This argument is ignored if `check = FALSE` or if no spatial data is provided.
+#' @param rescale Character giving the branch-length rescaling method applied
+#'    to the tree during construction. Must be `"sum1"` (default), `"tip1"`, or `"raw"`.
+#'    `"sum1"` divides all branch lengths so they sum to 1. `"tip1"` divides all branch
+#'    lengths by the longest root-to-tip path. `"raw"` applies no rescaling, preserving
+#'    the original branch-length units. See [rescale_tree()] for details. Note that
+#'    rescaling does not affect spatial patterns or statistical significance of diversity
+#'    metrics---only their numeric scale.
 #'
 #' @details
 #' This function formats the input data as a `phylospatial` object. Beyond validating, cleaning, and restructing the data, the main operation
@@ -72,6 +80,7 @@ new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
 #'  \item{"n_sites":}{ Total number of sites in the original data, including unoccupied.}
 #'  \item{"dissim":}{ A community dissimilarity matrix of class `dist` indicating pairwise phylogenetic dissimilarity
 #'     between occupied sites. Missing unless \code{ps_add_dissim()} is called.}
+#'  \item{"rescale":}{ Character indicating which branch-length rescaling was applied.}
 #' }
 #'
 #' @seealso [ps_grid()] to convert occurrence point data into a binary or abundance raster that
@@ -90,7 +99,8 @@ new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
 #' @export
 phylospatial <- function(comm, tree = NULL, spatial = NULL,
                          data_type = c("auto", "probability", "binary", "abundance", "other"),
-                         clade_fun = NULL, build = TRUE, check = TRUE, area_tol = 0.01){
+                         clade_fun = NULL, build = TRUE, check = TRUE, area_tol = 0.01,
+                         rescale = c("sum1", "tip1", "raw")){
 
       # checks
       data_type <- match.arg(data_type)
@@ -179,7 +189,8 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
       }
 
       # scale branch lengths
-      tree$edge.length <- tree$edge.length / sum(tree$edge.length)
+      rescale <- match.arg(rescale)
+      tree <- rescale_tree(tree, method = rescale)
       tree <- ape::reorder.phylo(tree) # because methods like TMPD assume this ordering
 
       # --- trim to occupied sites ---
@@ -204,5 +215,6 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
       # create phylospatial object
       new_phylospatial(comm, tree, spatial,
                        occupied = occ, n_sites = n_sites,
-                       dissim = NULL, data_type = data_type, clade_fun = clade_fun)
+                       dissim = NULL, data_type = data_type, clade_fun = clade_fun,
+                       rescale = rescale)
 }

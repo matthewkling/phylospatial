@@ -1,5 +1,7 @@
 # phylospatial (development version)
 
+* Added tree rescaling and transformation utilities. 
+
 # phylospatial 1.4.0
 
 * New function `ps_grid()` converts point occurrence data (e.g. GBIF records) into raster format suitable for use with phylospatial functions.
