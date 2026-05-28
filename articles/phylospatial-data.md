@@ -42,6 +42,7 @@ addition to binary community data.) Then we pass them to
 [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md):
 
 ``` r
+
 library(phylospatial); library(terra); library(ape); library(sf)
 
 # simulate data
@@ -77,6 +78,7 @@ We can use
 function to view the tree.
 
 ``` r
+
 names(ps)
 #> [1] "comm"      "tree"      "spatial"   "occupied"  "n_sites"   "data_type"
 #> [7] "clade_fun" "rescale"   "dissim"
@@ -109,6 +111,7 @@ Let’s take a look at the matrix. We can also `plot` the community data,
 which re-casts it as a spatial data set (a raster, in this case).
 
 ``` r
+
 head(ps$comm)
 #>         clade1    clade2        t5         t4    clade3          t3         t1
 #> [1,] 0.9980319 0.9889042 0.5000000 0.97780849 0.8226247 0.781536164 0.18807934
@@ -200,6 +203,7 @@ takes a data frame of species occurrence records and produces a
 [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md).
 
 ``` r
+
 # simulate occurrence records
 set.seed(42)
 occ <- data.frame(
@@ -211,14 +215,14 @@ occ <- data.frame(
 # rasterize onto a grid (here we specify a resolution in the auto-generated CRS)
 comm_grid <- ps_grid(occ, res = 50000)
 comm_grid
-#> class       : SpatRaster 
+#> class       : SpatRaster
 #> size        : 23, 23, 5  (nrow, ncol, nlyr)
 #> resolution  : 50000, 50000  (x, y)
 #> extent      : -581580.4, 568419.6, -577702.5, 572297.5  (xmin, xmax, ymin, ymax)
-#> coord. ref. : +proj=aea +lat_0=5.000684 +lon_0=5.003258 +lat_1=1.669384 +lat_2=8.331983 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs 
+#> coord. ref. : +proj=aea +lat_0=5.000684 +lon_0=5.003258 +lat_1=1.669384 +lat_2=8.331983 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs
 #> source(s)   : memory
-#> names       : t1, t2, t3, t4, t5 
-#> min values  :  0,  0,  0,  0,  0 
+#> names       : t1, t2, t3, t4, t5
+#> min values  :  0,  0,  0,  0,  0
 #> max values  :  1,  1,  1,  1,  1
  
 # build phylospatial object
@@ -260,6 +264,7 @@ pass these to
 [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md).
 
 ``` r
+
 moss_comm <- rast(system.file("extdata", "moss_comm.tif", package = "phylospatial"))
 moss_tree <- read.tree(system.file("extdata", "moss_tree.nex", package = "phylospatial"))
 ps <- phylospatial(moss_comm, moss_tree)
@@ -269,6 +274,7 @@ plot(ps, "comm")
 ![](phylospatial-data_files/figure-html/moss-1.png)
 
 ``` r
+
 plot(ps, "tree", type = "fan", show.tip.label = FALSE)
 ```
 
@@ -295,6 +301,7 @@ provided by the user. Here’s how this looks for the simple community
 data we created above:
 
 ``` r
+
 ps <- phylospatial(comm)
 plot(ps, "tree", type = "fan")
 ```
@@ -363,6 +370,7 @@ As an example, let’s rescale our tree to \[0, 1\] using `"tip1"`, then
 slice it into deep and shallow halves and compare these to a cladogram:
 
 ``` r
+
 moss_tree <- read.tree(system.file("extdata", "moss_tree.nex", package = "phylospatial"))
 tree_01 <- rescale_tree(moss_tree, "tip1")
 tree_deep <- slice_tree(tree_01, min = 0, max = 0.5, from = "root")

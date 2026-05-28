@@ -14,6 +14,7 @@ for details on constructing data sets. We’ll use the
 example data here.
 
 ``` r
+
 library(phylospatial); library(tmap); library(magrittr)
 ps <- moss()
 ```
@@ -54,6 +55,7 @@ data; this is a square distance matrix with a row and column for each
 site:
 
 ``` r
+
 ps <- ps_add_dissim(ps, method = "sorensen", endemism = TRUE, normalize = TRUE)
 ps
 #> `phylospatial` object
@@ -81,6 +83,7 @@ can compute by specifying `tips_only = TRUE`. We can summarize the
 pattern with a LOESS curve:
 
 ``` r
+
 phy_beta <- as.vector(ps_dissim(ps, method = "sorensen"))
 spp_beta <- as.vector(ps_dissim(ps, method = "sorensen", tips_only = TRUE))
 geo_dist <- as.vector(ps_geodist(ps)) / 1000  # convert to km
@@ -124,6 +127,7 @@ various ordination methods. Let’s perform a PCA, and make maps of the
 first four dimensions:
 
 ``` r
+
 ps %>%
       ps_ordinate(method = "pca", k = 4) %>%
       tm_shape() +
@@ -144,6 +148,7 @@ using
 [`tmap::tm_rgb()`](https://r-tmap.github.io/tmap/reference/tm_rgb.html):
 
 ``` r
+
 ps %>%
       ps_rgb(method = "cmds") %>%
       tm_shape() +
@@ -178,6 +183,7 @@ comparing the variance explained by different numbers of clusters. Let’s
 do that here, using the `"average"` hierarchical clustering method:
 
 ``` r
+
 ps_regions_eval(ps, k = 1:15, plot = TRUE, method = "average")
 ```
 
@@ -189,6 +195,7 @@ though other choices could also be reasonable. Let’s generate results
 for four regions, and then make a map of these zones:
 
 ``` r
+
 ps %>%
       ps_regions(k = 4, method = "average") %>%
       tm_shape() +

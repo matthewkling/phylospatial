@@ -49,6 +49,7 @@ phylogenetic R packages.
 ## Installation
 
 ``` r
+
 # you can install the package from CRAN:
 install.packages("phylospatial")
 
@@ -59,6 +60,7 @@ remotes::install_github("matthewkling/phylospatial")
 ## Quick start
 
 ``` r
+
 library(phylospatial)
 ps <- moss() # load example data
 div <- ps_diversity(ps) # calculate diversity metrics

@@ -83,6 +83,7 @@ variable called `init` specifying our (arbitrary) initial conservation
 values, and `cost` defining some hypothetical land cost data.
 
 ``` r
+
 library(phylospatial); library(tmap); library(magrittr)
 
 ps <- moss()
@@ -96,6 +97,7 @@ Plotting the result, the highest-priority sites are those with low rank
 values, shown in yellow.
 
 ``` r
+
 priority <- ps_prioritize(ps, init = init, cost = cost)
 
 tm_shape(priority) + 
@@ -146,6 +148,7 @@ Let’s demonstrate that here; we’ll run 2500 reps, though more might be
 better for a real analysis:
 
 ``` r
+
 priority <- ps_prioritize(ps, init = init, cost = cost, n_reps = 2500,
                           method = "prob", max_iter = 10)
 
@@ -175,6 +178,7 @@ to compare the shapes of benefit functions under different lambda
 values:
 
 ``` r
+
 plot_lambda()
 ```
 

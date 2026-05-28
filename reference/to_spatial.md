@@ -35,17 +35,18 @@ with a variable for every column in `m`, depending on the data type of
 ps <- moss()
 # ps$comm contains only occupied sites, so expand before converting:
 to_spatial(ps_expand(ps, ps$comm[, 1:5]), ps$spatial)
-#> class       : SpatRaster 
+#> class       : SpatRaster
 #> size        : 36, 31, 5  (nrow, ncol, nlyr)
 #> resolution  : 30000, 30000  (x, y)
 #> extent      : -375000, 555000, -630000, 450000  (xmin, xmax, ymin, ymax)
-#> coord. ref. : +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +datum=NAD83 +units=m +no_defs 
+#> coord. ref. : +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +datum=NAD83 +units=m +no_defs
 #> source(s)   : memory
-#> varnames    : clade1 
-#>               Sphagnum_teres 
-#>               clade2 
-#>               ...
-#> names       :   clade1, Sphagnum_teres,    clade2, Sphagn~rrosum,    clade3 
-#> min values  : 0.000000,      0.0000000, 0.0000000,     0.0000000, 0.0000000 
-#> max values  : 0.996422,      0.5368522, 0.9961039,     0.6190746, 0.9961031 
+#> varnames    : clade1
+#>               Sphagnum_teres
+#>               clade2
+#>               Sphagnum_squarrosum
+#>               clade3
+#> names       :   clade1, Sphagnum_teres,   clade2, Sphagn~rrosum,   clade3
+#> min values  :        0,              0,        0,             0,        0
+#> max values  : 0.996422,       0.536852, 0.996104,      0.619075, 0.996103
 ```

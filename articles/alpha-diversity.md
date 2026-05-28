@@ -13,6 +13,7 @@ for details on constructing data sets. We’ll use the
 example data here.
 
 ``` r
+
 library(phylospatial); library(tmap)
 ps <- moss()
 ```
@@ -81,6 +82,7 @@ Since our data is raster-based, by default the function will return a
 and PE:
 
 ``` r
+
 div <- ps_diversity(ps, metric = c("PD", "PE"))
 tm_shape(div$PD) + 
       tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
@@ -90,6 +92,7 @@ tm_shape(div$PD) +
 ![](alpha-diversity_files/figure-html/alpha-1.png)
 
 ``` r
+
 tm_shape(div$PE) + 
       tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
       tm_layout(legend.outside = TRUE)
@@ -121,6 +124,7 @@ choice, we can call
 [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)):
 
 ``` r
+
 set.seed(123)
 iters <- ps_suggest_n_iter(ps, fun = "quantize", method = "curvecat", 
                            n_iter = 3e5, plot = TRUE)
@@ -141,6 +145,7 @@ significant” grid cells in a one-tailed test with alpha = 0.05, these
 would be cells with values greater than 0.95.)
 
 ``` r
+
 rand <- ps_rand(ps, n_rand = 1000, progress = FALSE,
                 metric = c("PD", "PE", "CE", "RPE"),
                 fun = "quantize", method = "curvecat",
@@ -169,6 +174,7 @@ here’s a randomization with an abundance data set, using the
 doesn’t work with `vegan`, we need to set `n_iter` arbitrarily):
 
 ``` r
+
 ps2 <- ps_simulate(data_type = "abundance")
 rand2 <- ps_rand(ps2, fun = "nullmodel", method = "abuswap_c", metric = "PD", 
                  n_iter = 1e6, n_rand = 999)
@@ -205,6 +211,7 @@ that adding weights generally increases the value of `n_iter` needed for
 convergence.
 
 ``` r
+
 # Weight matrices for several alternative distance functions
 geo <- as.matrix(ps_geodist(ps_bin)) / 1000 # distance in km
 W <- dnorm(geo, sd = 100) # Gaussian decay w0th 100 km SD
@@ -236,6 +243,7 @@ with the moss data; note that depending on the randomization, only a
 subset of the five categories may occur in the result here:
 
 ``` r
+
 cp <- ps_canape(rand, alpha = .05)
 terra::plot(cp)
 ```

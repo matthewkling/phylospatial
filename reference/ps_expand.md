@@ -448,14 +448,14 @@ ps_expand(ps, site_totals)
 
 # expand and convert to spatial
 ps_expand(ps, site_totals, spatial = TRUE)
-#> class       : SpatRaster 
+#> class       : SpatRaster
 #> size        : 20, 20, 1  (nrow, ncol, nlyr)
 #> resolution  : 1, 1  (x, y)
 #> extent      : 0, 20, 0, 20  (xmin, xmax, ymin, ymax)
-#> coord. ref. :  
+#> coord. ref. : 
 #> source(s)   : memory
-#> varname     : total 
-#> name        :     total 
-#> min value   : 0.2286463 
-#> max value   : 4.6452158 
+#> varname     : total
+#> name        :    total
+#> min value   : 0.228646
+#> max value   : 4.645216
 ```

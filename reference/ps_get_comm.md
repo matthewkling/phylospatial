@@ -42,19 +42,21 @@ ps <- ps_simulate()
 
 # the defaults return a spatial object of terminal taxa distributions:
 ps_get_comm(ps)
-#> class       : SpatRaster 
+#> class       : SpatRaster
 #> size        : 20, 20, 10  (nrow, ncol, nlyr)
 #> resolution  : 1, 1  (x, y)
 #> extent      : 0, 20, 0, 20  (xmin, xmax, ymin, ymax)
-#> coord. ref. :  
+#> coord. ref. : 
 #> source(s)   : memory
-#> varnames    : t4 
-#>               t8 
-#>               t5 
+#> varnames    : t4
+#>               t8
+#>               t5
+#>               t9
+#>               t10
 #>               ...
-#> names       :       t4,        t8,        t5,        t9,       t10,        t6, ... 
-#> min values  : 0.000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, ... 
-#> max values  : 0.667054, 0.8274968, 0.8483195, 0.1515441, 0.6230429, 0.4927548, ... 
+#> names       :       t4,       t8,      t5,       t9,      t10,       t6, ...
+#> min values  :        0,        0,       0,        0,        0,        0, ...
+#> max values  : 0.667054, 0.827497, 0.84832, 0.151544, 0.623043, 0.492755, ...
 
 # get distributions for all taxa, as a matrix
 pcomm <- ps_get_comm(ps, tips_only = FALSE, spatial = FALSE)
