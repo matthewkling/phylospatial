@@ -153,30 +153,26 @@ test_that("delta_tree preserves ultrametricity for ultrametric input", {
       }
 })
 
-test_that("delta_tree with delta > 1 emphasizes recent divergence", {
-      # delta > 1 should redistribute branch length toward the tips,
-      # so terminal branches get longer relative to internal branches.
+test_that("delta_tree with delta > 1 lengthens terminal branches", {
       tree <- ape::rcoal(10)
       out <- delta_tree(tree, delta = 3)
 
       ntips <- length(tree$tip.label)
       is_terminal <- tree$edge[, 2] <= ntips
 
-      term_frac_before <- sum(tree$edge.length[is_terminal]) / sum(tree$edge.length)
-      term_frac_after <- sum(out$edge.length[is_terminal]) / sum(out$edge.length)
-      expect_gt(term_frac_after, term_frac_before)
+      expect_gt(sum(out$edge.length[is_terminal]),
+                sum(tree$edge.length[is_terminal]))
 })
 
-test_that("delta_tree with delta < 1 emphasizes deep divergence", {
+test_that("delta_tree with delta < 1 shortens terminal branches", {
       tree <- ape::rcoal(10)
       out <- delta_tree(tree, delta = 0.3)
 
       ntips <- length(tree$tip.label)
       is_terminal <- tree$edge[, 2] <= ntips
 
-      term_frac_before <- sum(tree$edge.length[is_terminal]) / sum(tree$edge.length)
-      term_frac_after <- sum(out$edge.length[is_terminal]) / sum(out$edge.length)
-      expect_lt(term_frac_after, term_frac_before)
+      expect_lt(sum(out$edge.length[is_terminal]),
+                sum(tree$edge.length[is_terminal]))
 })
 
 test_that("delta_tree preserves topology", {
