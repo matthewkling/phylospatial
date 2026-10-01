@@ -30,7 +30,7 @@ knitr::opts_chunk$set(
 - `ps_dissim()` calculates a pairwise community phylogenetic beta diversity matrix.
 - `ps_ordinate()` performs a community ordination to reduce the dimensionality of the data set.
 - `ps_regions()` clusters sites into phylogenetically similar biogeographic regions.
-- `ps_prioritize()` performs a spatial optimization to identify conservation priorities.
+- `ps_prioritize()` and `ps_prioritizr()` perform spatial optimizations to identify conservation priorities.
 
 A key feature of `phylospatial` is full support for quantitative community data, including occurrence probabilities (e.g., from species distribution models) and abundances, in addition to binary presence-absence data. This avoids information loss from thresholding continuous data, and enables new analyses not available in other spatial phylogenetic R packages. 
 

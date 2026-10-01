@@ -142,5 +142,6 @@ Kling, M. M., Mishler, B. D., Thornhill, A. H., Baldwin, B. G., & Ackerly, D. D.
 diversification, divergence and survival as conservation targets. Philosophical Transactions of the Royal Society B, 374(1763), 20170397.
 }
 \seealso{
-\code{\link[=ps_performance]{ps_performance()}} for performance curves; \code{\link[=benefit]{benefit()}} and \code{\link[=plot_lambda]{plot_lambda()}} for the benefit function.
+\code{\link[=ps_performance]{ps_performance()}} for performance curves; \code{\link[=benefit]{benefit()}} and \code{\link[=plot_lambda]{plot_lambda()}} for the benefit function; \code{\link[=ps_prioritizr]{ps_prioritizr()}} for
+conservation optimization with the prioritizr package.
 }

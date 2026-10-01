@@ -4,11 +4,7 @@
 
 ## What's changed
 
-This is a minor release (1.4.0) with new helper functions and parameter options.
-
-Key changes:
-* New exported functions `ps_grid()`, `ps_suggest_n_iter()`, and `ps_trace()`.
-* Randomization functions expose previously implicit parameters for clarity.
+This is a minor release (1.5.0) with new helper functions and bug fixes.
 
 ## Test environments
 

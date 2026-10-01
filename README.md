@@ -1,5 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/matthewkling/phylospatial/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/matthewkling/phylospatial/actions/workflows/R-CMD-check.yaml)
@@ -26,8 +27,8 @@ building and analyzing phylospatial data:
   dimensionality of the data set.
 - `ps_regions()` clusters sites into phylogenetically similar
   biogeographic regions.
-- `ps_prioritize()` performs a spatial optimization to identify
-  conservation priorities.
+- `ps_prioritize()` and `ps_prioritizr()` perform spatial optimizations
+  to identify conservation priorities.
 
 A key feature of `phylospatial` is full support for quantitative
 community data, including occurrence probabilities (e.g., from species
@@ -69,7 +70,7 @@ div <- ps_diversity(ps) # calculate diversity metrics
 terra::plot(div)
 ```
 
-<img src="man/figures/README-example-1.png" width="50%" />
+<img src="man/figures/README-example-1.png" alt="" width="50%" />
 
 ## Citation
 

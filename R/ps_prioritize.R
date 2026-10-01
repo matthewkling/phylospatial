@@ -102,7 +102,8 @@ plot_lambda <- function(lambda = c(-1, -.5, 0, .5, 2, 1)){
 #'    site would have on their range-wide protection levels, and the free parameter `lambda`. `lambda` determines the relative importance of
 #'    protecting a small portion of every taxon's range, versus fully protecting the ranges of more valuable taxa (those with longer
 #'    evolutionary branches and smaller geographic ranges).
-#' @seealso [ps_performance()] for performance curves; [benefit()] and [plot_lambda()] for the benefit function.
+#' @seealso [ps_performance()] for performance curves; [benefit()] and [plot_lambda()] for the benefit function; [ps_prioritizr()] for
+#'    conservation optimization with the prioritizr package.
 #' @references Kling, M. M., Mishler, B. D., Thornhill, A. H., Baldwin, B. G., & Ackerly, D. D. (2019). Facets of phylodiversity: evolutionary
 #'    diversification, divergence and survival as conservation targets. Philosophical Transactions of the Royal Society B, 374(1763), 20170397.
 #' @return Matrix or spatial object containing a ranking of conservation priorities. Lower rank values represent higher

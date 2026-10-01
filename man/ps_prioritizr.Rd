@@ -59,7 +59,8 @@ Convert a \code{phylospatial} object into a conservation planning problem for th
 branch of the phylogeny (terminal taxa and larger clades) is treated as a conservation feature, and range protection
 targets are applied to every branch. The function returns an unsolved problem with planning units, features, targets,
 and an objective; solvers, decision types, constraints, and penalties can then be added using prioritizr functions
-before solving the problem with \code{\link[prioritizr:solve]{prioritizr::solve()}}.
+before solving the problem with \code{\link[prioritizr:solve]{prioritizr::solve()}}. See details for discussion of how this differs from
+prioritizr's own phylogenetic objective functions.
 }
 \details{
 Each site's contribution to a branch is the fraction of the branch's range that would be newly protected if the site
@@ -90,8 +91,8 @@ This approach differs from prioritizr's built-in phylogenetic objectives (\code{
 and \code{\link[prioritizr:add_max_phylo_end_objective]{prioritizr::add_max_phylo_end_objective()}}), which set targets for terminal taxa and credit a branch as conserved
 when at least one of its descendant taxa meets its target. Here, each clade's own range (the union of its descendants'
 ranges) is a feature with its own target, so deep branches count only once their own ranges are adequately protected.
-Compared with prioritizr's objectives, this phylospatial version is more consistent with the clade-based definition
-of biodiversity that underpin's Faith's PD and related metrics.
+Compared with prioritizr's objectives that give special treatment to terminal taxa, this phylospatial version is more
+consistent with the clade-based definition of biodiversity that underpins Faith's PD and related metrics.
 
 This function requires prioritizr version 9.0.0 or later, along with one of the solvers it supports.
 }
