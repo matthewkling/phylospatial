@@ -1,3 +1,5 @@
+# phylospatial (development version)
+
 # phylospatial 1.5.0
 
 * New tree scaling functions modify a phylogeny's branch lengths to focus analyses on particular parts of evolutionary history. `slice_tree()` keeps only the portions of branches within a specified depth window, enabling time-sliced diversity analyses. `delta_tree()` applies Pagel's delta transformation while preserving total tree height, shifting emphasis toward deeper or more recent divergence. `uniform_tree()` sets all branch lengths to 1, so that phylogenetic diversity measures become clade richness. `rescale_tree()` is a unit conversion function that rescales branch lengths without changing their relative proportions. Transformed trees can be passed to `phylospatial()` or assigned to the `tree` element of an existing `phylospatial` object. See `?tree_scaling` and `vignette("phylospatial-data")`.
