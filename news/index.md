@@ -1,5 +1,7 @@
 # Changelog
 
+## phylospatial (development version)
+
 ## phylospatial 1.5.0
 
 - New tree scaling functions modify a phylogeny’s branch lengths to

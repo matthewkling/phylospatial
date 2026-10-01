@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,9 @@
       <small>Source: <a href="https://github.com/matthewkling/phylospatial/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="phylospatial-development-version">phylospatial (development version)<a class="anchor" aria-label="anchor" href="#phylospatial-development-version"></a></h2>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.5.0" id="phylospatial-150">phylospatial 1.5.0<a class="anchor" aria-label="anchor" href="#phylospatial-150"></a></h2>
 <ul><li><p>New tree scaling functions modify a phylogeny’s branch lengths to focus analyses on particular parts of evolutionary history. <code><a href="../reference/tree_scaling.html">slice_tree()</a></code> keeps only the portions of branches within a specified depth window, enabling time-sliced diversity analyses. <code><a href="../reference/tree_scaling.html">delta_tree()</a></code> applies Pagel’s delta transformation while preserving total tree height, shifting emphasis toward deeper or more recent divergence. <code><a href="../reference/tree_scaling.html">uniform_tree()</a></code> sets all branch lengths to 1, so that phylogenetic diversity measures become clade richness. <code><a href="../reference/tree_scaling.html">rescale_tree()</a></code> is a unit conversion function that rescales branch lengths without changing their relative proportions. Transformed trees can be passed to <code><a href="../reference/phylospatial.html">phylospatial()</a></code> or assigned to the <code>tree</code> element of an existing <code>phylospatial</code> object. See <code><a href="../reference/tree_scaling.html">?tree_scaling</a></code> and <code><a href="../articles/phylospatial-data.html">vignette("phylospatial-data")</a></code>.</p></li>
