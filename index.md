@@ -21,7 +21,9 @@ building and analyzing phylospatial data:
 - [`ps_regions()`](https://matthewkling.github.io/phylospatial/reference/ps_regions.md)
   clusters sites into phylogenetically similar biogeographic regions.
 - [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
-  performs a spatial optimization to identify conservation priorities.
+  and
+  [`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+  perform spatial optimizations to identify conservation priorities.
 
 A key feature of `phylospatial` is full support for quantitative
 community data, including occurrence probabilities (e.g., from species

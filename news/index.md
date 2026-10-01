@@ -2,7 +2,34 @@
 
 ## phylospatial (development version)
 
-- Added tree rescaling and transformation utilities.
+- New tree scaling functions modify a phylogeny’s branch lengths to
+  focus analyses on particular parts of evolutionary history.
+  [`slice_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  keeps only the portions of branches within a specified depth window,
+  enabling time-sliced diversity analyses.
+  [`delta_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  applies Pagel’s delta transformation while preserving total tree
+  height, shifting emphasis toward deeper or more recent divergence.
+  [`uniform_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  sets all branch lengths to 1, so that phylogenetic diversity measures
+  become clade richness.
+  [`rescale_tree()`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  is a unit conversion function that rescales branch lengths without
+  changing their relative proportions. Transformed trees can be passed
+  to
+  [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
+  or assigned to the `tree` element of an existing `phylospatial`
+  object. See
+  [`?tree_scaling`](https://matthewkling.github.io/phylospatial/reference/tree_scaling.md)
+  and
+  [`vignette("phylospatial-data")`](https://matthewkling.github.io/phylospatial/articles/phylospatial-data.md).
+
+- [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
+  gains a `rescale` argument controlling how branch lengths are scaled
+  during construction: `"sum1"` (the default, matching previous
+  behavior) scales them to sum to 1, `"tip1"` scales the longest
+  root-to-tip path to 1, and `"raw"` keeps the original units. The
+  method used is recorded in the new `ps$rescale` element.
 
 - New function
   [`ps_performance()`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md)

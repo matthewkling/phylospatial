@@ -215,7 +215,9 @@ for performance curves;
 [`benefit()`](https://matthewkling.github.io/phylospatial/reference/benefit.md)
 and
 [`plot_lambda()`](https://matthewkling.github.io/phylospatial/reference/plot_lambda.md)
-for the benefit function.
+for the benefit function;
+[`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+for conservation optimization with the prioritizr package.
 
 ## Examples
 

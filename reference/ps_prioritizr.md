@@ -10,6 +10,8 @@ targets, and an objective; solvers, decision types, constraints, and
 penalties can then be added using prioritizr functions before solving
 the problem with
 [`prioritizr::solve()`](https://prioritizr.net/reference/solve.html).
+See details for discussion of how this differs from prioritizr's own
+phylogenetic objective functions.
 
 ## Usage
 
@@ -149,9 +151,10 @@ which set targets for terminal taxa and credit a branch as conserved
 when at least one of its descendant taxa meets its target. Here, each
 clade's own range (the union of its descendants' ranges) is a feature
 with its own target, so deep branches count only once their own ranges
-are adequately protected. Compared with prioritizr's objectives, this
-phylospatial version is more consistent with the clade-based definition
-of biodiversity that underpin's Faith's PD and related metrics.
+are adequately protected. Compared with prioritizr's objectives that
+give special treatment to terminal taxa, this phylospatial version is
+more consistent with the clade-based definition of biodiversity that
+underpins Faith's PD and related metrics.
 
 This function requires prioritizr version 9.0.0 or later, along with one
 of the solvers it supports.

@@ -4,12 +4,14 @@ prioritizr package, which finds optimal solutions using integer linear programmi
 branch of the phylogeny (terminal taxa and larger clades) is treated as a conservation feature, and range protection
 targets are applied to every branch. The function returns an unsolved problem with planning units, features, targets,
 and an objective; solvers, decision types, constraints, and penalties can then be added using prioritizr functions
-before solving the problem with prioritizr::solve()."><meta property="og:description" content="Convert a phylospatial object into a conservation planning problem for the
+before solving the problem with prioritizr::solve(). See details for discussion of how this differs from
+prioritizr's own phylogenetic objective functions."><meta property="og:description" content="Convert a phylospatial object into a conservation planning problem for the
 prioritizr package, which finds optimal solutions using integer linear programming. Every
 branch of the phylogeny (terminal taxa and larger clades) is treated as a conservation feature, and range protection
 targets are applied to every branch. The function returns an unsolved problem with planning units, features, targets,
 and an objective; solvers, decision types, constraints, and penalties can then be added using prioritizr functions
-before solving the problem with prioritizr::solve()."><meta property="og:image" content="https://matthewkling.github.io/phylospatial/logo.png"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script></head><body>
+before solving the problem with prioritizr::solve(). See details for discussion of how this differs from
+prioritizr's own phylogenetic objective functions."><meta property="og:image" content="https://matthewkling.github.io/phylospatial/logo.png"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -55,7 +57,8 @@ before solving the problem with prioritizr::solve()."><meta property="og:image" 
 branch of the phylogeny (terminal taxa and larger clades) is treated as a conservation feature, and range protection
 targets are applied to every branch. The function returns an unsolved problem with planning units, features, targets,
 and an objective; solvers, decision types, constraints, and penalties can then be added using prioritizr functions
-before solving the problem with <code><a href="https://prioritizr.net/reference/solve.html" class="external-link">prioritizr::solve()</a></code>.</p>
+before solving the problem with <code><a href="https://prioritizr.net/reference/solve.html" class="external-link">prioritizr::solve()</a></code>. See details for discussion of how this differs from
+prioritizr's own phylogenetic objective functions.</p>
     </div>
 
     <div class="section level2">
@@ -152,8 +155,8 @@ much longer to solve to optimality than the other objectives.</p>
 and <code><a href="https://prioritizr.net/reference/add_max_phylo_end_objective.html" class="external-link">prioritizr::add_max_phylo_end_objective()</a></code>), which set targets for terminal taxa and credit a branch as conserved
 when at least one of its descendant taxa meets its target. Here, each clade's own range (the union of its descendants'
 ranges) is a feature with its own target, so deep branches count only once their own ranges are adequately protected.
-Compared with prioritizr's objectives, this phylospatial version is more consistent with the clade-based definition
-of biodiversity that underpin's Faith's PD and related metrics.</p>
+Compared with prioritizr's objectives that give special treatment to terminal taxa, this phylospatial version is more
+consistent with the clade-based definition of biodiversity that underpins Faith's PD and related metrics.</p>
 <p>This function requires prioritizr version 9.0.0 or later, along with one of the solvers it supports.</p>
     </div>
     <div class="section level2">
