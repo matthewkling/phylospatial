@@ -69,17 +69,21 @@ if \code{method = "probable"}.}
 }
 \value{
 Matrix or spatial object containing a ranking of conservation priorities. Lower rank values represent higher
-conservation priorities. All sites with a lower priority than \code{max_iter} have a rank value equal to the number
-of sites in the input data set (i.e. the lowest possible priority).
+conservation priorities. Sites that were never selected (because they ranked lower than \code{max_iter}, or because their
+\code{init} value was already at or above \code{protection}) have a rank value equal to the number of occupied sites in the data
+set (i.e. the lowest possible priority). Unoccupied sites are \code{NA}.
 \describe{
 \item{If \code{method = "optimal"}. }{the result contains a single variable "priority" containing the ranking.}
 \item{If \code{method = "probable"} and \code{summarize = TRUE}, }{the "priority" variable gives the average rank across reps,
 variables labeled "pctX" give the Xth percentile of the rank distribution for each site, variables labeled "topX"
 give the proportion of reps in which a site was in the top X highest-priority sites, and variables labeled "treX" give
 a ratio representing "topX" relative to the null expectation of how often "topX" should occur by chance alone.}
-\item{If \code{method = "probable"} and \code{summarize = FALSE}, }{the result contains the full set of \code{n_rep} solutions,
-each representing the the ranking, with low values representing higher priorities.. }
+\item{If \code{method = "probable"} and \code{summarize = FALSE}, }{the result contains the full set of \code{n_reps} solutions
+(variables "rep1", "rep2", etc.), each representing a ranking, with low values representing higher priorities. }
 }
+The result also carries an attribute, \code{"prioritization"}, recording the settings, inputs, and raw rankings used in the
+prioritization. This is used by \code{\link[=ps_performance]{ps_performance()}} to compute performance curves. The attribute is not preserved if the
+result is written to file.
 }
 \description{
 Create a ranking of conservation priorities using optimal or probabilistic forward stepwise selection. Prioritization accounts for
@@ -138,5 +142,5 @@ Kling, M. M., Mishler, B. D., Thornhill, A. H., Baldwin, B. G., & Ackerly, D. D.
 diversification, divergence and survival as conservation targets. Philosophical Transactions of the Royal Society B, 374(1763), 20170397.
 }
 \seealso{
-\code{\link[=benefit]{benefit()}}, \code{\link[=plot_lambda]{plot_lambda()}}
+\code{\link[=ps_performance]{ps_performance()}} for performance curves; \code{\link[=benefit]{benefit()}} and \code{\link[=plot_lambda]{plot_lambda()}} for the benefit function.
 }

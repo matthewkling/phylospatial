@@ -21,5 +21,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Matthew Kling \email{mattkling@berkeley.edu} (\href{https://orcid.org/0000-0001-9073-4240}{ORCID}) [copyright holder]
 
+Authors:
+\itemize{
+  \item Matthew Kling \email{mattkling@berkeley.edu} (\href{https://orcid.org/0000-0001-9073-4240}{ORCID}) [copyright holder]
+}
+
 }
 \keyword{internal}

@@ -102,21 +102,25 @@ plot_lambda <- function(lambda = c(-1, -.5, 0, .5, 2, 1)){
 #'    site would have on their range-wide protection levels, and the free parameter `lambda`. `lambda` determines the relative importance of
 #'    protecting a small portion of every taxon's range, versus fully protecting the ranges of more valuable taxa (those with longer
 #'    evolutionary branches and smaller geographic ranges).
-#' @seealso [benefit()], [plot_lambda()]
+#' @seealso [ps_performance()] for performance curves; [benefit()] and [plot_lambda()] for the benefit function.
 #' @references Kling, M. M., Mishler, B. D., Thornhill, A. H., Baldwin, B. G., & Ackerly, D. D. (2019). Facets of phylodiversity: evolutionary
 #'    diversification, divergence and survival as conservation targets. Philosophical Transactions of the Royal Society B, 374(1763), 20170397.
 #' @return Matrix or spatial object containing a ranking of conservation priorities. Lower rank values represent higher
-#'    conservation priorities. All sites with a lower priority than \code{max_iter} have a rank value equal to the number
-#'    of sites in the input data set (i.e. the lowest possible priority).
+#'    conservation priorities. Sites that were never selected (because they ranked lower than `max_iter`, or because their
+#'    `init` value was already at or above `protection`) have a rank value equal to the number of occupied sites in the data
+#'    set (i.e. the lowest possible priority). Unoccupied sites are `NA`.
 #'  \describe{
 #'    \item{If `method = "optimal"`. }{the result contains a single variable "priority" containing the ranking.}
 #'    \item{If `method = "probable"` and `summarize = TRUE`, }{the "priority" variable gives the average rank across reps,
 #'    variables labeled "pctX" give the Xth percentile of the rank distribution for each site, variables labeled "topX"
 #'    give the proportion of reps in which a site was in the top X highest-priority sites, and variables labeled "treX" give
 #'    a ratio representing "topX" relative to the null expectation of how often "topX" should occur by chance alone.}
-#'    \item{If `method = "probable"` and `summarize = FALSE`, }{the result contains the full set of \code{n_rep} solutions,
-#'    each representing the the ranking, with low values representing higher priorities.. }
+#'    \item{If `method = "probable"` and `summarize = FALSE`, }{the result contains the full set of `n_reps` solutions
+#'    (variables "rep1", "rep2", etc.), each representing a ranking, with low values representing higher priorities. }
 #' }
+#'    The result also carries an attribute, `"prioritization"`, recording the settings, inputs, and raw rankings used in the
+#'    prioritization. This is used by [ps_performance()] to compute performance curves. The attribute is not preserved if the
+#'    result is written to file.
 #' @examples
 #' \donttest{
 #' # simulate a toy `phylospatial` data set
@@ -156,39 +160,14 @@ ps_prioritize <- function(ps,
       enforce_ps(ps)
       if(lambda < 0) warning("choosing a negative value for `lambda` is not generally recommended.")
 
-      e <- ps$tree$edge.length / sum(ps$tree$edge.length) # edges evolutionary value
+      e <- edge_weights(ps)
+      m <- range_fractions(ps)
+      inputs <- prioritize_inputs(ps, init, cost)
+      p <- inputs$init
+      cost <- inputs$cost
 
-      occ <- ps$occupied
       n_occ <- nrow(ps$comm)
-
-      # extract init/cost values for occupied sites only
-      if(is.null(init)){
-            p <- rep(0, n_occ)
-      }else{
-            p_full <- init[]
-            p <- p_full[occ]
-            stopifnot("`init` may not contain NA values, or values outside the 0-1 range, for sites that contain taxa." =
-                            all(is.finite(p)) & min(p) >= 0 & max(p) <= 1)
-      }
-
-      if(is.null(cost)){
-            cost <- rep(1, n_occ)
-      }else{
-            cost_full <- cost[]
-            cost <- cost_full[occ]
-            stopifnot("`cost` may only contain finite, nonnegative values for sites that contain taxa." =
-                            all(is.finite(cost)) & min(cost) >= 0)
-      }
-
-      n_ranks <- n_occ
-      n_poss <- sum(p < 1)
-
-      y <- rep(NA_real_, n_occ)  # prioritization rankings (occupied sites only)
-      r <- rep(n_ranks, n_ranks)
-
-      m <- apply(ps$comm, 2, function(x) x / sum(x, na.rm = TRUE)) # normalize to fraction of range
-
-      n_iter <- ifelse(is.null(max_iter), n_ranks, min(max_iter, n_ranks))
+      n_iter <- ifelse(is.null(max_iter), n_occ, min(max_iter, n_occ))
 
       # Pre-compute lambda transformation for benefit function
       lambda_t <- 2^lambda
@@ -199,13 +178,14 @@ ps_prioritize <- function(ps,
             (1 - (1 - pmin(x, 1))^lambda_t)^inv_lambda_t
       }
 
-      ranks <- function(y, progress = TRUE){
+      # Returns an integer ranking of occupied sites, with NA for sites not selected
+      ranks <- function(progress = TRUE){
             p_local <- p
-            r_local <- r
+            y <- rep(NA_integer_, n_occ)
 
             if(progress) pb <- utils::txtProgressBar(min = 0, max = n_iter,
                                                      initial = 0, style = 3)
-            for(i in 1:n_iter){
+            for(i in seq_len(n_iter)){
                   if(progress) utils::setTxtProgressBar(pb, i)
 
                   # Range protection: vectorized with colSums
@@ -239,22 +219,21 @@ ps_prioritize <- function(ps,
 
                   p_local[sel] <- protection
                   y[sel] <- i
-                  r_local[sel] <- i
             }
             if(progress) close(pb)
             return(y)
       }
 
       if(method == "optimal"){
-            y <- ranks(y, progress = progress)
-            result <- matrix(y, ncol = 1)
+            all_ranks <- matrix(ranks(progress = progress), ncol = 1)
+            result <- fill_unranked(all_ranks, n_occ)
             colnames(result) <- "priority"
       }else{
             # probabilistic: multiple reps
-            all_ranks <- matrix(NA, n_occ, n_reps)
+            all_ranks <- matrix(NA_integer_, n_occ, n_reps)
             if(n_cores == 1){
                   for(rep in 1:n_reps){
-                        all_ranks[, rep] <- ranks(y, progress = FALSE)
+                        all_ranks[, rep] <- ranks(progress = FALSE)
                   }
             }else{
                   if (!requireNamespace("furrr", quietly = TRUE)) {
@@ -264,7 +243,7 @@ ps_prioritize <- function(ps,
                   future::plan(future::multisession, workers = n_cores)
                   rnd <- furrr::future_map(
                         1:n_reps,
-                        function(i) ranks(y, progress = FALSE),
+                        function(i) ranks(progress = FALSE),
                         .progress = progress,
                         .options = furrr::furrr_options(seed = TRUE)
                   )
@@ -272,25 +251,28 @@ ps_prioritize <- function(ps,
                   for(i in 1:n_reps) all_ranks[, i] <- rnd[[i]]
             }
 
+            # unselected sites are assigned the lowest possible priority
+            filled <- fill_unranked(all_ranks, n_occ)
+
             if(summarize){
-                  avg_rank <- rowMeans(all_ranks, na.rm = TRUE)
-                  result <- matrix(avg_rank, ncol = 1)
+                  result <- matrix(rowMeans(filled), ncol = 1)
                   colnames(result) <- "priority"
 
                   # Add summary columns
-                  for(pct in c(5, 25, 50, 75, 95)){
-                        q <- apply(all_ranks, 1, stats::quantile, probs = pct/100, na.rm = TRUE)
+                  for(pct in prioritize_pcts){
+                        q <- apply(filled, 1, stats::quantile, probs = pct/100)
                         result <- cbind(result, q)
                         colnames(result)[ncol(result)] <- paste0("pct", pct)
                   }
                   for(top_n in c(10, 25, 50)){
-                        top_prop <- rowMeans(all_ranks <= top_n, na.rm = TRUE)
+                        top_prop <- rowMeans(!is.na(all_ranks) & all_ranks <= top_n)
                         tre <- top_prop / (top_n / n_occ)
                         result <- cbind(result, top_prop, tre)
                         colnames(result)[(ncol(result)-1):ncol(result)] <- c(paste0("top", top_n), paste0("tre", top_n))
                   }
             }else{
-                  result <- all_ranks
+                  result <- filled
+                  colnames(result) <- paste0("rep", seq_len(n_reps))
             }
       }
 
@@ -300,6 +282,78 @@ ps_prioritize <- function(ps,
       } else {
             result <- ps_expand(ps, result, spatial = FALSE)
       }
+
+      # metadata used by `ps_performance()`
+      attr(result, "prioritization") <- list(
+            method = method,
+            summarize = method == "probable" && summarize,
+            lambda = lambda,
+            protection = protection,
+            max_iter = max_iter,
+            init = p,
+            cost = cost,
+            ranks = all_ranks,
+            fingerprint = ps_fingerprint(ps)
+      )
+
       result
+}
+
+
+# ---- Internal prioritization helpers ----
+
+# percentiles used to summarize probabilistic prioritizations and their performance curves
+prioritize_pcts <- c(5, 25, 50, 75, 95)
+
+# evolutionary value of each edge, as a fraction of total tree length
+edge_weights <- function(ps){
+      ps$tree$edge.length / sum(ps$tree$edge.length)
+}
+
+# occupied-site x edge matrix giving the fraction of each taxon's range in each site
+range_fractions <- function(ps){
+      m <- t(t(ps$comm) / colSums(ps$comm, na.rm = TRUE))
+      m[!is.finite(m)] <- 0
+      m
+}
+
+# extract and validate `init` and `cost` values for occupied sites
+prioritize_inputs <- function(ps, init, cost){
+      occ <- ps$occupied
+      n_occ <- nrow(ps$comm)
+
+      if(is.null(init)){
+            p <- rep(0, n_occ)
+      }else{
+            p_full <- init[]
+            p <- p_full[occ]
+            stopifnot("`init` may not contain NA values, or values outside the 0-1 range, for sites that contain taxa." =
+                            all(is.finite(p)) & min(p) >= 0 & max(p) <= 1)
+      }
+
+      if(is.null(cost)){
+            cost <- rep(1, n_occ)
+      }else{
+            cost_full <- cost[]
+            cost <- cost_full[occ]
+            stopifnot("`cost` may only contain finite, nonnegative values for sites that contain taxa." =
+                            all(is.finite(cost)) & min(cost) >= 0)
+      }
+
+      list(init = as.vector(p), cost = as.vector(cost))
+}
+
+# assign the lowest possible priority to sites that were never selected
+fill_unranked <- function(x, n){
+      x[is.na(x)] <- n
+      x
+}
+
+# summary values used to confirm that `ps_performance()` receives the data set used for prioritization
+ps_fingerprint <- function(ps){
+      c(n_sites = ps$n_sites,
+        n_occupied = nrow(ps$comm),
+        n_edges = ncol(ps$comm),
+        comm_sum = sum(ps$comm, na.rm = TRUE))
 }
 

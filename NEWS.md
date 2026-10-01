@@ -2,6 +2,12 @@
 
 * Added tree rescaling and transformation utilities. 
 
+* New function `ps_performance()` computes performance curves for `ps_prioritize()` results, tracking cumulative cost, protection added, conservation value, and the fraction of the tree meeting one or more range protection targets as sites are added in priority order. A `plot()` method is included. To support this, `ps_prioritize()` results now carry a `"prioritization"` attribute recording the settings, inputs, and raw rankings used.
+
+* Fixed a bug in `ps_prioritize()` where sites not selected before `max_iter` was reached were returned as `NA` rather than the lowest possible rank (as documented). With `method = "probable"` and `summarize = TRUE`, this also inflated summary statistics for sites selected in only a few reps, since the average rank, rank percentiles, and `topX` proportions were computed only across reps in which a site was selected. Unselected sites are now ranked last (i.e. equal to the number of occupied sites) in all outputs.
+
+* Fixed an error in `ps_prioritize()` when using `method = "probable"` and `summarize = FALSE` with spatial output. Rep layers are now named `rep1`, `rep2`, etc.
+
 # phylospatial 1.4.0
 
 * New function `ps_grid()` converts point occurrence data (e.g. GBIF records) into raster format suitable for use with phylospatial functions.
