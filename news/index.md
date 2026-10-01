@@ -4,6 +4,35 @@
 
 - Added tree rescaling and transformation utilities.
 
+- New function
+  [`ps_performance()`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md)
+  computes performance curves for
+  [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+  results, tracking cumulative cost, protection added, conservation
+  value, and the fraction of the tree meeting one or more range
+  protection targets as sites are added in priority order. A
+  [`plot()`](https://rspatial.github.io/terra/reference/plot.html)
+  method is included. To support this,
+  [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+  results now carry a `"prioritization"` attribute recording the
+  settings, inputs, and raw rankings used.
+
+- Fixed a bug in
+  [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+  where sites not selected before `max_iter` was reached were returned
+  as `NA` rather than the lowest possible rank (as documented). With
+  `method = "probable"` and `summarize = TRUE`, this also inflated
+  summary statistics for sites selected in only a few reps, since the
+  average rank, rank percentiles, and `topX` proportions were computed
+  only across reps in which a site was selected. Unselected sites are
+  now ranked last (i.e. equal to the number of occupied sites) in all
+  outputs.
+
+- Fixed an error in
+  [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+  when using `method = "probable"` and `summarize = FALSE` with spatial
+  output. Rep layers are now named `rep1`, `rep2`, etc.
+
 ## phylospatial 1.4.0
 
 CRAN release: 2026-04-16

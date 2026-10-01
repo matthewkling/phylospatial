@@ -135,6 +135,9 @@ To cite `phylospatial` in publications, please use:
 
 - [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
   : Phylogenetic conservation prioritization
+- [`ps_performance()`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md)
+  [`plot(`*`<ps_performance>`*`)`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md)
+  : Performance curves for a conservation prioritization
 - [`plot_lambda()`](https://matthewkling.github.io/phylospatial/reference/plot_lambda.md)
   : Plot alternative lambda values
 - [`benefit()`](https://matthewkling.github.io/phylospatial/reference/benefit.md)

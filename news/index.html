@@ -40,7 +40,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="phylospatial-development-version">phylospatial (development version)<a class="anchor" aria-label="anchor" href="#phylospatial-development-version"></a></h2>
-<ul><li>Added tree rescaling and transformation utilities.</li>
+<ul><li><p>Added tree rescaling and transformation utilities.</p></li>
+<li><p>New function <code><a href="../reference/ps_performance.html">ps_performance()</a></code> computes performance curves for <code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code> results, tracking cumulative cost, protection added, conservation value, and the fraction of the tree meeting one or more range protection targets as sites are added in priority order. A <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code> method is included. To support this, <code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code> results now carry a <code>"prioritization"</code> attribute recording the settings, inputs, and raw rankings used.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code> where sites not selected before <code>max_iter</code> was reached were returned as <code>NA</code> rather than the lowest possible rank (as documented). With <code>method = "probable"</code> and <code>summarize = TRUE</code>, this also inflated summary statistics for sites selected in only a few reps, since the average rank, rank percentiles, and <code>topX</code> proportions were computed only across reps in which a site was selected. Unselected sites are now ranked last (i.e. equal to the number of occupied sites) in all outputs.</p></li>
+<li><p>Fixed an error in <code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code> when using <code>method = "probable"</code> and <code>summarize = FALSE</code> with spatial output. Rep layers are now named <code>rep1</code>, <code>rep2</code>, etc.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.4.0" id="phylospatial-140">phylospatial 1.4.0<a class="anchor" aria-label="anchor" href="#phylospatial-140"></a></h2><p class="text-muted">CRAN release: 2026-04-16</p>
@@ -104,7 +107,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

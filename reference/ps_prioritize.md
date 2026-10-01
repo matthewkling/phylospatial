@@ -132,9 +132,11 @@ ps_prioritize(
 
 Matrix or spatial object containing a ranking of conservation
 priorities. Lower rank values represent higher conservation priorities.
-All sites with a lower priority than `max_iter` have a rank value equal
-to the number of sites in the input data set (i.e. the lowest possible
-priority).
+Sites that were never selected (because they ranked lower than
+`max_iter`, or because their `init` value was already at or above
+`protection`) have a rank value equal to the number of occupied sites in
+the data set (i.e. the lowest possible priority). Unoccupied sites are
+`NA`.
 
 - If `method = "optimal"`. :
 
@@ -152,9 +154,16 @@ priority).
 
 - If `method = "probable"` and `summarize = FALSE`, :
 
-  the result contains the full set of `n_rep` solutions, each
-  representing the the ranking, with low values representing higher
-  priorities..
+  the result contains the full set of `n_reps` solutions (variables
+  "rep1", "rep2", etc.), each representing a ranking, with low values
+  representing higher priorities.
+
+The result also carries an attribute, `"prioritization"`, recording the
+settings, inputs, and raw rankings used in the prioritization. This is
+used by
+[`ps_performance()`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md)
+to compute performance curves. The attribute is not preserved if the
+result is written to file.
 
 ## Details
 
@@ -201,8 +210,12 @@ Philosophical Transactions of the Royal Society B, 374(1763), 20170397.
 
 ## See also
 
-[`benefit()`](https://matthewkling.github.io/phylospatial/reference/benefit.md),
+[`ps_performance()`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md)
+for performance curves;
+[`benefit()`](https://matthewkling.github.io/phylospatial/reference/benefit.md)
+and
 [`plot_lambda()`](https://matthewkling.github.io/phylospatial/reference/plot_lambda.md)
+for the benefit function.
 
 ## Examples
 

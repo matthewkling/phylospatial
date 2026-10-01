@@ -61,8 +61,8 @@ partially covered by protected land, or because land management in sites
 like national forests is only partly oriented toward biodiversity
 protection). During the conservation optimization, the protection level
 for newly protected sites is raised to 1 (or to an alternative level
-specified by the parameter `level`), with greater benefit resulting from
-sites with lower initial values.
+specified by the parameter `protection`), with greater benefit resulting
+from sites with lower initial values.
 
 The second optional variable is `cost`, representing the relative cost
 of protecting different sites across the study area. Sites with high
@@ -87,6 +87,7 @@ values, and `cost` defining some hypothetical land cost data.
 library(phylospatial); library(tmap); library(magrittr)
 
 ps <- moss()
+set.seed(123)
 init <- seq(1, 0, length.out = ps$n_sites)
 cost <- runif(ps$n_sites, 10, 1000)
 ```
@@ -106,6 +107,68 @@ tm_shape(priority) +
 ```
 
 ![](prioritization_files/figure-html/postcompute-1.png)
+
+### Performance curves
+
+To see how conservation value accumulates as sites are added in priority
+order, we can pass the prioritization result to
+[`ps_performance()`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md),
+along with the data set used to create it. This returns a data frame
+with one row per step, tracking the cumulative number of sites, cost,
+and protection added (`gain`, which differs from the number of sites
+when some sites are already partially protected), along with the
+network’s conservation `value`. This is the quantity that
+[`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+optimizes: the branch-length-weighted sum of every lineage’s
+conservation benefit, which ranges from 0 to 1. Step 0 represents the
+starting state, which in our case is greater than zero because of the
+existing protection in `init`.
+
+The curves also report target-based coverage: for each value supplied to
+`target`, the fraction of the tree’s total branch length belonging to
+lineages with at least that fraction of their range protected. Here
+we’ll look at 30% and 80% range protection targets. Our arbitrary `init`
+data already protect a large share of most lineages’ ranges, so nearly
+the whole tree meets the 30% target before any new sites are added; the
+80% target is more informative in this example.
+
+``` r
+
+perf <- ps_performance(ps, priority, target = c(.3, .8))
+head(perf)
+
+par(mfrow = c(1, 2))
+plot(perf)
+plot(perf, yvar = "cov80")
+```
+
+    #>   ranking step site site_cost site_gain   site_value n_sites     cost      gain
+    #> 1       1    0   NA        NA        NA           NA       0  0.00000 0.0000000
+    #> 2       1    1  478  10.46070 0.4278027 0.0005387606       1 10.46070 0.4278027
+    #> 3       1    2  911  13.85738 0.8161435 0.0004835580       2 24.31808 1.2439462
+    #> 4       1    3  740  11.17971 0.6627803 0.0003816511       3 35.49779 1.9067265
+    #> 5       1    4  978  16.92847 0.8762332 0.0003753886       4 52.42626 2.7829596
+    #> 6       1    5  730  32.62614 0.6538117 0.0005694841       5 85.05239 3.4367713
+    #>       value     cov30     cov80
+    #> 1 0.9372342 0.9960357 0.1852520
+    #> 2 0.9377729 0.9960357 0.1898301
+    #> 3 0.9382565 0.9960403 0.1898301
+    #> 4 0.9386382 0.9960403 0.1898301
+    #> 5 0.9390135 0.9960584 0.1898301
+    #> 6 0.9395830 0.9960584 0.1898301
+
+![](prioritization_files/figure-html/postcompute_perf-1.png)
+
+Curves like these show how quickly returns diminish, which can help in
+judging how much protection a given budget can buy.
+[`ps_performance()`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md)
+relies on metadata that
+[`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+attaches to its result, so it must be run on the object returned by
+[`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+rather than on a result that has been saved to file and reloaded. When
+used on a probabilistic prioritization, it summarizes curves across reps
+(or returns every rep’s curve, if `summarize = FALSE` was used).
 
 ## Probabilistic prioritization
 

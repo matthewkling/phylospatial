@@ -154,8 +154,9 @@ if <code>method = "probable"</code>.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Matrix or spatial object containing a ranking of conservation priorities. Lower rank values represent higher
-conservation priorities. All sites with a lower priority than <code>max_iter</code> have a rank value equal to the number
-of sites in the input data set (i.e. the lowest possible priority).</p><dl><dt>If <code>method = "optimal"</code>. </dt>
+conservation priorities. Sites that were never selected (because they ranked lower than <code>max_iter</code>, or because their
+<code>init</code> value was already at or above <code>protection</code>) have a rank value equal to the number of occupied sites in the data
+set (i.e. the lowest possible priority). Unoccupied sites are <code>NA</code>.</p><dl><dt>If <code>method = "optimal"</code>. </dt>
 <dd><p>the result contains a single variable "priority" containing the ranking.</p></dd>
 
 <dt>If <code>method = "probable"</code> and <code>summarize = TRUE</code>, </dt>
@@ -165,11 +166,14 @@ give the proportion of reps in which a site was in the top X highest-priority si
 a ratio representing "topX" relative to the null expectation of how often "topX" should occur by chance alone.</p></dd>
 
 <dt>If <code>method = "probable"</code> and <code>summarize = FALSE</code>, </dt>
-<dd><p>the result contains the full set of <code>n_rep</code> solutions,
-each representing the the ranking, with low values representing higher priorities..</p></dd>
+<dd><p>the result contains the full set of <code>n_reps</code> solutions
+(variables "rep1", "rep2", etc.), each representing a ranking, with low values representing higher priorities.</p></dd>
 
 
-</dl></div>
+</dl><p>The result also carries an attribute, <code>"prioritization"</code>, recording the settings, inputs, and raw rankings used in the
+prioritization. This is used by <code><a href="ps_performance.html">ps_performance()</a></code> to compute performance curves. The attribute is not preserved if the
+result is written to file.</p>
+    </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function uses the forward stepwise selection algorithm of Kling et al. (2019) to generate a ranked conservation prioritization.
@@ -197,7 +201,7 @@ diversification, divergence and survival as conservation targets. Philosophical 
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="benefit.html">benefit()</a></code>, <code><a href="plot_lambda.html">plot_lambda()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="ps_performance.html">ps_performance()</a></code> for performance curves; <code><a href="benefit.html">benefit()</a></code> and <code><a href="plot_lambda.html">plot_lambda()</a></code> for the benefit function.</p></div>
     </div>
 
     <div class="section level2">
@@ -235,7 +239,7 @@ diversification, divergence and survival as conservation targets. Philosophical 
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

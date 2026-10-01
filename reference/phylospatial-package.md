@@ -22,3 +22,8 @@ Useful links:
 
 **Maintainer**: Matthew Kling <mattkling@berkeley.edu>
 ([ORCID](https://orcid.org/0000-0001-9073-4240)) \[copyright holder\]
+
+Authors:
+
+- Matthew Kling <mattkling@berkeley.edu>
+  ([ORCID](https://orcid.org/0000-0001-9073-4240)) \[copyright holder\]
