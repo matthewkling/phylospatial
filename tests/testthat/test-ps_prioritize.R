@@ -20,3 +20,18 @@ test_that("`ps_prioritize()` runs without error on example data", {
 test_that("`plot_lambda()` runs without error", {
       expect_no_error(plot_lambda())
 })
+
+test_that("unselected sites get the lowest priority and don't inflate summaries", {
+      set.seed(1)
+      ps <- ps_simulate(n_tips = 5, n_x = 6, n_y = 6, data_type = "prob")
+      n_occ <- nrow(ps$comm)
+
+      p <- ps_prioritize(ps, max_iter = 4, spatial = FALSE, progress = FALSE)[ps$occupied]
+      expect_equal(sort(p[p <= 4]), 1:4)
+      expect_true(all(p[p > 4] == n_occ))
+
+      # every rep ranks exactly 10 sites, so `top10` proportions must sum to 10 across sites
+      pp <- ps_prioritize(ps, method = "prob", n_reps = 20, max_iter = 10, spatial = FALSE, progress = FALSE)
+      expect_equal(sum(pp[ps$occupied, "top10"]), 10)
+      expect_true(all(pp[ps$occupied, "priority"] >= (1 + 10) / 2 * 10 / n_occ))
+})

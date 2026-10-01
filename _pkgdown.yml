@@ -44,6 +44,7 @@ reference:
 - title: Conservation prioritization
 - contents:
   - ps_prioritize
+  - ps_performance
   - plot_lambda
   - benefit
 - title: Utilities

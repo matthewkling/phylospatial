@@ -17,7 +17,7 @@ delta_tree(tree, delta)
 uniform_tree(tree)
 }
 \arguments{
-\item{tree}{Phylogeny of class \link[ape:read.tree]{ape::phylo}.}
+\item{tree}{Phylogeny of class \link[ape:phylo]{ape::phylo}.}
 
 \item{method}{Character giving the rescaling method for \code{rescale_tree}:
 \code{"raw"}, \code{"sum1"}, or \code{"tip1"}.}
@@ -27,7 +27,7 @@ window for slicing, in the same units as \code{reference} if provided, otherwise
 in the units of \code{tree$edge.length}. Defaults are \code{-Inf} and \code{Inf} (no
 slicing). See \code{from} for the meaning of "depth."}
 
-\item{reference}{Optional phylogeny of class \link[ape:read.tree]{ape::phylo} whose branch
+\item{reference}{Optional phylogeny of class \link[ape:phylo]{ape::phylo} whose branch
 lengths define the slicing window. Must share topology with \code{tree}. If
 \code{NULL} (default), the window is defined on \code{tree}'s own branch lengths.
 When supplied, slicing identifies the fraction of each reference-branch's
@@ -44,7 +44,7 @@ root).}
 limiting case \code{delta = 0}, use \code{uniform_tree} instead.}
 }
 \value{
-A phylogeny of class \link[ape:read.tree]{ape::phylo} with modified branch lengths.
+A phylogeny of class \link[ape:phylo]{ape::phylo} with modified branch lengths.
 Topology is always preserved; \code{tree$tip.label}, \code{tree$node.label},
 \code{tree$edge}, and \code{tree$Nnode} are unchanged.
 }
