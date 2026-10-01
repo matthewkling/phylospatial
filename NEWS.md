@@ -8,6 +8,8 @@
 
 * Fixed an error in `ps_prioritize()` when using `method = "probable"` and `summarize = FALSE` with spatial output. Rep layers are now named `rep1`, `rep2`, etc.
 
+* New function `ps_prioritizr()` converts a `phylospatial` object into a conservation planning problem for the `prioritizr` package, which finds optimal solutions using integer linear programming. Every branch of the phylogeny is treated as a conservation feature with a range protection target, and existing protection (`init`) counts toward targets. Three objectives are supported: minimum-cost target achievement (`"min_set"`), and maximum target coverage (`"targets"`) or minimum target shortfall (`"shortfall"`) within a budget. The returned problem can be extended with any of prioritizr's solvers, constraints, and penalties. Requires `prioritizr` (>= 9.0.0).
+
 # phylospatial 1.4.0
 
 * New function `ps_grid()` converts point occurrence data (e.g. GBIF records) into raster format suitable for use with phylospatial functions.

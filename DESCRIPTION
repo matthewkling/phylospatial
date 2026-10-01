@@ -34,7 +34,10 @@ Suggests:
     picante,
     phytools,
     nullcat  (>= 0.2.0),
-    parallelDist
+    parallelDist,
+    prioritizr (>= 9.0.0),
+    highs,
+    Matrix
 URL: https://matthewkling.github.io/phylospatial/, https://github.com/matthewkling/phylospatial
 Config/testthat/edition: 3
 Depends: 
