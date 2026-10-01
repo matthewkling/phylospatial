@@ -83,16 +83,61 @@ spatial phylogenetics. Spatial conservation planning involves
 identifying priority locations for actions like the creation of new
 protected areas.</p>
 <p>There are a diversity of sophisticated tools available for
-conservation planning. This package performs conservation prioritization
-using a stepwise algorithm that selects an ordered ranking of priority
-sites for the creation of new protected areas. Unlike many other
-algorithms, this method can utilize quantitative community data (rather
-than just binary presence-absence data), and it can utilize quantitative
-data on the relative degree of protection offered by different types of
-protected area (rather than just binary protected-unprotected data).</p>
-<p>Prioritization is handled by the function
-<code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code>. A site’s priority ranking is a function
-of:</p>
+conservation planning. This package offers two complementary approaches.
+The first is its own greedy stepwise algorithm, implemented in
+<code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code>, which ranks every site in the study area
+by conservation priority. The second is <code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code>,
+which sets up a conservation planning problem that can be solved with
+the <a href="https://prioritizr.net" class="external-link">prioritizr</a> package, which uses
+integer linear programming to find optimal solutions and offers a wider
+range of planning features. Both approaches account for evolutionary
+relationships among all lineages (terminal taxa and larger clades), can
+use quantitative community data (rather than just binary
+presence-absence data), and can use quantitative data on the relative
+degree of protection offered by different types of protected area
+(rather than just binary protected-unprotected data).</p>
+<p>The two approaches answer somewhat different questions:</p>
+<ul>
+<li>
+<code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code> produces a <strong>ranking</strong> of
+sites. Rankings are nested, meaning the top 10 sites are always part of
+the top 20, which suits situations where protection will be added
+incrementally or opportunistically over time, or where no specific
+budget or target has been set. Its benefit function rewards protecting
+more of every lineage’s range without requiring a hard target, and its
+probabilistic mode reveals alternative sites of similar value. It
+requires no additional software. However, stepwise selection is not
+guaranteed to find the best possible set of sites for any particular
+budget, and it does not support spatial design considerations such as
+reserve compactness or connectivity.</li>
+<li>
+<code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code> produces an <strong>optimal
+solution</strong> to a specific planning problem, such as the cheapest
+set of sites that protects 30% of every lineage’s range, or the best set
+of sites within a fixed budget. Its targets map directly onto policy
+goals, and the resulting problem can be extended with any of
+prioritizr’s constraints and penalties, such as locking particular sites
+in or out, or favoring spatially compact reserve networks. However, it
+requires prioritizr and an optimization solver, solutions for different
+budgets are not nested, and some problems can be slow to solve to
+optimality.</li>
+</ul>
+<p>The two can also be used together. For example, a
+<code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code> ranking can guide the sequence of
+acquisitions, while <code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code> shows what an optimal
+network looks like for a given budget or target.</p>
+<p>This vignette covers greedy stepwise prioritization (including
+performance curves, probabilistic prioritization, and conservation
+benefit functions), followed by optimization with prioritizr. Both use
+the package’s example data set for California mosses.</p>
+</div>
+<div class="section level2">
+<h2 id="greedy-stepwise-prioritization-via-ps_prioritize">Greedy stepwise prioritization via <code>ps_prioritize()</code><a class="anchor" aria-label="anchor" href="#greedy-stepwise-prioritization-via-ps_prioritize"></a>
+</h2>
+<p><code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code> performs conservation prioritization
+using a greedy stepwise algorithm that selects an ordered ranking of
+priority sites for the creation of new protected areas. A site’s
+priority ranking is a function of:</p>
 <ul>
 <li>its current protection level</li>
 <li>the occurrence quantities for all lineages present in the site,
@@ -107,16 +152,8 @@ high-priority sites, and existing protected areas</li>
 <li>lambda, a free parameter determining the shape of the conservation
 benefit function (see below)</li>
 </ul>
-<p>This vignette covers basic conservation optimization, probabilistic
-prioritization, and further detail about conservation benefit
-functions.</p>
-</div>
-<div class="section level2">
-<h2 id="basic-optimization">Basic optimization<a class="anchor" aria-label="anchor" href="#basic-optimization"></a>
-</h2>
-<p>Let’s use the example data set for California mosses to perform a
-conservation optimization that ranks every grid cell across the
-state.</p>
+<p>Let’s perform a conservation optimization that ranks every grid cell
+across the state.</p>
 <p>At every step of the iterative <code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code>
 algorithm, the marginal value of fully protecting each individual site
 is calculated. Under a basic optimization
@@ -227,10 +264,9 @@ probabilistic prioritization, it summarizes curves across reps (or
 returns every rep’s curve, if <code>summarize = FALSE</code> was
 used).</p>
 </div>
-</div>
-<div class="section level2">
-<h2 id="probabilistic-prioritization">Probabilistic prioritization<a class="anchor" aria-label="anchor" href="#probabilistic-prioritization"></a>
-</h2>
+<div class="section level3">
+<h3 id="probabilistic-prioritization">Probabilistic prioritization<a class="anchor" aria-label="anchor" href="#probabilistic-prioritization"></a>
+</h3>
 <p>The routine shown above gives the optimal priority ranking, based on
 the assumption that sites are selected in the optimal order. This is an
 informative result and a relatively lightweight computation, but it has
@@ -275,9 +311,9 @@ be better for a real analysis:</p>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="prioritization_files/figure-html/postcompute2-1.png" class="r-plt" alt="" width="576"></p>
 </div>
-<div class="section level2">
-<h2 id="conservation-benefit-functions">Conservation benefit functions<a class="anchor" aria-label="anchor" href="#conservation-benefit-functions"></a>
-</h2>
+<div class="section level3">
+<h3 id="conservation-benefit-functions">Conservation benefit functions<a class="anchor" aria-label="anchor" href="#conservation-benefit-functions"></a>
+</h3>
 <p>In the examples above, we used the default value for the
 <code>lambda</code> parameter. <code>lambda</code> controls the relative
 priority placed on protecting initial populations of every taxon versus
@@ -290,8 +326,8 @@ value of sites during prioritization.</p>
 shapes of benefit functions under different lambda values:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_lambda.html">plot_lambda</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="prioritization_files/figure-html/lambda-1.png" class="r-plt" alt="" width="432">
-A value of <code>lambda = 0</code> places equal marginal value on
+<p><img src="prioritization_files/figure-html/lambda-1.png" class="r-plt" alt="" width="432"></p>
+<p>A value of <code>lambda = 0</code> places equal marginal value on
 protecting additional populations of a taxon regardless of how much of
 its range is already protected. The default of <code>lambda = 1</code>
 places higher priority on protecting populations of unprotected taxa,
@@ -308,6 +344,118 @@ applications.</p>
 consider what makes the most sense for your particular use case. It can
 also be useful to compare different values to understand how sensitive
 your results may be to this choice.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="optimization-with-ps_prioritizr">Optimization with <code>ps_prioritizr()</code><a class="anchor" aria-label="anchor" href="#optimization-with-ps_prioritizr"></a>
+</h2>
+<p>The stepwise algorithm in <code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code> produces a
+nested ranking of sites, but stepwise selection is not guaranteed to
+find the best possible set of sites for a given budget. The <a href="https://prioritizr.net" class="external-link">prioritizr</a> package finds optimal
+solutions to conservation planning problems using integer linear
+programming, and offers a wide range of constraints and spatial
+penalties. The function <code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code> converts a
+<code>phylospatial</code> data set into a prioritizr problem, treating
+every branch of the phylogeny (terminal taxa and larger clades) as a
+conservation feature. This requires the prioritizr package and one of
+the optimization solvers it supports, such as highs.</p>
+<p>All problems built by <code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code> are organized
+around a range protection <code>target</code>: the fraction of each
+lineage’s range that should be protected. The <code>objective</code>
+determines how targets are used:</p>
+<ul>
+<li>
+<code>"min_set"</code> finds the lowest-cost set of sites that
+brings every branch up to the target.</li>
+<li>
+<code>"targets"</code> maximizes the fraction of total branch length
+that meets the target, without exceeding a <code>budget</code>.</li>
+<li>
+<code>"shortfall"</code> maximizes progress toward the target,
+weighted by branch length and without exceeding a <code>budget</code>.
+Unlike <code>"targets"</code>, it gives credit for partial
+progress.</li>
+</ul>
+<p>Existing protection specified via <code>init</code> counts toward
+each target, and selecting a site in a solution raises its protection
+level to <code>protection</code>, just as in
+<code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code>. Sites that are already fully protected are
+locked into every solution at no cost.</p>
+<p>prioritizr also has built-in phylogenetic objectives,
+<code><a href="https://prioritizr.net/reference/add_max_phylo_div_objective.html" class="external-link">add_max_phylo_div_objective()</a></code> and
+<code><a href="https://prioritizr.net/reference/add_max_phylo_end_objective.html" class="external-link">add_max_phylo_end_objective()</a></code>, which take a tree along with
+species-level features. These work differently from
+<code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code> in a few important ways:</p>
+<ul>
+<li>
+<strong>How lineages get credit.</strong> prioritizr’s phylogenetic
+objectives give special treatment to terminal taxa, which does not align
+with the clade-based view of biodiversity that is inherent in
+phylogenetic diversity metrics. They set targets for terminal taxa only,
+and credit a branch as conserved if at least one of its descendant taxa
+meets its target. Meeting the target for a single narrow-ranged species
+therefore credits all of its ancestral branches, even if only a small
+fraction of those clades’ ranges is protected.
+<code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code> instead treats every clade’s own range (the
+union of its descendants’ ranges, as computed by
+<code><a href="../reference/phylospatial.html">phylospatial()</a></code>) as a feature with its own target, so deep
+branches only count once their own ranges are adequately protected. This
+is the same clade-level view of geographic ranges used throughout this
+package, and it extends naturally to probabilistic range data.</li>
+<li>
+<strong>Partial credit and existing protection.</strong>
+prioritizr’s phylogenetic objectives give all-or-nothing credit for each
+branch, while the <code>"shortfall"</code> objective here also rewards
+partial progress. Existing protection can only be represented in
+prioritizr by locking sites into the solution, whereas
+<code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code> counts partially protected sites
+(<code>init</code> values between 0 and 1) toward targets.</li>
+<li>
+<strong>Endemism.</strong>
+<code><a href="https://prioritizr.net/reference/add_max_phylo_end_objective.html" class="external-link">add_max_phylo_end_objective()</a></code> weights each branch’s length
+by the inverse of its range size, favoring geographically restricted
+lineages. <code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code> weights branches by length alone,
+though because targets are defined as fractions of each lineage’s range,
+narrow-ranged lineages are generally cheaper to bring up to target.</li>
+</ul>
+<p>Here we’ll find the lowest-cost set of sites that protects at least
+half of every lineage’s range, using the same <code>init</code> and
+<code>cost</code> data as above. <code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code> returns an
+unsolved problem, to which we can add any other prioritizr components
+before solving it. Here we’ll specify the solver, with an optimality gap
+of zero to ensure we get an exact solution (prioritizr solvers otherwise
+stop once they are within 10% of the optimum).</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://prioritizr.net" class="external-link">prioritizr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_prioritizr.html">ps_prioritizr</a></span><span class="op">(</span><span class="va">ps</span>, init <span class="op">=</span> <span class="va">init</span>, cost <span class="op">=</span> <span class="va">cost</span>,</span>
+<span>                      objective <span class="op">=</span> <span class="st">"min_set"</span>, target <span class="op">=</span> <span class="fl">.5</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>      <span class="fu"><a href="https://prioritizr.net/reference/add_default_solver.html" class="external-link">add_default_solver</a></span><span class="op">(</span>gap <span class="op">=</span> <span class="fl">0</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">solution</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="va">prob</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">solution</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_categorical.html" class="external-link">tm_scale_categorical</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gray80"</span>, <span class="st">"darkred"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                col.legend <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_legend.html" class="external-link">tm_legend</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"selected"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_layout.html" class="external-link">tm_layout</a></span><span class="op">(</span>legend.outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="prioritization_files/figure-html/postcompute3-1.png" class="r-plt" alt="" width="576"></p>
+<p>The budget-constrained objectives work the same way, with a
+<code>budget</code> argument specifying the maximum total cost of newly
+selected sites. Note that <code>"targets"</code> problems can take much
+longer to solve to optimality than the other objectives; a small nonzero
+<code>gap</code> or a <code>time_limit</code> can help.</p>
+<p>Spatial penalties and constraints can be added in the same way; for
+example, <code><a href="https://prioritizr.net/reference/add_boundary_penalties.html" class="external-link">add_boundary_penalties()</a></code> favors spatially compact
+solutions. By default, <code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code> builds the problem
+using the spatial data in our <code>phylospatial</code> object, so
+prioritizr can calculate the spatial relationships among sites itself.
+For very large data sets, <code>spatial = FALSE</code> builds a more
+memory-efficient non-spatial problem instead.</p>
+<p>Note that prioritizr’s own summary functions, like
+<code><a href="https://prioritizr.net/reference/eval_feature_representation_summary.html" class="external-link">eval_feature_representation_summary()</a></code>, report each branch’s
+representation relative to the unprotected portion of its range rather
+than its full range, since <code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code> builds existing
+protection into its targets.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

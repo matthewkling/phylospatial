@@ -9,17 +9,64 @@ identifying priority locations for actions like the creation of new
 protected areas.
 
 There are a diversity of sophisticated tools available for conservation
-planning. This package performs conservation prioritization using a
-stepwise algorithm that selects an ordered ranking of priority sites for
-the creation of new protected areas. Unlike many other algorithms, this
-method can utilize quantitative community data (rather than just binary
-presence-absence data), and it can utilize quantitative data on the
-relative degree of protection offered by different types of protected
-area (rather than just binary protected-unprotected data).
+planning. This package offers two complementary approaches. The first is
+its own greedy stepwise algorithm, implemented in
+[`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md),
+which ranks every site in the study area by conservation priority. The
+second is
+[`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md),
+which sets up a conservation planning problem that can be solved with
+the [prioritizr](https://prioritizr.net) package, which uses integer
+linear programming to find optimal solutions and offers a wider range of
+planning features. Both approaches account for evolutionary
+relationships among all lineages (terminal taxa and larger clades), can
+use quantitative community data (rather than just binary
+presence-absence data), and can use quantitative data on the relative
+degree of protection offered by different types of protected area
+(rather than just binary protected-unprotected data).
 
-Prioritization is handled by the function
-[`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md).
-A site’s priority ranking is a function of:
+The two approaches answer somewhat different questions:
+
+- [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+  produces a **ranking** of sites. Rankings are nested, meaning the top
+  10 sites are always part of the top 20, which suits situations where
+  protection will be added incrementally or opportunistically over time,
+  or where no specific budget or target has been set. Its benefit
+  function rewards protecting more of every lineage’s range without
+  requiring a hard target, and its probabilistic mode reveals
+  alternative sites of similar value. It requires no additional
+  software. However, stepwise selection is not guaranteed to find the
+  best possible set of sites for any particular budget, and it does not
+  support spatial design considerations such as reserve compactness or
+  connectivity.
+- [`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+  produces an **optimal solution** to a specific planning problem, such
+  as the cheapest set of sites that protects 30% of every lineage’s
+  range, or the best set of sites within a fixed budget. Its targets map
+  directly onto policy goals, and the resulting problem can be extended
+  with any of prioritizr’s constraints and penalties, such as locking
+  particular sites in or out, or favoring spatially compact reserve
+  networks. However, it requires prioritizr and an optimization solver,
+  solutions for different budgets are not nested, and some problems can
+  be slow to solve to optimality.
+
+The two can also be used together. For example, a
+[`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+ranking can guide the sequence of acquisitions, while
+[`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+shows what an optimal network looks like for a given budget or target.
+
+This vignette covers greedy stepwise prioritization (including
+performance curves, probabilistic prioritization, and conservation
+benefit functions), followed by optimization with prioritizr. Both use
+the package’s example data set for California mosses.
+
+## Greedy stepwise prioritization via `ps_prioritize()`
+
+[`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+performs conservation prioritization using a greedy stepwise algorithm
+that selects an ordered ranking of priority sites for the creation of
+new protected areas. A site’s priority ranking is a function of:
 
 - its current protection level
 - the occurrence quantities for all lineages present in the site,
@@ -34,13 +81,8 @@ A site’s priority ranking is a function of:
 - lambda, a free parameter determining the shape of the conservation
   benefit function (see below)
 
-This vignette covers basic conservation optimization, probabilistic
-prioritization, and further detail about conservation benefit functions.
-
-## Basic optimization
-
-Let’s use the example data set for California mosses to perform a
-conservation optimization that ranks every grid cell across the state.
+Let’s perform a conservation optimization that ranks every grid cell
+across the state.
 
 At every step of the iterative
 [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
@@ -170,7 +212,7 @@ rather than on a result that has been saved to file and reloaded. When
 used on a probabilistic prioritization, it summarizes curves across reps
 (or returns every rep’s curve, if `summarize = FALSE` was used).
 
-## Probabilistic prioritization
+### Probabilistic prioritization
 
 The routine shown above gives the optimal priority ranking, based on the
 assumption that sites are selected in the optimal order. This is an
@@ -223,7 +265,7 @@ tm_shape(priority$top10) +
 
 ![](prioritization_files/figure-html/postcompute2-1.png)
 
-## Conservation benefit functions
+### Conservation benefit functions
 
 In the examples above, we used the default value for the `lambda`
 parameter. `lambda` controls the relative priority placed on protecting
@@ -245,10 +287,11 @@ values:
 plot_lambda()
 ```
 
-![](prioritization_files/figure-html/lambda-1.png) A value of
-`lambda = 0` places equal marginal value on protecting additional
-populations of a taxon regardless of how much of its range is already
-protected. The default of `lambda = 1` places higher priority on
+![](prioritization_files/figure-html/lambda-1.png)
+
+A value of `lambda = 0` places equal marginal value on protecting
+additional populations of a taxon regardless of how much of its range is
+already protected. The default of `lambda = 1` places higher priority on
 protecting populations of unprotected taxa, but still places some value
 on increasing the protection of taxa that are already reasonably well
 protected. Increasing the value to `lambda = 2` strongly emphasizes
@@ -263,3 +306,131 @@ Deciding which value to use is a subjective choice, and you should
 consider what makes the most sense for your particular use case. It can
 also be useful to compare different values to understand how sensitive
 your results may be to this choice.
+
+## Optimization with `ps_prioritizr()`
+
+The stepwise algorithm in
+[`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+produces a nested ranking of sites, but stepwise selection is not
+guaranteed to find the best possible set of sites for a given budget.
+The [prioritizr](https://prioritizr.net) package finds optimal solutions
+to conservation planning problems using integer linear programming, and
+offers a wide range of constraints and spatial penalties. The function
+[`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+converts a `phylospatial` data set into a prioritizr problem, treating
+every branch of the phylogeny (terminal taxa and larger clades) as a
+conservation feature. This requires the prioritizr package and one of
+the optimization solvers it supports, such as highs.
+
+All problems built by
+[`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+are organized around a range protection `target`: the fraction of each
+lineage’s range that should be protected. The `objective` determines how
+targets are used:
+
+- `"min_set"` finds the lowest-cost set of sites that brings every
+  branch up to the target.
+- `"targets"` maximizes the fraction of total branch length that meets
+  the target, without exceeding a `budget`.
+- `"shortfall"` maximizes progress toward the target, weighted by branch
+  length and without exceeding a `budget`. Unlike `"targets"`, it gives
+  credit for partial progress.
+
+Existing protection specified via `init` counts toward each target, and
+selecting a site in a solution raises its protection level to
+`protection`, just as in
+[`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md).
+Sites that are already fully protected are locked into every solution at
+no cost.
+
+prioritizr also has built-in phylogenetic objectives,
+[`add_max_phylo_div_objective()`](https://prioritizr.net/reference/add_max_phylo_div_objective.html)
+and
+[`add_max_phylo_end_objective()`](https://prioritizr.net/reference/add_max_phylo_end_objective.html),
+which take a tree along with species-level features. These work
+differently from
+[`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+in a few important ways:
+
+- **How lineages get credit.** prioritizr’s phylogenetic objectives give
+  special treatment to terminal taxa, which does not align with the
+  clade-based view of biodiversity that is inherent in phylogenetic
+  diversity metrics. They set targets for terminal taxa only, and credit
+  a branch as conserved if at least one of its descendant taxa meets its
+  target. Meeting the target for a single narrow-ranged species
+  therefore credits all of its ancestral branches, even if only a small
+  fraction of those clades’ ranges is protected.
+  [`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+  instead treats every clade’s own range (the union of its descendants’
+  ranges, as computed by
+  [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md))
+  as a feature with its own target, so deep branches only count once
+  their own ranges are adequately protected. This is the same
+  clade-level view of geographic ranges used throughout this package,
+  and it extends naturally to probabilistic range data.
+- **Partial credit and existing protection.** prioritizr’s phylogenetic
+  objectives give all-or-nothing credit for each branch, while the
+  `"shortfall"` objective here also rewards partial progress. Existing
+  protection can only be represented in prioritizr by locking sites into
+  the solution, whereas
+  [`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+  counts partially protected sites (`init` values between 0 and 1)
+  toward targets.
+- **Endemism.**
+  [`add_max_phylo_end_objective()`](https://prioritizr.net/reference/add_max_phylo_end_objective.html)
+  weights each branch’s length by the inverse of its range size,
+  favoring geographically restricted lineages.
+  [`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+  weights branches by length alone, though because targets are defined
+  as fractions of each lineage’s range, narrow-ranged lineages are
+  generally cheaper to bring up to target.
+
+Here we’ll find the lowest-cost set of sites that protects at least half
+of every lineage’s range, using the same `init` and `cost` data as
+above.
+[`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+returns an unsolved problem, to which we can add any other prioritizr
+components before solving it. Here we’ll specify the solver, with an
+optimality gap of zero to ensure we get an exact solution (prioritizr
+solvers otherwise stop once they are within 10% of the optimum).
+
+``` r
+
+library(prioritizr)
+
+prob <- ps_prioritizr(ps, init = init, cost = cost,
+                      objective = "min_set", target = .5) %>%
+      add_default_solver(gap = 0, verbose = FALSE)
+
+solution <- solve(prob)
+
+tm_shape(solution) + 
+      tm_raster(col.scale = tm_scale_categorical(values = c("gray80", "darkred")),
+                col.legend = tm_legend(title = "selected")) + 
+      tm_layout(legend.outside = TRUE)
+```
+
+![](prioritization_files/figure-html/postcompute3-1.png)
+
+The budget-constrained objectives work the same way, with a `budget`
+argument specifying the maximum total cost of newly selected sites. Note
+that `"targets"` problems can take much longer to solve to optimality
+than the other objectives; a small nonzero `gap` or a `time_limit` can
+help.
+
+Spatial penalties and constraints can be added in the same way; for
+example,
+[`add_boundary_penalties()`](https://prioritizr.net/reference/add_boundary_penalties.html)
+favors spatially compact solutions. By default,
+[`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+builds the problem using the spatial data in our `phylospatial` object,
+so prioritizr can calculate the spatial relationships among sites
+itself. For very large data sets, `spatial = FALSE` builds a more
+memory-efficient non-spatial problem instead.
+
+Note that prioritizr’s own summary functions, like
+[`eval_feature_representation_summary()`](https://prioritizr.net/reference/eval_feature_representation_summary.html),
+report each branch’s representation relative to the unprotected portion
+of its range rather than its full range, since
+[`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+builds existing protection into its targets.

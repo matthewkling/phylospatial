@@ -56,6 +56,8 @@
 
 - [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
   : Phylogenetic conservation prioritization
+- [`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+  : Build a prioritizr conservation problem
 - [`ps_performance()`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md)
   [`plot(`*`<ps_performance>`*`)`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md)
   : Performance curves for a conservation prioritization

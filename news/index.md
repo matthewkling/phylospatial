@@ -33,6 +33,19 @@
   when using `method = "probable"` and `summarize = FALSE` with spatial
   output. Rep layers are now named `rep1`, `rep2`, etc.
 
+- New function
+  [`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+  converts a `phylospatial` object into a conservation planning problem
+  for the `prioritizr` package, which finds optimal solutions using
+  integer linear programming. Every branch of the phylogeny is treated
+  as a conservation feature with a range protection target, and existing
+  protection (`init`) counts toward targets. Three objectives are
+  supported: minimum-cost target achievement (`"min_set"`), and maximum
+  target coverage (`"targets"`) or minimum target shortfall
+  (`"shortfall"`) within a budget. The returned problem can be extended
+  with any of prioritizr’s solvers, constraints, and penalties. Requires
+  `prioritizr` (\>= 9.0.0).
+
 ## phylospatial 1.4.0
 
 CRAN release: 2026-04-16
