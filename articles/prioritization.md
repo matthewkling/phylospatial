@@ -108,31 +108,39 @@ from sites with lower initial values.
 
 The second optional variable is `cost`, representing the relative cost
 of protecting different sites across the study area. Sites with high
-benefit-to-cost ratios are prioritized. For this example, we’ll just
-specify an arbitrary initial protection gradient from north to south and
-a cost gradient from east to west, though of course a real analysis
-would require actual data. For simplicity we’ll provide these as vectors
-(with length equal to `ps$n_sites`, the total number of grid cells
-including unoccupied ones), but we could also provide raster layers
-matching the `spatial` element of our data set.
+benefit-to-cost ratios are prioritized. Both inputs can be supplied as
+vectors (with length equal to `ps$n_sites`, the total number of grid
+cells including unoccupied ones), or as spatial data matching the
+`spatial` element of our data set.
 
 First let’s load the libraries we’ll need, and initialize a
 `phylospatial` data set using the example data for California mosses.
 (See
 [`vignette("phylospatial-data")`](https://matthewkling.github.io/phylospatial/articles/phylospatial-data.md)
-for details on constructing `phylospatial` objects.) We’ll also create a
-variable called `init` specifying our (arbitrary) initial conservation
-values, and `cost` defining some hypothetical land cost data.
+for details on constructing `phylospatial` objects.) The
+[`moss()`](https://matthewkling.github.io/phylospatial/reference/moss.md)
+function can also load two companion layers on the same grid, which
+we’ll use as our `init` and `cost` inputs. The `"protection"` layer
+gives the existing protection level of each grid cell, ranging from 0 to
+1, based on the California Protected Areas Database and California
+Conservation Easement Database. The `"popdens"` layer gives human
+population density, which we’ll use as a rough proxy for the cost of
+protecting land. Population density varies by several orders of
+magnitude, so we’ll log-transform it so that cost doesn’t overwhelm
+biodiversity value, and add 1 so that every site has a nonzero cost.
 
 ``` r
 
 library(phylospatial); library(tmap); library(magrittr)
 
 ps <- moss()
-set.seed(123)
-init <- seq(1, 0, length.out = ps$n_sites)
-cost <- runif(ps$n_sites, 10, 1000)
+init <- moss(data = "protection")
+cost <- 1 + log1p(moss(data = "popdens"))
+
+terra::plot(c(init, cost), main = c("existing protection", "cost"))
 ```
+
+![](prioritization_files/figure-html/init-1.png)
 
 Now we’ll pass those inputs to
 [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md).
@@ -169,10 +177,7 @@ existing protection in `init`.
 The curves also report target-based coverage: for each value supplied to
 `target`, the fraction of the tree’s total branch length belonging to
 lineages with at least that fraction of their range protected. Here
-we’ll look at 30% and 80% range protection targets. Our arbitrary `init`
-data already protect a large share of most lineages’ ranges, so nearly
-the whole tree meets the 30% target before any new sites are added; the
-80% target is more informative in this example.
+we’ll look at 30% and 80% range protection targets.
 
 ``` r
 
@@ -184,20 +189,20 @@ plot(perf)
 plot(perf, yvar = "cov80")
 ```
 
-    #>   ranking step site site_cost site_gain   site_value n_sites     cost      gain
-    #> 1       1    0   NA        NA        NA           NA       0  0.00000 0.0000000
-    #> 2       1    1  478  10.46070 0.4278027 0.0005387606       1 10.46070 0.4278027
-    #> 3       1    2  911  13.85738 0.8161435 0.0004835580       2 24.31808 1.2439462
-    #> 4       1    3  740  11.17971 0.6627803 0.0003816511       3 35.49779 1.9067265
-    #> 5       1    4  978  16.92847 0.8762332 0.0003753886       4 52.42626 2.7829596
-    #> 6       1    5  730  32.62614 0.6538117 0.0005694841       5 85.05239 3.4367713
+    #>   ranking step site site_cost site_gain  site_value n_sites     cost      gain
+    #> 1       1    0   NA        NA        NA          NA       0 0.000000 0.0000000
+    #> 2       1    1  575  1.023765 0.5147982 0.002365919       1 1.023765 0.5147982
+    #> 3       1    2  606  1.008175 0.5426009 0.001764130       2 2.031940 1.0573991
+    #> 4       1    3  638  1.000846 0.5713004 0.001643745       3 3.032786 1.6286996
+    #> 5       1    4  543  1.023559 0.4860987 0.001594199       4 4.056345 2.1147982
+    #> 6       1    5  637  1.097268 0.5704036 0.001608617       5 5.153614 2.6852018
     #>       value     cov30     cov80
     #> 1 0.9372342 0.9960357 0.1852520
-    #> 2 0.9377729 0.9960357 0.1898301
-    #> 3 0.9382565 0.9960403 0.1898301
-    #> 4 0.9386382 0.9960403 0.1898301
-    #> 5 0.9390135 0.9960584 0.1898301
-    #> 6 0.9395830 0.9960584 0.1898301
+    #> 2 0.9396001 0.9960357 0.1852520
+    #> 3 0.9413642 0.9960357 0.1961020
+    #> 4 0.9430080 0.9960357 0.2006807
+    #> 5 0.9446022 0.9960357 0.2111522
+    #> 6 0.9462108 0.9960357 0.2228110
 
 ![](prioritization_files/figure-html/postcompute_perf-1.png)
 
@@ -254,12 +259,13 @@ better for a real analysis:
 
 ``` r
 
+set.seed(123)
 priority <- ps_prioritize(ps, init = init, cost = cost, n_reps = 2500,
                           method = "prob", max_iter = 10)
 
 tm_shape(priority$top10) + 
       tm_raster(col.scale = tm_scale_continuous(values = "inferno"),
-                col.legend = tm_legend(title = "proporiton of runs\nin which site was\ntop-10 priority")) + 
+                col.legend = tm_legend(title = "proportion of runs\nin which site was\ntop-10 priority")) + 
       tm_layout(legend.outside = TRUE)
 ```
 

@@ -40,8 +40,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="phylospatial-development-version">phylospatial (development version)<a class="anchor" aria-label="anchor" href="#phylospatial-development-version"></a></h2>
-<ul><li>
-<code><a href="../reference/plot.phylospatial.html">plot.phylospatial()</a></code> gains a <code>taxa</code> argument for choosing which lineage ranges to plot when <code>y = "comm"</code>, by name or by index, instead of a random sample. Also fixed the <code>max_taxa</code> documentation, which referred to the wrong <code>y</code> value.</li>
+<ul><li><p><code><a href="../reference/plot.phylospatial.html">plot.phylospatial()</a></code> gains a <code>taxa</code> argument for choosing which lineage ranges to plot when <code>y = "comm"</code>, by name or by index, instead of a random sample. Also fixed the <code>max_taxa</code> documentation, which referred to the wrong <code>y</code> value.</p></li>
+<li><p><code><a href="../reference/moss.html">moss()</a></code> gains a <code>data</code> argument for loading companion layers on the same grid as the moss data set: <code>"protection"</code> (fraction of each cell in protected areas) and <code>"popdens"</code> (human population density), for use as <code>init</code> and <code>cost</code> in conservation prioritizations. Both are available in raster and polygon formats.</p></li>
+<li><p>Fixed an error in <code><a href="../reference/ps_prioritize.html">ps_prioritize()</a></code> and <code><a href="../reference/ps_prioritizr.html">ps_prioritizr()</a></code> when <code>init</code> or <code>cost</code> was supplied as an <code>sf</code> object, which the documentation already listed as supported.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.5.0" id="phylospatial-150">phylospatial 1.5.0<a class="anchor" aria-label="anchor" href="#phylospatial-150"></a></h2><p class="text-muted">CRAN release: 2026-10-01</p>

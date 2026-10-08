@@ -8,6 +8,20 @@
   fixed the `max_taxa` documentation, which referred to the wrong `y`
   value.
 
+- [`moss()`](https://matthewkling.github.io/phylospatial/reference/moss.md)
+  gains a `data` argument for loading companion layers on the same grid
+  as the moss data set: `"protection"` (fraction of each cell in
+  protected areas) and `"popdens"` (human population density), for use
+  as `init` and `cost` in conservation prioritizations. Both are
+  available in raster and polygon formats.
+
+- Fixed an error in
+  [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+  and
+  [`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+  when `init` or `cost` was supplied as an `sf` object, which the
+  documentation already listed as supported.
+
 ## phylospatial 1.5.0
 
 CRAN release: 2026-10-01
