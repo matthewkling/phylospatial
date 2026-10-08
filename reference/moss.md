@@ -79,7 +79,6 @@ moss()
 protection <- moss(data = "protection")
 popdens <- moss(data = "popdens")
 terra::plot(c(protection, log1p(popdens)))
-#> Warning: [rast] CRS do not match
 
 # }
 ```
