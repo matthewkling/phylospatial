@@ -57,17 +57,18 @@ At every step of the iterative `ps_prioritize()` algorithm, the marginal value o
 
 In addition to the required spatial phylogenetic data set, there are two other optional data inputs that one might want to provide. The first is `init`, the location and effectiveness of existing protected areas. This can be binary data representing protected versus unprotected sites, or continuous data with values between 0 and 1 representing the degree of protection (for example, perhaps because a given spatial unit is only partially covered by protected land, or because land management in sites like national forests is only partly oriented toward biodiversity protection). During the conservation optimization, the protection level for newly protected sites is raised to 1 (or to an alternative level specified by the parameter `protection`), with greater benefit resulting from sites with lower initial values.
 
-The second optional variable is `cost`, representing the relative cost of protecting different sites across the study area. Sites with high benefit-to-cost ratios are prioritized. For this example, we'll just specify an arbitrary initial protection gradient from north to south and a cost gradient from east to west, though of course a real analysis would require actual data. For simplicity we'll provide these as vectors (with length equal to `ps$n_sites`, the total number of grid cells including unoccupied ones), but we could also provide raster layers matching the `spatial` element of our data set.
+The second optional variable is `cost`, representing the relative cost of protecting different sites across the study area. Sites with high benefit-to-cost ratios are prioritized. Both inputs can be supplied as vectors (with length equal to `ps$n_sites`, the total number of grid cells including unoccupied ones), or as spatial data matching the `spatial` element of our data set.
 
-First let's load the libraries we'll need, and initialize a `phylospatial` data set using the example data for California mosses. (See `vignette("phylospatial-data")` for details on constructing `phylospatial` objects.) We'll also create a variable called `init` specifying our (arbitrary) initial conservation values, and `cost` defining some hypothetical land cost data.
+First let's load the libraries we'll need, and initialize a `phylospatial` data set using the example data for California mosses. (See `vignette("phylospatial-data")` for details on constructing `phylospatial` objects.) The `moss()` function can also load two companion layers on the same grid, which we'll use as our `init` and `cost` inputs. The `"protection"` layer gives the existing protection level of each grid cell, ranging from 0 to 1, based on the California Protected Areas Database and California Conservation Easement Database. The `"popdens"` layer gives human population density, which we'll use as a rough proxy for the cost of protecting land. Population density varies by several orders of magnitude, so we'll log-transform it so that cost doesn't overwhelm biodiversity value, and add 1 so that every site has a nonzero cost.
 
-```{r init, message=FALSE, warning=FALSE}
+```{r init, message=FALSE, warning=FALSE, fig.dim = c(7, 4)}
 library(phylospatial); library(tmap); library(magrittr)
 
 ps <- moss()
-set.seed(123)
-init <- seq(1, 0, length.out = ps$n_sites)
-cost <- runif(ps$n_sites, 10, 1000)
+init <- moss(data = "protection")
+cost <- 1 + log1p(moss(data = "popdens"))
+
+terra::plot(c(init, cost), main = c("existing protection", "cost"))
 ```
 
 Now we'll pass those inputs to `ps_prioritize()`. Plotting the result, the highest-priority sites are those with low rank values, shown in yellow.
@@ -102,7 +103,7 @@ tm_shape(priority) +
 
 To see how conservation value accumulates as sites are added in priority order, we can pass the prioritization result to `ps_performance()`, along with the data set used to create it. This returns a data frame with one row per step, tracking the cumulative number of sites, cost, and protection added (`gain`, which differs from the number of sites when some sites are already partially protected), along with the network's conservation `value`. This is the quantity that `ps_prioritize()` optimizes: the branch-length-weighted sum of every lineage's conservation benefit, which ranges from 0 to 1. Step 0 represents the starting state, which in our case is greater than zero because of the existing protection in `init`.
 
-The curves also report target-based coverage: for each value supplied to `target`, the fraction of the tree's total branch length belonging to lineages with at least that fraction of their range protected. Here we'll look at 30% and 80% range protection targets. Our arbitrary `init` data already protect a large share of most lineages' ranges, so nearly the whole tree meets the 30% target before any new sites are added; the 80% target is more informative in this example.
+The curves also report target-based coverage: for each value supplied to `target`, the fraction of the tree's total branch length belonging to lineages with at least that fraction of their range protected. Here we'll look at 30% and 80% range protection targets.
 
 ```{r perf, eval=FALSE}
 perf <- ps_performance(ps, priority, target = c(.3, .8))
@@ -137,17 +138,19 @@ Running a large number of `n_reps` can substantially increase computation times,
 Let's demonstrate that here; we'll run 2500 reps, though more might be better for a real analysis:
 
 ```{r prob, eval=FALSE}
+set.seed(123)
 priority <- ps_prioritize(ps, init = init, cost = cost, n_reps = 2500,
                           method = "prob", max_iter = 10)
 
 tm_shape(priority$top10) + 
       tm_raster(col.scale = tm_scale_continuous(values = "inferno"),
-                col.legend = tm_legend(title = "proporiton of runs\nin which site was\ntop-10 priority")) + 
+                col.legend = tm_legend(title = "proportion of runs\nin which site was\ntop-10 priority")) + 
       tm_layout(legend.outside = TRUE)
 ```
 
 ```{r precompute2, eval=FALSE, echo=FALSE}
 # pre-process to avoid exceeding CRAN runtime limits -- need to manually run this when updating vignette!
+set.seed(123)
 priority <- ps_prioritize(ps, init = init, cost = cost, n_reps = 2500,
                           method = "prob", max_iter = 10)
 terra::writeRaster(priority, "~/R/phylospatial/inst/extdata/priority-prob.tif", overwrite = TRUE)
@@ -158,7 +161,7 @@ priority <- terra::rast(system.file("extdata", "priority-prob.tif", package = "p
 
 tm_shape(priority$top10) + 
       tm_raster(col.scale = tm_scale_continuous(values = "inferno"),
-                col.legend = tm_legend(title = "proporiton of runs\nin which site was\ntop-10 priority")) + 
+                col.legend = tm_legend(title = "proportion of runs\nin which site was\ntop-10 priority")) + 
       tm_layout(legend.outside = TRUE)
 ```
 

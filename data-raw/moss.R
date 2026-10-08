@@ -54,5 +54,30 @@ saveRDS(moss_poly$spatial, "inst/extdata/moss_polygons.rds")
 
 
 
+# current protection level ===================
+
+ps <- moss()
+comm <- ps_get_comm(ps)[[1]]
+reserves <- rast("~/documents/spatial_phylogenetics/ca_bryo/ca_bryo_sphy/data/protection_status.tif")
+protected <- resample(reserves, comm, method = "mean")
+protected <- mask(protected, comm)
+protected[protected > .95] <- 1
+names(protected) <- "protection"
+
+writeRaster(protected, "inst/extdata/moss_protection.tif", overwrite = T)
 
 
+# population density (cost proxy) ==================
+
+# GPW v4 population density (persons per km2), 2020, 2.5 arc-minute (~5 km) resolution
+pop <- geodata::population(year = 2020, res = 0.5, path = tempdir())
+
+# crop the global layer to the study area (plus a buffer) before projecting
+pop <- crop(pop, ext(project(comm, crs(pop))) + 1, snap = "out")
+
+# aggregate onto the moss grid as mean density
+popdens <- project(pop, comm, method = "average")
+popdens <- mask(popdens, comm)
+names(popdens) <- "popdens"
+
+writeRaster(popdens, "inst/extdata/moss_popdens.tif", overwrite = TRUE)

@@ -318,6 +318,13 @@ range_fractions <- function(ps){
       m
 }
 
+# get a vector of per-site values from a numeric vector, single-layer SpatRaster, or sf object
+# (for sf, the first non-geometry variable is used)
+site_values <- function(x){
+      if(inherits(x, "sf")) return(sf::st_drop_geometry(x)[[1]])
+      as.vector(x[])
+}
+
 # extract and validate `init` and `cost` values for occupied sites
 prioritize_inputs <- function(ps, init, cost){
       occ <- ps$occupied
@@ -326,8 +333,7 @@ prioritize_inputs <- function(ps, init, cost){
       if(is.null(init)){
             p <- rep(0, n_occ)
       }else{
-            p_full <- init[]
-            p <- p_full[occ]
+            p <- site_values(init)[occ]
             stopifnot("`init` may not contain NA values, or values outside the 0-1 range, for sites that contain taxa." =
                             all(is.finite(p)) & min(p) >= 0 & max(p) <= 1)
       }
@@ -335,8 +341,7 @@ prioritize_inputs <- function(ps, init, cost){
       if(is.null(cost)){
             cost <- rep(1, n_occ)
       }else{
-            cost_full <- cost[]
-            cost <- cost_full[occ]
+            cost <- site_values(cost)[occ]
             stopifnot("`cost` may only contain finite, nonnegative values for sites that contain taxa." =
                             all(is.finite(cost)) & min(cost) >= 0)
       }
@@ -357,4 +362,3 @@ ps_fingerprint <- function(ps){
         n_edges = ncol(ps$comm),
         comm_sum = sum(ps$comm, na.rm = TRUE))
 }
-

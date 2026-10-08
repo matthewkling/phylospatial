@@ -17,6 +17,24 @@ test_that("`ps_prioritize()` runs without error on example data", {
       expect_no_error(ps_prioritize(ps2, progress = FALSE))
 })
 
+test_that("`init` and `cost` accept vectors, rasters, and sf objects equivalently", {
+      ps <- ps_simulate(n_tips = 5, n_x = 5, n_y = 5, data_type = "prob", seed = 1)
+      polys <- sf::st_as_sf(terra::as.polygons(ps_get_comm(ps), aggregate = FALSE,
+                                               na.rm = FALSE, round = FALSE))
+      ps_sf <- phylospatial(polys, ps$tree, data_type = "probability", check = FALSE)
+      expect_equal(ps_sf$occupied, ps$occupied, ignore_attr = TRUE)
+      init <- seq(0, 1, length.out = ps$n_sites)
+      cost <- seq(1, 2, length.out = ps$n_sites)
+      init_r <- terra::setValues(ps$spatial[[1]], init)
+      init_sf <- sf::st_sf(data.frame(init = init), geometry = sf::st_geometry(ps_sf$spatial))
+      cost_sf <- sf::st_sf(data.frame(cost = cost), geometry = sf::st_geometry(ps_sf$spatial))
+
+      expected <- prioritize_inputs(ps, init, cost)
+      expect_equal(prioritize_inputs(ps, init_r, cost), expected)
+      expect_equal(prioritize_inputs(ps_sf, init_sf, cost_sf), expected)
+      expect_no_error(ps_prioritize(ps_sf, init = init_sf, cost = cost_sf, progress = FALSE))
+})
+
 test_that("`plot_lambda()` runs without error", {
       expect_no_error(plot_lambda())
 })

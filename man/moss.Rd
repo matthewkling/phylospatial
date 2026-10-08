@@ -5,24 +5,52 @@
 \title{Load California moss spatial phylogenetic data}
 \source{
 Kling, Gonzalez-Ramirez, Carter, Borokini, and Mishler (2024) bioRxiv, https://doi.org/10.1101/2024.12.16.628580.
+
+Protection: Kling, Mishler, Thornhill, Baldwin, and Ackerly (2019) Facets of phylodiversity: evolutionary
+diversification, divergence and survival as conservation targets. Philosophical Transactions of the Royal
+Society B 374: 20170397, https://doi.org/10.1098/rstb.2017.0397.
+
+Population density: Center for International Earth Science Information Network (CIESIN), Columbia University (2018).
+Gridded Population of the World, Version 4 (GPWv4): Population Density, Revision 11. NASA Socioeconomic Data and
+Applications Center (SEDAC), https://doi.org/10.7927/H49C6VHW.
 }
 \usage{
-moss(format = "raster")
+moss(format = "raster", data = "phylospatial")
 }
 \arguments{
 \item{format}{Either "raster" (default) or "polygon"}
+
+\item{data}{Which data set to return. One of:
+\itemize{
+\item \code{"phylospatial"} (default): the moss spatial phylogenetic data set.
+\item \code{"protection"}: the existing protection level of each grid cell, ranging from 0 (unprotected) to
+1 (fully protected), based on the California Protected Areas Database (CPAD) and California
+Conservation Easement Database (CCED) as compiled by Kling et al. (2019). Values above 0.95 are set to 1.
+\item \code{"popdens"}: mean human population density in each grid cell, in persons per square kilometer,
+from Gridded Population of the World v4 (2020). Because these values span several orders of magnitude
+and include zeros, they will usually need to be transformed before use as a prioritization \code{cost}.
+}}
 }
 \value{
-a \code{phylospatial} object
+If \code{data = "phylospatial"}, a \code{phylospatial} object. Otherwise, a \code{SpatRaster} (if \code{format = "raster"})
+or \code{sf} data frame (if \code{format = "polygon"}) with one variable, named after \code{data}, covering the same grid as
+the moss data set, with \code{NA} values for sites containing no moss taxa.
 }
 \description{
 Get example \code{phylospatial} data set based on a phylogeny and modeled distributions of 443 moss species
 across California. This data set is a coarser version of data from Kling et al. (2024). It contains
-occurrence probabilities, and is available in raster or polygon spatial formats.
+occurrence probabilities, and is available in raster or polygon spatial formats. Companion layers giving
+existing land protection and human population density on the same spatial grid are also available, for
+use as \code{init} and \code{cost} inputs to conservation prioritization functions like \code{\link[=ps_prioritize]{ps_prioritize()}}.
 }
 \examples{
 \donttest{
 moss()
+
+# companion layers for conservation prioritization
+protection <- moss(data = "protection")
+popdens <- moss(data = "popdens")
+terra::plot(c(protection, log1p(popdens)))
 }
 
 }
