@@ -2,7 +2,15 @@
 
 ## phylospatial (development version)
 
+- [`plot.phylospatial()`](https://matthewkling.github.io/phylospatial/reference/plot.phylospatial.md)
+  gains a `taxa` argument for choosing which lineage ranges to plot when
+  `y = "comm"`, by name or by index, instead of a random sample. Also
+  fixed the `max_taxa` documentation, which referred to the wrong `y`
+  value.
+
 ## phylospatial 1.5.0
+
+CRAN release: 2026-10-01
 
 - New tree scaling functions modify a phylogeny’s branch lengths to
   focus analyses on particular parts of evolutionary history.
