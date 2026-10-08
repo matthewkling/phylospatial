@@ -63,7 +63,7 @@ protected <- resample(reserves, comm, method = "mean")
 protected <- mask(protected, comm)
 protected[protected > .95] <- 1
 names(protected) <- "protection"
-
+crs(protected) <- crs(comm)
 writeRaster(protected, "inst/extdata/moss_protection.tif", overwrite = T)
 
 
