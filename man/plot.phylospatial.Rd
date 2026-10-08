@@ -4,14 +4,21 @@
 \alias{plot.phylospatial}
 \title{Plot a \code{phylospatial} object}
 \usage{
-\method{plot}{phylospatial}(x, y = c("tree", "comm"), max_taxa = 12, ...)
+\method{plot}{phylospatial}(x, y = c("tree", "comm"), taxa = NULL, max_taxa = 12, ...)
 }
 \arguments{
 \item{x}{\code{phylospatial} object}
 
 \item{y}{Either \code{"tree"} or \code{"comm"}, indicating which component to plot.}
 
-\item{max_taxa}{Integer giving the maximum number of taxon ranges to plot if \code{y = "tree"}.}
+\item{taxa}{Optional vector specifying which lineage ranges to plot if \code{y = "comm"}. Either a
+character vector of lineage names (column names of \code{x$comm}, i.e. tip labels for terminal
+taxa and \code{"clade1"}, \code{"clade2"}, etc. for larger clades) or an integer vector of column
+indices of \code{x$comm} (which correspond to the edges of \code{x$tree}). Ranges are plotted in the
+order given. If \code{NULL} (the default), a random sample of up to \code{max_taxa} lineages is plotted.}
+
+\item{max_taxa}{Integer giving the maximum number of randomly selected lineage ranges to plot if
+\code{y = "comm"} and \code{taxa} is \code{NULL}. Ignored if \code{taxa} is provided.}
 
 \item{...}{Additional arguments passed to plotting methods, depending on \code{y} and the class
 of \code{x$spatial}. For \code{y = "tree"}, see \link[ape]{plot.phylo}; for \code{y = "comm"},
@@ -27,4 +34,8 @@ Plot a \code{phylospatial} object
 ps <- ps_simulate(20, 20, 20)
 plot(ps, "tree")
 plot(ps, "comm")
+
+# plot specific lineages, by name or by index
+plot(ps, "comm", taxa = c("t1", "t2", "clade1"))
+plot(ps, "comm", taxa = 1:4)
 }
