@@ -113,10 +113,25 @@ In the above equations, \\b\\ indexes all taxa including terminals and
 larger clades; \\t\\ indexes terminals only; \\p_i\\ is the occurrence
 value (binary, probability, or abundance) of clade/terminal \\i\\ in a
 given community; \\L_b\\ is the length of the phylogenetic branch
-segment unique to clade \\b\\; and \\r_i\\ is the sum of \\p_i\\ across
-all sites. For Shannon and Simpson indices, only nonzero elements of
-\\p_b\\ are used, \\n_b = p_b / \sum\_{b}{p_b L_b}\\, and \\e_b = p_b /
+segment unique to clade \\b\\; and \\r_i\\ is the range size of
+clade/terminal \\i\\, i.e. the sum of \\p_i\\ across all sites, weighted
+by site weights if `ps` has them (see the `site_weight` argument of
+[`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)).
+For Shannon and Simpson indices, only nonzero elements of \\p_b\\ are
+used, \\n_b = p_b / \sum\_{b}{p_b L_b}\\, and \\e_b = p_b /
 \sum\_{b}{p_b L_b r_b^{-1}}\\.
+
+**Sites of unequal size:** Site weights affect only the endemism
+metrics, through range size. They are not applied to a site's own
+values, so like PD, endemism metrics describe the composition of a site
+rather than its size. To instead get each site's share of the tree's
+total branch length (the classic interpretation of PE, which sums to the
+total length of the tree across sites), multiply PE by `ps$site_weight`
+(expanded to all sites with
+[`ps_expand()`](https://matthewkling.github.io/phylospatial/reference/ps_expand.md)).
+Note that when sites differ in size, richness measures like TD and PD
+reflect site size as well as diversity, since larger sites tend to
+contain more taxa.
 
 ## References
 

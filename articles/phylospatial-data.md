@@ -61,6 +61,7 @@ ps
 #>   - 8 lineages across 100 occupied sites (100 total) 
 #>   - community data type: probability 
 #>   - branch length rescaling: sum1 
+#>   - site weights: equal 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: none
 ```
@@ -80,8 +81,8 @@ function to view the tree.
 ``` r
 
 names(ps)
-#> [1] "comm"      "tree"      "spatial"   "occupied"  "n_sites"   "data_type"
-#> [7] "clade_fun" "rescale"   "dissim"
+#>  [1] "comm"        "tree"        "spatial"     "occupied"    "n_sites"    
+#>  [6] "site_weight" "data_type"   "clade_fun"   "rescale"     "dissim"
 
 ps$tree
 #> 
@@ -174,9 +175,19 @@ community matrix.
 In this example, the spatial data is a raster layer inherited from the
 `SpatRaster` data we supplied as our `comm`. You can also supply vector
 data (points, lines, or polygons) as an `sf` object. If the spatial data
-is in raster, polygon, or line format, `phylospatial` will check that
-all features have equal area or length, which is an important assumption
-underlying various functions in the package.
+is in raster, polygon, or line format, `phylospatial` will check whether
+all features have equal area or length, and warn if they don’t. This
+matters because taxon range sizes, which underlie endemism metrics and
+spatial prioritization, treat every site as counting equally by default.
+If your sites differ in size, the `site_weight` argument lets them count
+unequally, for example in proportion to their area
+(`site_weight = "area"`, using areas calculated by
+[`ps_area()`](https://matthewkling.github.io/phylospatial/reference/ps_area.md)).
+Because a taxon present in a large site may occupy only a small part of
+it, there’s no single correct choice of weights; see the “Site weights”
+section of
+[`?phylospatial`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
+for the trade-offs involved. Any weights are stored in `ps$site_weight`.
 
 Two additional elements help manage the relationship between the
 community matrix and the spatial data. `ps$occupied` is an integer
@@ -232,16 +243,17 @@ ps_from_points
 #>   - 8 lineages across 369 occupied sites (529 total) 
 #>   - community data type: binary 
 #>   - branch length rescaling: sum1 
+#>   - site weights: equal 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: none
 ```
 
 By default,
 [`ps_grid()`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)
-generates an Albers Equal Area grid centered on the data, so the output
-is ready for use with functions that assume equal-area sites. If you
-have an existing grid you want to match (e.g., from environmental raster
-layers), you can pass it as the `grid` argument. See
+generates an Albers Equal Area grid centered on the data, so every cell
+can count equally toward range sizes without the need for site weights.
+If you have an existing grid you want to match (e.g., from environmental
+raster layers), you can pass it as the `grid` argument. See
 [`?ps_grid`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)
 for details. Note that
 [`ps_grid()`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)

@@ -59,6 +59,7 @@ ps_simulate()
 #>   - 18 lineages across 400 occupied sites (400 total) 
 #>   - community data type: probability 
 #>   - branch length rescaling: sum1 
+#>   - site weights: equal 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: none 
 

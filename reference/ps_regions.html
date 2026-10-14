@@ -71,8 +71,8 @@ If <code>"kmeans"</code> is selected, the <code>dissim</code> component of <code
 
 
 <dt id="arg-endemism">endemism<a class="anchor" aria-label="anchor" href="#arg-endemism"></a></dt>
-<dd><p>Logical indicating whether community values should be divided by column totals (taxon range sizes)
-to derive endemism. Only used if <code>method = "kmeans"</code>; in other cases this information should instead be
+<dd><p>Logical indicating whether community values should be divided by taxon range sizes (column totals,
+weighted by site weights if <code>ps</code> has them) to derive endemism. Only used if <code>method = "kmeans"</code>; in other cases this information should instead be
 supplied to <a href="ps_add_dissim.html">ps_add_dissim</a>.</p></dd>
 
 

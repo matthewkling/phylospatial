@@ -68,9 +68,11 @@ ps_dissim(
 
 - endemism:
 
-  Logical indicating whether community values should be divided by
-  column totals (taxon range sizes) to derive endemism before computing
-  distances.
+  Logical indicating whether community values should be divided by taxon
+  range sizes to derive endemism before computing distances. Range sizes
+  are column totals, weighted by site weights if `ps` has them (see the
+  `site_weight` argument of
+  [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)).
 
 - normalize:
 

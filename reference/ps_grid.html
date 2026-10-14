@@ -121,8 +121,8 @@ species column.</p>
 is also <code>NULL</code>, an Albers Equal Area (AEA) projection is created based on the geographic
 extent of the points, with the central meridian and latitude at the midpoint of the
 coordinate ranges, and standard parallels at 1/6 and 5/6 of the latitude range. This
-ensures that grid cells are equal-area, which is an assumption of various functions in the
-phylospatial package. Users working with other spatial layers (e.g., environmental rasters)
+ensures that grid cells are equal-area, so that every cell can count equally toward taxon
+range sizes (see the <code>site_weight</code> argument of <code><a href="phylospatial.html">phylospatial()</a></code>). Users working with other spatial layers (e.g., environmental rasters)
 may want to supply a <code>grid</code> or <code>crs</code> that matches their existing data.</p>
 <p>When <code>res</code> is <code>NULL</code> and no <code>grid</code> is supplied, the resolution is automatically chosen so
 that the grid contains approximately 1000 cells. Specifically, the resolution is set to

@@ -49,6 +49,10 @@ Endemism significance categories are defined as follows:
 - Significant super-endemism: PE or CE are significantly high at
   `alpha / 5`; RPE not significant.
 
+If the data have site weights, see the details of
+[`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+for how they affect the underlying null model tests.
+
 ## References
 
 Mishler, B. D., Knerr, N., González-Orozco, C. E., Thornhill, A. H.,

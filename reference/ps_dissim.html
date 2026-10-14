@@ -99,8 +99,9 @@ This argument is ignored if one of the three "sorensen" methods is selected.</p>
 
 
 <dt id="arg-endemism">endemism<a class="anchor" aria-label="anchor" href="#arg-endemism"></a></dt>
-<dd><p>Logical indicating whether community values should be divided by column totals (taxon range sizes)
-to derive endemism before computing distances.</p></dd>
+<dd><p>Logical indicating whether community values should be divided by taxon range sizes
+to derive endemism before computing distances. Range sizes are column totals, weighted by site weights if <code>ps</code>
+has them (see the <code>site_weight</code> argument of <code><a href="phylospatial.html">phylospatial()</a></code>).</p></dd>
 
 
 <dt id="arg-normalize">normalize<a class="anchor" aria-label="anchor" href="#arg-normalize"></a></dt>

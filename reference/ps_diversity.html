@@ -101,8 +101,14 @@ This is the mean of distances between all collateral (non-lineal) node pairs inc
 <li><p><strong>VPDN</strong>—Variance in Pairwise Distances between Nodes, i.e. MPDN but variance.</p></li>
 </ul><p>In the above equations, \(b\) indexes all taxa including terminals and larger clades; \(t\) indexes terminals only; \(p_i\) is the occurrence value
 (binary, probability, or abundance) of clade/terminal \(i\) in a given community; \(L_b\) is the
-length of the phylogenetic branch segment unique to clade \(b\); and \(r_i\) is the sum of \(p_i\) across all sites. For Shannon
+length of the phylogenetic branch segment unique to clade \(b\); and \(r_i\) is the range size of clade/terminal \(i\), i.e. the
+sum of \(p_i\) across all sites, weighted by site weights if <code>ps</code> has them (see the <code>site_weight</code> argument of <code><a href="phylospatial.html">phylospatial()</a></code>). For Shannon
 and Simpson indices, only nonzero elements of \(p_b\) are used, \(n_b = p_b / \sum_{b}{p_b L_b}\), and \(e_b = p_b / \sum_{b}{p_b L_b r_b^{-1}}\).</p>
+<p><strong>Sites of unequal size:</strong> Site weights affect only the endemism metrics, through range size. They are not applied to a site's own
+values, so like PD, endemism metrics describe the composition of a site rather than its size. To instead get each site's share of the
+tree's total branch length (the classic interpretation of PE, which sums to the total length of the tree across sites), multiply PE
+by <code>ps$site_weight</code> (expanded to all sites with <code><a href="ps_expand.html">ps_expand()</a></code>). Note that when sites differ in size, richness measures like TD and PD
+reflect site size as well as diversity, since larger sites tend to contain more taxa.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

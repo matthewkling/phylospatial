@@ -33,10 +33,10 @@ ps_regions(ps, k = 5, method = "average", endemism = FALSE, normalize = TRUE)
 
 - endemism:
 
-  Logical indicating whether community values should be divided by
-  column totals (taxon range sizes) to derive endemism. Only used if
-  `method = "kmeans"`; in other cases this information should instead be
-  supplied to
+  Logical indicating whether community values should be divided by taxon
+  range sizes (column totals, weighted by site weights if `ps` has them)
+  to derive endemism. Only used if `method = "kmeans"`; in other cases
+  this information should instead be supplied to
   [ps_add_dissim](https://matthewkling.github.io/phylospatial/reference/ps_add_dissim.md).
 
 - normalize:

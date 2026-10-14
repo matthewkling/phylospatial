@@ -17,7 +17,8 @@ phylospatial(
   build = TRUE,
   check = TRUE,
   area_tol = 0.01,
-  rescale = c("sum1", "tip1", "raw")
+  rescale = c("sum1", "tip1", "raw"),
+  site_weight = NULL
 )
 ```
 
@@ -92,11 +93,12 @@ phylospatial(
 - area_tol:
 
   Numeric value giving tolerance for variation in the area of sites.
-  Default is `0.01`. If the coefficient of variation in the area or
-  length of spatial units (e.g. grid cells) exceeds this value, an error
-  will result. This check is performed because various other functions
-  in the library assume that sites are equal area. This argument is
-  ignored if `check = FALSE` or if no spatial data is provided.
+  Default is `0.01`. If `site_weight` is `NULL` and the coefficient of
+  variation in the area or length of occupied spatial units (e.g. grid
+  cells) exceeds this value, a warning is issued, since sites will be
+  weighted equally in calculating range sizes even though they differ in
+  size. This argument is ignored if `site_weight` is provided, if
+  `check = FALSE`, or if no spatial data is provided.
 
 - rescale:
 
@@ -110,6 +112,19 @@ phylospatial(
   for details. Note that rescaling does not affect spatial patterns or
   statistical significance of diversity metrics—only their numeric
   scale.
+
+- site_weight:
+
+  Optional weights determining how much each site contributes to the
+  range sizes of the taxa that occur there. Can be `NULL` (the default),
+  in which case all sites are weighted equally; `"area"`, in which case
+  sites are weighted by their area (or length, for lines) as calculated
+  by
+  [`ps_area()`](https://matthewkling.github.io/phylospatial/reference/ps_area.md);
+  or a numeric vector, single-layer `SpatRaster`, or `sf` object with
+  one value per site (including unoccupied sites). Values must be
+  positive for occupied sites, and are rescaled to have a mean of 1
+  across occupied sites. See the "Site weights" section below.
 
 ## Value
 
@@ -145,6 +160,11 @@ elements:
 
   Total number of sites in the original data, including unoccupied.
 
+- "site_weight"::
+
+  Numeric vector of site weights for occupied sites, rescaled to a mean
+  of 1, or `NULL` if all sites are weighted equally.
+
 - "dissim"::
 
   A community dissimilarity matrix of class `dist` indicating pairwise
@@ -177,6 +197,51 @@ GBIF or BIEN) rather than a gridded community data set, use
 to rasterize the points onto a spatial grid before passing the result to
 this function.
 
+## Site weights
+
+A taxon's range size underlies endemism metrics and spatial
+prioritization: the endemism a taxon contributes to a site, and the
+value of protecting that site, both depend on the share of the taxon's
+range found there. By default, every site counts equally toward range
+size, so the range size of a taxon is the number of sites it occupies
+(or its total probability or abundance across sites). This is
+appropriate for equal-area grid cells, but not necessarily when sites
+differ in size, as with polygons of varying size or grid cells in a
+longitude/latitude coordinate system.
+
+The `site_weight` argument controls how much each site counts. Weighting
+by area treats range size as the total area of the sites a taxon
+occupies. This is exact if community values represent the fraction of
+each site occupied by a taxon. But for presence data, it assumes that a
+taxon present in a site occupies all of it, overstating the range sizes
+of taxa found in large sites. Equal weights err in the opposite
+direction, counting presence in a large site no more than presence in a
+small one. Neither is correct in general. An intermediate option is to
+use weights of `ps_area(x)^z` with `0 < z < 1`, reflecting the tendency
+of taxa to occupy a declining fraction of a site as site size increases.
+Because the appropriate value of `z` is generally unknown and varies
+among taxa, it can be useful to compare results across a range of
+values.
+
+Site weights affect functions and metrics that depend on range size: the
+endemism metrics in
+[`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md),
+[`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md),
+and
+[`ps_canape()`](https://matthewkling.github.io/phylospatial/reference/ps_canape.md);
+the `endemism` option of
+[`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
+and
+[`ps_regions()`](https://matthewkling.github.io/phylospatial/reference/ps_regions.md);
+and
+[`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md),
+[`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md),
+and
+[`ps_performance()`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md).
+They do not affect metrics that don't involve range size, such as PD.
+[`ps_canaper()`](https://matthewkling.github.io/phylospatial/reference/ps_canaper.md)
+does not support site weights.
+
 ## See also
 
 [`ps_grid()`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)
@@ -199,6 +264,7 @@ ps
 #>   - 884 lineages across 527 occupied sites (1116 total) 
 #>   - community data type: probability 
 #>   - branch length rescaling: sum1 
+#>   - site weights: equal 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: none 
 # }

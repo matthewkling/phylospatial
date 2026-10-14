@@ -158,6 +158,20 @@ A matrix with a row for every row of `x`, a column for every metric
 specified in `metric`, and values for the `summary` statistic. Or if
 `spatial = TRUE`, a `sf` or `SpatRaster` object containing these data.
 
+## Details
+
+If `ps` has site weights (see the `site_weight` argument of
+[`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)),
+they are used in calculating range sizes for endemism metrics, in both
+the observed and the randomized communities. Note, however, that null
+model algorithms that randomize the community matrix preserve taxon
+totals across sites, not weighted range sizes. With unequal site
+weights, a randomized taxon can therefore have a larger or smaller range
+size than the observed taxon, depending on which sites it is moved into,
+so null distributions of endemism metrics do not hold range sizes fixed.
+The default `"tip_shuffle"` method is not affected, since it moves
+intact terminal ranges among taxa.
+
 ## See also
 
 [`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md),

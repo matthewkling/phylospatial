@@ -60,7 +60,8 @@ are a phylogenetic tree and an community data set.</p>
 <span>  build <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  check <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  area_tol <span class="op">=</span> <span class="fl">0.01</span>,</span>
-<span>  rescale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sum1"</span>, <span class="st">"tip1"</span>, <span class="st">"raw"</span><span class="op">)</span></span>
+<span>  rescale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sum1"</span>, <span class="st">"tip1"</span>, <span class="st">"raw"</span><span class="op">)</span>,</span>
+<span>  site_weight <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -112,9 +113,10 @@ the columns of <code>comm</code> must exactly match the order of <code>tree</cod
 
 
 <dt id="arg-area-tol">area_tol<a class="anchor" aria-label="anchor" href="#arg-area-tol"></a></dt>
-<dd><p>Numeric value giving tolerance for variation in the area of sites. Default is <code>0.01</code>. If the coefficient of variation in
-the area or length of spatial units (e.g. grid cells) exceeds this value, an error will result. This check is performed because various
-other functions in the library assume that sites are equal area. This argument is ignored if <code>check = FALSE</code> or if no spatial data is provided.</p></dd>
+<dd><p>Numeric value giving tolerance for variation in the area of sites. Default is <code>0.01</code>. If <code>site_weight</code> is <code>NULL</code> and the
+coefficient of variation in the area or length of occupied spatial units (e.g. grid cells) exceeds this value, a warning is issued,
+since sites will be weighted equally in calculating range sizes even though they differ in size. This argument is ignored if
+<code>site_weight</code> is provided, if <code>check = FALSE</code>, or if no spatial data is provided.</p></dd>
 
 
 <dt id="arg-rescale">rescale<a class="anchor" aria-label="anchor" href="#arg-rescale"></a></dt>
@@ -125,6 +127,14 @@ lengths by the longest root-to-tip path. <code>"raw"</code> applies no rescaling
 the original branch-length units. See <code><a href="tree_scaling.html">rescale_tree()</a></code> for details. Note that
 rescaling does not affect spatial patterns or statistical significance of diversity
 metrics—only their numeric scale.</p></dd>
+
+
+<dt id="arg-site-weight">site_weight<a class="anchor" aria-label="anchor" href="#arg-site-weight"></a></dt>
+<dd><p>Optional weights determining how much each site contributes to the range sizes of the taxa that occur there.
+Can be <code>NULL</code> (the default), in which case all sites are weighted equally; <code>"area"</code>, in which case sites are weighted by their
+area (or length, for lines) as calculated by <code><a href="ps_area.html">ps_area()</a></code>; or a numeric vector, single-layer <code>SpatRaster</code>, or <code>sf</code> object with one
+value per site (including unoccupied sites). Values must be positive for occupied sites, and are rescaled to have a mean of 1
+across occupied sites. See the "Site weights" section below.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -149,6 +159,10 @@ May be missing if no spatial data was supplied.</p></dd>
 <dt>"n_sites":</dt>
 <dd><p>Total number of sites in the original data, including unoccupied.</p></dd>
 
+<dt>"site_weight":</dt>
+<dd><p>Numeric vector of site weights for occupied sites, rescaled to a mean of 1, or <code>NULL</code> if all sites are
+weighted equally.</p></dd>
+
 <dt>"dissim":</dt>
 <dd><p>A community dissimilarity matrix of class <code>dist</code> indicating pairwise phylogenetic dissimilarity
 between occupied sites. Missing unless <code><a href="ps_add_dissim.html">ps_add_dissim()</a></code> is called.</p></dd>
@@ -171,6 +185,27 @@ than a gridded community data set, use <code><a href="ps_grid.html">ps_grid()</a
 before passing the result to this function.</p>
     </div>
     <div class="section level2">
+    <h2 id="site-weights">Site weights<a class="anchor" aria-label="anchor" href="#site-weights"></a></h2>
+
+
+<p>A taxon's range size underlies endemism metrics and spatial prioritization: the endemism a taxon contributes to a site, and
+the value of protecting that site, both depend on the share of the taxon's range found there. By default, every site counts
+equally toward range size, so the range size of a taxon is the number of sites it occupies (or its total probability or
+abundance across sites). This is appropriate for equal-area grid cells, but not necessarily when sites differ in size, as with
+polygons of varying size or grid cells in a longitude/latitude coordinate system.</p>
+<p>The <code>site_weight</code> argument controls how much each site counts. Weighting by area treats range size as the total area of the
+sites a taxon occupies. This is exact if community values represent the fraction of each site occupied by a taxon. But for
+presence data, it assumes that a taxon present in a site occupies all of it, overstating the range sizes of taxa found in large
+sites. Equal weights err in the opposite direction, counting presence in a large site no more than presence in a small one.
+Neither is correct in general. An intermediate option is to use weights of <code>ps_area(x)^z</code> with <code>0 &lt; z &lt; 1</code>, reflecting the
+tendency of taxa to occupy a declining fraction of a site as site size increases. Because the appropriate value of <code>z</code> is
+generally unknown and varies among taxa, it can be useful to compare results across a range of values.</p>
+<p>Site weights affect functions and metrics that depend on range size: the endemism metrics in <code><a href="ps_diversity.html">ps_diversity()</a></code>, <code><a href="ps_rand.html">ps_rand()</a></code>, and
+<code><a href="ps_canape.html">ps_canape()</a></code>; the <code>endemism</code> option of <code><a href="ps_dissim.html">ps_dissim()</a></code> and <code><a href="ps_regions.html">ps_regions()</a></code>; and <code><a href="ps_prioritize.html">ps_prioritize()</a></code>, <code><a href="ps_prioritizr.html">ps_prioritizr()</a></code>, and
+<code><a href="ps_performance.html">ps_performance()</a></code>. They do not affect metrics that don't involve range size, such as PD. <code><a href="ps_canaper.html">ps_canaper()</a></code> does not support
+site weights.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="ps_grid.html">ps_grid()</a></code> to convert occurrence point data into a binary or abundance raster that
 can be used with phylospatial.</p></div>
@@ -191,6 +226,7 @@ can be used with phylospatial.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - 884 lineages across 527 occupied sites (1116 total) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - community data type: probability </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - branch length rescaling: sum1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - site weights: equal </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - spatial data class: SpatRaster </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - dissimilarity data: none </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>

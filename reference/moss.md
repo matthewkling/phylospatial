@@ -72,6 +72,7 @@ moss()
 #>   - 884 lineages across 527 occupied sites (1116 total) 
 #>   - community data type: probability 
 #>   - branch length rescaling: sum1 
+#>   - site weights: equal 
 #>   - spatial data class: SpatRaster 
 #>   - dissimilarity data: none 
 

@@ -178,6 +178,14 @@ the `method` argument. This process is repeated until all sites are
 fully protected or until `max_iter` has been reached, with sites
 selected early in the process considered higher conservation priorities.
 
+A site's contribution to protecting a lineage depends on the share of
+the lineage's range found in the site. If `ps` has site weights (see the
+`site_weight` argument of
+[`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)),
+these shares account for them, so that sites with larger weights hold
+larger shares of the ranges of the taxa that occur there. Otherwise, all
+sites are weighted equally.
+
 The benefit of the probabilistic approach is that it relaxes the
 potentially unrealistic assumption that protected land will actually be
 added in the optimal order. Since the algorithm avoids compositional

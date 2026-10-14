@@ -109,7 +109,10 @@ stored with the prioritization result, so `init`, `cost`, `lambda`, and
 The curve begins at step 0, which reflects any existing protection
 supplied via `init`. At each subsequent step, the next site in the
 ranking is raised to the `protection` level. Curves stop at the last
-ranked site, so they are truncated if `max_iter` was used.
+ranked site, so they are truncated if `max_iter` was used. As in
+[`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md),
+the fraction of each lineage's range protected accounts for site weights
+if `ps` has them.
 
 Network `value` is the conservation objective optimized by
 [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md):
