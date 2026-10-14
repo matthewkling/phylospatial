@@ -1,6 +1,7 @@
 # instantiate a new `phylospatial` object
 new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
-                             dissim = NULL, data_type, clade_fun, rescale){
+                             dissim = NULL, data_type, clade_fun, rescale,
+                             site_weight = NULL){
       stopifnot(inherits(tree, "phylo"))
       stopifnot(is.character(data_type))
       structure(list(comm = comm,
@@ -8,6 +9,7 @@ new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
                      spatial = spatial,
                      occupied = occupied,
                      n_sites = n_sites,
+                     site_weight = site_weight,
                      data_type = data_type,
                      clade_fun = clade_fun,
                      rescale = rescale,
@@ -44,9 +46,10 @@ new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
 #'    the columns of \code{comm} must exactly match the order of `tree` edges including tips and larger clades. If clade ranges are included in
 #'    `comm` but `build = TRUE`, they will be dropped and new clade ranges will be built.
 #' @param check Logical indicating whether community data should be validated. Default is TRUE.
-#' @param area_tol Numeric value giving tolerance for variation in the area of sites. Default is `0.01`. If the coefficient of variation in
-#'    the area or length of spatial units (e.g. grid cells) exceeds this value, an error will result. This check is performed because various
-#'    other functions in the library assume that sites are equal area. This argument is ignored if `check = FALSE` or if no spatial data is provided.
+#' @param area_tol Numeric value giving tolerance for variation in the area of sites. Default is `0.01`. If `site_weight` is `NULL` and the
+#'    coefficient of variation in the area or length of occupied spatial units (e.g. grid cells) exceeds this value, a warning is issued,
+#'    since sites will be weighted equally in calculating range sizes even though they differ in size. This argument is ignored if
+#'    `site_weight` is provided, if `check = FALSE`, or if no spatial data is provided.
 #' @param rescale Character giving the branch-length rescaling method applied
 #'    to the tree during construction. Must be `"sum1"` (default), `"tip1"`, or `"raw"`.
 #'    `"sum1"` divides all branch lengths so they sum to 1. `"tip1"` divides all branch
@@ -54,6 +57,11 @@ new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
 #'    the original branch-length units. See [rescale_tree()] for details. Note that
 #'    rescaling does not affect spatial patterns or statistical significance of diversity
 #'    metrics---only their numeric scale.
+#' @param site_weight Optional weights determining how much each site contributes to the range sizes of the taxa that occur there.
+#'    Can be `NULL` (the default), in which case all sites are weighted equally; `"area"`, in which case sites are weighted by their
+#'    area (or length, for lines) as calculated by [ps_area()]; or a numeric vector, single-layer `SpatRaster`, or `sf` object with one
+#'    value per site (including unoccupied sites). Values must be positive for occupied sites, and are rescaled to have a mean of 1
+#'    across occupied sites. See the "Site weights" section below.
 #'
 #' @details
 #' This function formats the input data as a `phylospatial` object. Beyond validating, cleaning, and restructing the data, the main operation
@@ -68,6 +76,26 @@ new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
 #' than a gridded community data set, use [ps_grid()] to rasterize the points onto a spatial grid
 #' before passing the result to this function.
 #'
+#' @section Site weights:
+#' A taxon's range size underlies endemism metrics and spatial prioritization: the endemism a taxon contributes to a site, and
+#' the value of protecting that site, both depend on the share of the taxon's range found there. By default, every site counts
+#' equally toward range size, so the range size of a taxon is the number of sites it occupies (or its total probability or
+#' abundance across sites). This is appropriate for equal-area grid cells, but not necessarily when sites differ in size, as with
+#' polygons of varying size or grid cells in a longitude/latitude coordinate system.
+#'
+#' The `site_weight` argument controls how much each site counts. Weighting by area treats range size as the total area of the
+#' sites a taxon occupies. This is exact if community values represent the fraction of each site occupied by a taxon. But for
+#' presence data, it assumes that a taxon present in a site occupies all of it, overstating the range sizes of taxa found in large
+#' sites. Equal weights err in the opposite direction, counting presence in a large site no more than presence in a small one.
+#' Neither is correct in general. An intermediate option is to use weights of `ps_area(x)^z` with `0 < z < 1`, reflecting the
+#' tendency of taxa to occupy a declining fraction of a site as site size increases. Because the appropriate value of `z` is
+#' generally unknown and varies among taxa, it can be useful to compare results across a range of values.
+#'
+#' Site weights affect functions and metrics that depend on range size: the endemism metrics in [ps_diversity()], [ps_rand()], and
+#' [ps_canape()]; the `endemism` option of [ps_dissim()] and [ps_regions()]; and [ps_prioritize()], [ps_prioritizr()], and
+#' [ps_performance()]. They do not affect metrics that don't involve range size, such as PD. [ps_canaper()] does not support
+#' site weights.
+#'
 #' @return A `phylospatial` object, which is a list containing the following elements:
 #' \describe{
 #'  \item{"data_type":}{ Character indicating the community data type}
@@ -78,6 +106,8 @@ new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
 #'     May be missing if no spatial data was supplied.}
 #'  \item{"occupied":}{ Integer vector of row indices identifying which sites in the original data are occupied.}
 #'  \item{"n_sites":}{ Total number of sites in the original data, including unoccupied.}
+#'  \item{"site_weight":}{ Numeric vector of site weights for occupied sites, rescaled to a mean of 1, or `NULL` if all sites are
+#'     weighted equally.}
 #'  \item{"dissim":}{ A community dissimilarity matrix of class `dist` indicating pairwise phylogenetic dissimilarity
 #'     between occupied sites. Missing unless \code{ps_add_dissim()} is called.}
 #'  \item{"rescale":}{ Character indicating which branch-length rescaling was applied.}
@@ -100,7 +130,7 @@ new_phylospatial <- function(comm, tree, spatial, occupied, n_sites,
 phylospatial <- function(comm, tree = NULL, spatial = NULL,
                          data_type = c("auto", "probability", "binary", "abundance", "other"),
                          clade_fun = NULL, build = TRUE, check = TRUE, area_tol = 0.01,
-                         rescale = c("sum1", "tip1", "raw")){
+                         rescale = c("sum1", "tip1", "raw"), site_weight = NULL){
 
       # checks
       data_type <- match.arg(data_type)
@@ -139,17 +169,7 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
             stopifnot("If `clade_comm = TRUE`, then the taxa in `comm` must match the edges in `tree`, both in number and in order." =
                             ncol(comm) == length(tree$edge.length))
       }
-
-      # enforce equal area
-      if(check & !is.null(spatial)){
-            if(inherits(spatial, "SpatRaster") & terra::crs(spatial) == ""){
-                  message("Raster data has no CRS, so can't check that cells are equal-area; it will be assumed that they are.")
-            }else{
-                  size <- area(spatial)
-                  stopifnot("Spatial units are not equal area: the coefficient of varition in cell/polygon/line sizes exceeds 0.01." =
-                                  (stats::sd(size$size) / mean(size$size)) < area_tol)
-            }
-      }
+      check_area <- check # (`check` is modified below, before the area check runs)
 
       # harmonize terminal taxa in tree and community
       if(check){
@@ -197,6 +217,9 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
       n_sites <- nrow(comm)
       occ <- which(rowSums(comm, na.rm = TRUE) > 0)
 
+      # site weights for occupied sites (NULL if all sites are weighted equally)
+      site_weight <- prep_site_weight(site_weight, spatial, n_sites, occ, check_area, area_tol)
+
       if(build){
             # trim BEFORE building clade ranges for performance
             comm <- comm[occ, , drop = FALSE]
@@ -216,5 +239,5 @@ phylospatial <- function(comm, tree = NULL, spatial = NULL,
       new_phylospatial(comm, tree, spatial,
                        occupied = occ, n_sites = n_sites,
                        dissim = NULL, data_type = data_type, clade_fun = clade_fun,
-                       rescale = rescale)
+                       rescale = rescale, site_weight = site_weight)
 }

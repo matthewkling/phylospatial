@@ -83,7 +83,7 @@ Note that you can also specify your own clade ranges to `phylospatial()` rather 
 
 The `spatial` component and relted metadata are the last key pieces of our phylospatial object. (The only other element we haven't mentioned here is `dissim`, which is covered in the vignette on beta diversity.) The spatial component of the object contains spatial reference data on the geographic locations of the communities found in each row of the community matrix.
 
-In this example, the spatial data is a raster layer inherited from the `SpatRaster` data we supplied as our `comm`. You can also supply vector data (points, lines, or polygons) as an `sf` object. If the spatial data is in raster, polygon, or line format, `phylospatial` will check that all features have equal area or length, which is an important assumption underlying various functions in the package.
+In this example, the spatial data is a raster layer inherited from the `SpatRaster` data we supplied as our `comm`. You can also supply vector data (points, lines, or polygons) as an `sf` object. If the spatial data is in raster, polygon, or line format, `phylospatial` will check whether all features have equal area or length, and warn if they don't. This matters because taxon range sizes, which underlie endemism metrics and spatial prioritization, treat every site as counting equally by default. If your sites differ in size, the `site_weight` argument lets them count unequally, for example in proportion to their area (`site_weight = "area"`, using areas calculated by `ps_area()`). Because a taxon present in a large site may occupy only a small part of it, there's no single correct choice of weights; see the "Site weights" section of `?phylospatial` for the trade-offs involved. Any weights are stored in `ps$site_weight`.
 
 Two additional elements help manage the relationship between the community matrix and the spatial data. `ps$occupied` is an integer vector giving the row indices (in the original raster or data frame) of the occupied sites stored in `comm`. `ps$n_sites` is the total number of sites in the original data, including unoccupied cells. Functions that return spatial results (like `ps_diversity()`) automatically expand occupied-only results back to the full spatial extent, inserting `NA` for unoccupied sites.
 
@@ -113,7 +113,7 @@ ps_from_points <- phylospatial(comm_grid, tree)
 ps_from_points
 ```
  
-By default, `ps_grid()` generates an Albers Equal Area grid centered on the data, so the output is ready for use with functions that assume equal-area sites. If you have an existing grid you want to match (e.g., from environmental raster layers), you can pass it as the `grid` argument. See `?ps_grid` for details. Note that `ps_grid()` handles only the spatial gridding step; coordinate cleaning (e.g., removing records in the ocean or with swapped lat/lon) and taxonomic name matching should be done beforehand.
+By default, `ps_grid()` generates an Albers Equal Area grid centered on the data, so every cell can count equally toward range sizes without the need for site weights. If you have an existing grid you want to match (e.g., from environmental raster layers), you can pass it as the `grid` argument. See `?ps_grid` for details. Note that `ps_grid()` handles only the spatial gridding step; coordinate cleaning (e.g., removing records in the ocean or with swapped lat/lon) and taxonomic name matching should be done beforehand.
 
 
 ## A realistic example

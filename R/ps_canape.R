@@ -19,6 +19,8 @@
 #'    \item Significant super-endemism: PE or CE are significantly high at `alpha / 5`; RPE not significant.
 #' }
 #'
+#' If the data have site weights, see the details of [ps_rand()] for how they affect the underlying null model tests.
+#'
 #' @return An object of the same class as `rand` containing a variable called `"canape"`, with values 0-4
 #' corresponding to not-significant, mixed-, super-, neo-, and paleo-endemism, respectively.
 #'
@@ -119,6 +121,8 @@ ps_canaper <- function(ps, null_model = "curveball", spatial = TRUE, ...){
       enforce_ps(ps)
       stopifnot("This function only works with binary community data; use `ps_rand()` for quantitative data." =
                       ps$data_type == "binary")
+      if(!is.null(ps$site_weight))
+            stop("`ps_canaper()` does not support site weights; use `ps_rand()` with `ps_canape()` instead.", call. = FALSE)
       if (!requireNamespace("canaper", quietly = TRUE)) {
             stop("Package `canaper` must be installed to use this function.", call. = FALSE)
       }

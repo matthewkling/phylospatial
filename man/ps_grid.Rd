@@ -59,8 +59,8 @@ When \code{grid} is \code{NULL}, a grid is automatically generated from the poin
 is also \code{NULL}, an Albers Equal Area (AEA) projection is created based on the geographic
 extent of the points, with the central meridian and latitude at the midpoint of the
 coordinate ranges, and standard parallels at 1/6 and 5/6 of the latitude range. This
-ensures that grid cells are equal-area, which is an assumption of various functions in the
-phylospatial package. Users working with other spatial layers (e.g., environmental rasters)
+ensures that grid cells are equal-area, so that every cell can count equally toward taxon
+range sizes (see the \code{site_weight} argument of \code{\link[=phylospatial]{phylospatial()}}). Users working with other spatial layers (e.g., environmental rasters)
 may want to supply a \code{grid} or \code{crs} that matches their existing data.
 
 When \code{res} is \code{NULL} and no \code{grid} is supplied, the resolution is automatically chosen so

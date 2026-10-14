@@ -92,6 +92,14 @@ computed by randomizing the community matrix or shuffling the tips of the phylog
 significance under the assumptions of the null model. Various null model algorithms are available for
 binary, probability, and count data.
 }
+\details{
+If \code{ps} has site weights (see the \code{site_weight} argument of \code{\link[=phylospatial]{phylospatial()}}), they are used in calculating
+range sizes for endemism metrics, in both the observed and the randomized communities. Note, however, that null model
+algorithms that randomize the community matrix preserve taxon totals across sites, not weighted range sizes. With unequal
+site weights, a randomized taxon can therefore have a larger or smaller range size than the observed taxon, depending on
+which sites it is moved into, so null distributions of endemism metrics do not hold range sizes fixed. The default
+\code{"tip_shuffle"} method is not affected, since it moves intact terminal ranges among taxa.
+}
 \examples{
 \donttest{
 # simulate a `phylospatial` data set and run randomization with default settings

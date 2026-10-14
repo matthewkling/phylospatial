@@ -101,6 +101,10 @@ happen either in an "optimal" or "probable" fashion as described under the \code
 are fully protected or until \code{max_iter} has been reached, with sites selected early in the process considered higher conservation
 priorities.
 
+A site's contribution to protecting a lineage depends on the share of the lineage's range found in the site. If \code{ps} has site
+weights (see the \code{site_weight} argument of \code{\link[=phylospatial]{phylospatial()}}), these shares account for them, so that sites with larger weights
+hold larger shares of the ranges of the taxa that occur there. Otherwise, all sites are weighted equally.
+
 The benefit of the probabilistic approach is that it relaxes the potentially unrealistic assumption that protected land will actually be
 added in the optimal order. Since the algorithm avoids compositional redundancy between high-priority sites, the optimal approach will
 never place high priority on a site that has high marginal value but is redundant with a slightly higher-value site, whereas the

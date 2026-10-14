@@ -41,8 +41,15 @@
 #'
 #' In the above equations, \eqn{b} indexes all taxa including terminals and larger clades; \eqn{t} indexes terminals only; \eqn{p_i} is the occurrence value
 #' (binary, probability, or abundance) of clade/terminal \eqn{i} in a given community; \eqn{L_b} is the
-#' length of the phylogenetic branch segment unique to clade \eqn{b}; and \eqn{r_i} is the sum of \eqn{p_i} across all sites. For Shannon
+#' length of the phylogenetic branch segment unique to clade \eqn{b}; and \eqn{r_i} is the range size of clade/terminal \eqn{i}, i.e. the
+#' sum of \eqn{p_i} across all sites, weighted by site weights if `ps` has them (see the `site_weight` argument of [phylospatial()]). For Shannon
 #' and Simpson indices, only nonzero elements of \eqn{p_b} are used, \eqn{n_b = p_b / \sum_{b}{p_b L_b}}, and \eqn{e_b = p_b / \sum_{b}{p_b L_b r_b^{-1}}}.
+#'
+#' **Sites of unequal size:** Site weights affect only the endemism metrics, through range size. They are not applied to a site's own
+#' values, so like PD, endemism metrics describe the composition of a site rather than its size. To instead get each site's share of the
+#' tree's total branch length (the classic interpretation of PE, which sums to the total length of the tree across sites), multiply PE
+#' by `ps$site_weight` (expanded to all sites with [ps_expand()]). Note that when sites differ in size, richness measures like TD and PD
+#' reflect site size as well as diversity, since larger sites tend to contain more taxa.
 #'
 #' @return A matrix, `sf` data frame, or `SpatRaster` with a column or layer for each requested diversity metric.
 #' @references
@@ -100,7 +107,7 @@ ps_diversity_internal <- function(ps, metric) {
 
       # Precompute range sizes once if any endemism metric requested
       if (any(grepl("E", metric))) {
-            R <- colSums(comm, na.rm = TRUE)
+            R <- range_sizes(comm, ps$site_weight)
             invR <- 1 / R
             invR[!is.finite(invR)] <- 0
       }

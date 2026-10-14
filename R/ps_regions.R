@@ -10,8 +10,8 @@
 #'    help choose a value of k by comparing the variance explained by different numbers of regions.
 #' @param method Clustering method. Options include all methods listed under \link[stats]{hclust}, and \code{"kmeans"}.
 #'    If `"kmeans"` is selected, the `dissim` component of `ps` is ignored.
-#' @param endemism Logical indicating whether community values should be divided by column totals (taxon range sizes)
-#'    to derive endemism. Only used if \code{method = "kmeans"}; in other cases this information should instead be
+#' @param endemism Logical indicating whether community values should be divided by taxon range sizes (column totals,
+#'    weighted by site weights if `ps` has them) to derive endemism. Only used if \code{method = "kmeans"}; in other cases this information should instead be
 #'    supplied to \link{ps_add_dissim}.
 #' @param normalize Logical indicating whether community values should be divided by row totals (community sums). If `TRUE`,
 #'    dissimilarity is based on proportional community composition. This happens after endemism is derived. Only used if
@@ -37,9 +37,9 @@ ps_regions <- function(ps, k = 5, method = "average", endemism = FALSE, normaliz
       if(method == "kmeans"){
             comm <- ps$comm   # already occupied-only
 
-            # Vectorized endemism: divide each column by its sum
+            # Vectorized endemism: divide each column by its (weighted) range size
             if(endemism) {
-                  col_sums <- colSums(comm, na.rm = TRUE)
+                  col_sums <- range_sizes(comm, ps$site_weight)
                   col_sums[col_sums == 0] <- 1
                   comm <- t(t(comm) / col_sums)
             }

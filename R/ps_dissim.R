@@ -20,8 +20,9 @@
 #'    (the default), "\link[vegan]{designdist}", or "\link[vegan]{chaodist}". (While these functions are not explicitly
 #'    designed to calculate phylogenetic beta diversity, their use here incorporates the phylogenetic components.)
 #'    This argument is ignored if one of the three "sorensen" methods is selected.
-#' @param endemism Logical indicating whether community values should be divided by column totals (taxon range sizes)
-#'    to derive endemism before computing distances.
+#' @param endemism Logical indicating whether community values should be divided by taxon range sizes
+#'    to derive endemism before computing distances. Range sizes are column totals, weighted by site weights if `ps`
+#'    has them (see the `site_weight` argument of [phylospatial()]).
 #' @param normalize Logical indicating whether community values should be divided by row totals (community sums) before
 #'    computing distances. If `TRUE`, dissimilarity is based on proportional community composition. Normalization is
 #'    applied after endemism.
@@ -74,9 +75,9 @@ ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", 
       # Optionally restrict to terminal taxa (non-phylogenetic dissimilarity)
       if (tips_only) comm <- comm[, tip_indices(ps$tree), drop = FALSE]
 
-      # Vectorized endemism: divide each column by its sum
+      # Vectorized endemism: divide each column by its (weighted) range size
       if (endemism) {
-            col_sums <- colSums(comm, na.rm = TRUE)
+            col_sums <- range_sizes(comm, ps$site_weight)
             col_sums[col_sums == 0] <- 1  # avoid division by zero
             comm <- t(t(comm) / col_sums)  # vectorized column division
       }

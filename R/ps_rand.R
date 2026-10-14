@@ -54,6 +54,12 @@
 #' @param ... Additional arguments passed to the selected function: \link[nullcat]{quantize},
 #'    \link[nullcat]{nullcat}, \link[vegan]{simulate.nullmodel}, or a custom function.
 #'    Note that the `nsim` argument to simulate.nullmodel should not be used here; specify `n_rand` instead.
+#' @details If `ps` has site weights (see the `site_weight` argument of [phylospatial()]), they are used in calculating
+#'    range sizes for endemism metrics, in both the observed and the randomized communities. Note, however, that null model
+#'    algorithms that randomize the community matrix preserve taxon totals across sites, not weighted range sizes. With unequal
+#'    site weights, a randomized taxon can therefore have a larger or smaller range size than the observed taxon, depending on
+#'    which sites it is moved into, so null distributions of endemism metrics do not hold range sizes fixed. The default
+#'    `"tip_shuffle"` method is not affected, since it moves intact terminal ranges among taxa.
 #' @return A matrix with a row for every row of \code{x}, a column for every metric specified in `metric`, and
 #'    values for the `summary` statistic. Or if `spatial = TRUE`, a `sf` or `SpatRaster` object containing these data.
 #' @seealso [ps_diversity()], [ps_geodist()]
@@ -207,7 +213,8 @@ ps_rand <- function(ps,
             comm_full <- build_tree_ranges(tree, rcomm, clade_fun, data_type, descendants = descendants)
 
             # Create lightweight phylospatial object (skip validation)
-            rps <- list(comm = comm_full, tree = tree, data_type = data_type)
+            rps <- list(comm = comm_full, tree = tree, data_type = data_type,
+                        site_weight = ps$site_weight)
             class(rps) <- "phylospatial"
 
             # compute diversity directly on occupied-only matrix

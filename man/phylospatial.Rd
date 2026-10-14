@@ -13,7 +13,8 @@ phylospatial(
   build = TRUE,
   check = TRUE,
   area_tol = 0.01,
-  rescale = c("sum1", "tip1", "raw")
+  rescale = c("sum1", "tip1", "raw"),
+  site_weight = NULL
 )
 }
 \arguments{
@@ -46,9 +47,10 @@ the columns of \code{comm} must exactly match the order of \code{tree} edges inc
 
 \item{check}{Logical indicating whether community data should be validated. Default is TRUE.}
 
-\item{area_tol}{Numeric value giving tolerance for variation in the area of sites. Default is \code{0.01}. If the coefficient of variation in
-the area or length of spatial units (e.g. grid cells) exceeds this value, an error will result. This check is performed because various
-other functions in the library assume that sites are equal area. This argument is ignored if \code{check = FALSE} or if no spatial data is provided.}
+\item{area_tol}{Numeric value giving tolerance for variation in the area of sites. Default is \code{0.01}. If \code{site_weight} is \code{NULL} and the
+coefficient of variation in the area or length of occupied spatial units (e.g. grid cells) exceeds this value, a warning is issued,
+since sites will be weighted equally in calculating range sizes even though they differ in size. This argument is ignored if
+\code{site_weight} is provided, if \code{check = FALSE}, or if no spatial data is provided.}
 
 \item{rescale}{Character giving the branch-length rescaling method applied
 to the tree during construction. Must be \code{"sum1"} (default), \code{"tip1"}, or \code{"raw"}.
@@ -57,6 +59,12 @@ lengths by the longest root-to-tip path. \code{"raw"} applies no rescaling, pres
 the original branch-length units. See \code{\link[=rescale_tree]{rescale_tree()}} for details. Note that
 rescaling does not affect spatial patterns or statistical significance of diversity
 metrics---only their numeric scale.}
+
+\item{site_weight}{Optional weights determining how much each site contributes to the range sizes of the taxa that occur there.
+Can be \code{NULL} (the default), in which case all sites are weighted equally; \code{"area"}, in which case sites are weighted by their
+area (or length, for lines) as calculated by \code{\link[=ps_area]{ps_area()}}; or a numeric vector, single-layer \code{SpatRaster}, or \code{sf} object with one
+value per site (including unoccupied sites). Values must be positive for occupied sites, and are rescaled to have a mean of 1
+across occupied sites. See the "Site weights" section below.}
 }
 \value{
 A \code{phylospatial} object, which is a list containing the following elements:
@@ -69,6 +77,8 @@ and every larger clade. Column order corresponds to tree edge order.}
 May be missing if no spatial data was supplied.}
 \item{"occupied":}{ Integer vector of row indices identifying which sites in the original data are occupied.}
 \item{"n_sites":}{ Total number of sites in the original data, including unoccupied.}
+\item{"site_weight":}{ Numeric vector of site weights for occupied sites, rescaled to a mean of 1, or \code{NULL} if all sites are
+weighted equally.}
 \item{"dissim":}{ A community dissimilarity matrix of class \code{dist} indicating pairwise phylogenetic dissimilarity
 between occupied sites. Missing unless \code{ps_add_dissim()} is called.}
 \item{"rescale":}{ Character indicating which branch-length rescaling was applied.}
@@ -92,6 +102,28 @@ If your data are in the form of occurrence point localities (e.g. from GBIF or B
 than a gridded community data set, use \code{\link[=ps_grid]{ps_grid()}} to rasterize the points onto a spatial grid
 before passing the result to this function.
 }
+\section{Site weights}{
+
+A taxon's range size underlies endemism metrics and spatial prioritization: the endemism a taxon contributes to a site, and
+the value of protecting that site, both depend on the share of the taxon's range found there. By default, every site counts
+equally toward range size, so the range size of a taxon is the number of sites it occupies (or its total probability or
+abundance across sites). This is appropriate for equal-area grid cells, but not necessarily when sites differ in size, as with
+polygons of varying size or grid cells in a longitude/latitude coordinate system.
+
+The \code{site_weight} argument controls how much each site counts. Weighting by area treats range size as the total area of the
+sites a taxon occupies. This is exact if community values represent the fraction of each site occupied by a taxon. But for
+presence data, it assumes that a taxon present in a site occupies all of it, overstating the range sizes of taxa found in large
+sites. Equal weights err in the opposite direction, counting presence in a large site no more than presence in a small one.
+Neither is correct in general. An intermediate option is to use weights of \code{ps_area(x)^z} with \verb{0 < z < 1}, reflecting the
+tendency of taxa to occupy a declining fraction of a site as site size increases. Because the appropriate value of \code{z} is
+generally unknown and varies among taxa, it can be useful to compare results across a range of values.
+
+Site weights affect functions and metrics that depend on range size: the endemism metrics in \code{\link[=ps_diversity]{ps_diversity()}}, \code{\link[=ps_rand]{ps_rand()}}, and
+\code{\link[=ps_canape]{ps_canape()}}; the \code{endemism} option of \code{\link[=ps_dissim]{ps_dissim()}} and \code{\link[=ps_regions]{ps_regions()}}; and \code{\link[=ps_prioritize]{ps_prioritize()}}, \code{\link[=ps_prioritizr]{ps_prioritizr()}}, and
+\code{\link[=ps_performance]{ps_performance()}}. They do not affect metrics that don't involve range size, such as PD. \code{\link[=ps_canaper]{ps_canaper()}} does not support
+site weights.
+}
+
 \examples{
 \donttest{
 # load species distribution data and phylogeny

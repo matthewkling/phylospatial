@@ -1,6 +1,12 @@
 # phylospatial (development version)
 
-* `plot.phylospatial()` gains a `taxa` argument for choosing which lineage ranges to plot when `y = "comm"`, by name or by index, instead of a random sample. Also fixed the `max_taxa` documentation, which referred to the wrong `y` value.
+* Sites no longer need to be equal-area. `phylospatial()` gains a `site_weight` argument controlling how much each site contributes to taxon range sizes, which underlie endemism metrics and prioritization. It can be `NULL` (the default, weighting all sites equally as before), `"area"` (weighting sites by their area), or a numeric vector, such as an area raised to a power between 0 and 1. Weights are rescaled to a mean of 1 and stored in `ps$site_weight`. They are used by endemism metrics in `ps_diversity()`, `ps_rand()`, and `ps_canape()`; the `endemism` option of `ps_dissim()` and `ps_regions()`; and `ps_prioritize()`, `ps_prioritizr()`, and `ps_performance()`. `ps_canaper()` does not support site weights. See the "Site weights" section of `?phylospatial` for guidance on choosing weights, and `?ps_rand` for how they interact with null models.
+
+* New function `ps_area()` calculates the area (or length) of each site in a raster, `sf` object, or `phylospatial` object, for use in deriving site weights.
+
+* `phylospatial()` now warns, instead of throwing an error, when sites vary in area by more than `area_tol` and no `site_weight` is given. The check now uses occupied sites only, and is skipped when `site_weight` is provided.
+
+* `plot.phylospatial()` gains a `taxa` argument for choosing which lineage ranges to plot when `y = "comm"`, instead of a random sample. 
 
 * `moss()` gains a `data` argument for loading companion layers on the same grid as the moss data set: `"protection"` (fraction of each cell in protected areas) and `"popdens"` (human population density), for use as `init` and `cost` in conservation prioritizations. Both are available in raster and polygon formats.
 

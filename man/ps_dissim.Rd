@@ -31,8 +31,9 @@ ps_dissim(
 designed to calculate phylogenetic beta diversity, their use here incorporates the phylogenetic components.)
 This argument is ignored if one of the three "sorensen" methods is selected.}
 
-\item{endemism}{Logical indicating whether community values should be divided by column totals (taxon range sizes)
-to derive endemism before computing distances.}
+\item{endemism}{Logical indicating whether community values should be divided by taxon range sizes
+to derive endemism before computing distances. Range sizes are column totals, weighted by site weights if \code{ps}
+has them (see the \code{site_weight} argument of \code{\link[=phylospatial]{phylospatial()}}).}
 
 \item{normalize}{Logical indicating whether community values should be divided by row totals (community sums) before
 computing distances. If \code{TRUE}, dissimilarity is based on proportional community composition. Normalization is

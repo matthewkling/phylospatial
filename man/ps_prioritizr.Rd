@@ -65,7 +65,7 @@ prioritizr's own phylogenetic objective functions.
 \details{
 Each site's contribution to a branch is the fraction of the branch's range that would be newly protected if the site
 were selected: the site's share of the branch's range (as in \code{\link[=ps_prioritize]{ps_prioritize()}}, based on occurrence probability or
-abundance for quantitative data), multiplied by \code{protection} minus the site's \code{init} value. Each branch's target is
+abundance for quantitative data, and accounting for site weights if \code{ps} has them), multiplied by \code{protection} minus the site's \code{init} value. Each branch's target is
 \code{target} minus its existing protection level, so that existing protection counts toward the target. For numerical
 stability, feature amounts are expressed as fractions of each branch's target (so that every target equals 1), and
 each branch's smallest amounts are dropped as long as their total is negligible (less than one millionth of the

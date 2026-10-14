@@ -31,6 +31,8 @@ Endemism significance categories are defined as follows:
 \item Significant mixed-endemism: PE or CE are significantly high at \code{alpha}; RPE not significant.
 \item Significant super-endemism: PE or CE are significantly high at \code{alpha / 5}; RPE not significant.
 }
+
+If the data have site weights, see the details of \code{\link[=ps_rand]{ps_rand()}} for how they affect the underlying null model tests.
 }
 \examples{
 \donttest{

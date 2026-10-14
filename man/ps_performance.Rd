@@ -54,7 +54,8 @@ Curves are reconstructed from the settings, inputs, and raw rankings stored with
 so \code{init}, \code{cost}, \code{lambda}, and \code{protection} are those used in the original call to \code{\link[=ps_prioritize]{ps_prioritize()}}. The curve
 begins at step 0, which reflects any existing protection supplied via \code{init}. At each subsequent step, the next site
 in the ranking is raised to the \code{protection} level. Curves stop at the last ranked site, so they are truncated if
-\code{max_iter} was used.
+\code{max_iter} was used. As in \code{\link[=ps_prioritize]{ps_prioritize()}}, the fraction of each lineage's range protected accounts for site
+weights if \code{ps} has them.
 
 Network \code{value} is the conservation objective optimized by \code{\link[=ps_prioritize]{ps_prioritize()}}: the sum across all lineages of
 their \code{\link[=benefit]{benefit()}} (a function of the fraction of their range protected and the \code{lambda} parameter), weighted by their

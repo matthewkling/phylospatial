@@ -299,22 +299,6 @@ star_tree <- function(comm){
 }
 
 
-area <- function(spatial){
-      if(inherits(spatial, "SpatRaster")){
-            size <- as.vector(terra::cellSize(spatial, unit = "km")[])
-            unit <- "km"
-      }
-      if(inherits(spatial, "sf")){
-            type <- sf::st_geometry_type(spatial)[1]
-            if(type == "POINT") size <- rep(1, nrow(spatial))
-            if(type %in% c("MULTIPOLYGON", "POLYGON")) size <- sf::st_area(spatial)
-            if(type %in% c("MULTILINESTRING", "LINESTRING")) size <- sf::st_length(spatial)
-            unit <- sf::st_crs(spatial, parameters = TRUE)$units_gdal
-      }
-      list(size = as.vector(size), unit = unit)
-}
-
-
 enforce_ps <- function(x){
       if(! inherits(x, "phylospatial")) stop(paste0("Input `ps` data set must be an object of class `phylospatial` created by the `phylospatial()` or `ps_simulate()` function.",
                                                     " Instead, an obect of class `", paste(class(x), collapse = "; "), "` was provided."))

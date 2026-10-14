@@ -14,7 +14,8 @@
 #'    so `init`, `cost`, `lambda`, and `protection` are those used in the original call to [ps_prioritize()]. The curve
 #'    begins at step 0, which reflects any existing protection supplied via `init`. At each subsequent step, the next site
 #'    in the ranking is raised to the `protection` level. Curves stop at the last ranked site, so they are truncated if
-#'    `max_iter` was used.
+#'    `max_iter` was used. As in [ps_prioritize()], the fraction of each lineage's range protected accounts for site
+#'    weights if `ps` has them.
 #'
 #'    Network `value` is the conservation objective optimized by [ps_prioritize()]: the sum across all lineages of
 #'    their [benefit()] (a function of the fraction of their range protected and the `lambda` parameter), weighted by their

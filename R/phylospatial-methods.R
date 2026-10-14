@@ -8,6 +8,7 @@ print.phylospatial <- function(x, ...){
           paste0("(", x$n_sites, " total)"), "\n",
           " - community data type:", x$data_type, "\n",
           " - branch length rescaling:", ifelse(is.null(x$rescale), "sum1", x$rescale), "\n",
+          " - site weights:", ifelse(is.null(x$site_weight), "equal", "variable"), "\n",
           " - spatial data class:", class(x$spatial)[1], "\n",
           " - dissimilarity data:", ifelse(is.null(x$dissim), "none", x$dissim_method), "\n")
 }

@@ -90,6 +90,10 @@ plot_lambda <- function(lambda = c(-1, -.5, 0, .5, 2, 1)){
 #'    are fully protected or until \code{max_iter} has been reached, with sites selected early in the process considered higher conservation
 #'    priorities.
 #'
+#'    A site's contribution to protecting a lineage depends on the share of the lineage's range found in the site. If `ps` has site
+#'    weights (see the `site_weight` argument of [phylospatial()]), these shares account for them, so that sites with larger weights
+#'    hold larger shares of the ranges of the taxa that occur there. Otherwise, all sites are weighted equally.
+#'
 #'    The benefit of the probabilistic approach is that it relaxes the potentially unrealistic assumption that protected land will actually be
 #'    added in the optimal order. Since the algorithm avoids compositional redundancy between high-priority sites, the optimal approach will
 #'    never place high priority on a site that has high marginal value but is redundant with a slightly higher-value site, whereas the
@@ -312,8 +316,11 @@ edge_weights <- function(ps){
 }
 
 # occupied-site x edge matrix giving the fraction of each taxon's range in each site
+# (accounting for site weights, so that larger-weighted sites hold larger fractions)
 range_fractions <- function(ps){
-      m <- t(t(ps$comm) / colSums(ps$comm, na.rm = TRUE))
+      comm <- ps$comm
+      if(!is.null(ps$site_weight)) comm <- comm * ps$site_weight
+      m <- t(t(comm) / colSums(comm, na.rm = TRUE))
       m[!is.finite(m)] <- 0
       m
 }
@@ -357,8 +364,11 @@ fill_unranked <- function(x, n){
 
 # summary values used to confirm that `ps_performance()` receives the data set used for prioritization
 ps_fingerprint <- function(ps){
-      c(n_sites = ps$n_sites,
-        n_occupied = nrow(ps$comm),
-        n_edges = ncol(ps$comm),
-        comm_sum = sum(ps$comm, na.rm = TRUE))
+      fp <- c(n_sites = ps$n_sites,
+              n_occupied = nrow(ps$comm),
+              n_edges = ncol(ps$comm),
+              comm_sum = sum(ps$comm, na.rm = TRUE))
+      # (only added when weights are present, so unweighted fingerprints match those from earlier versions)
+      if(!is.null(ps$site_weight)) fp <- c(fp, weighted_comm_sum = sum(ps$comm * ps$site_weight, na.rm = TRUE))
+      fp
 }

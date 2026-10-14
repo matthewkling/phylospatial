@@ -16,8 +16,8 @@ help choose a value of k by comparing the variance explained by different number
 \item{method}{Clustering method. Options include all methods listed under \link[stats]{hclust}, and \code{"kmeans"}.
 If \code{"kmeans"} is selected, the \code{dissim} component of \code{ps} is ignored.}
 
-\item{endemism}{Logical indicating whether community values should be divided by column totals (taxon range sizes)
-to derive endemism. Only used if \code{method = "kmeans"}; in other cases this information should instead be
+\item{endemism}{Logical indicating whether community values should be divided by taxon range sizes (column totals,
+weighted by site weights if \code{ps} has them) to derive endemism. Only used if \code{method = "kmeans"}; in other cases this information should instead be
 supplied to \link{ps_add_dissim}.}
 
 \item{normalize}{Logical indicating whether community values should be divided by row totals (community sums). If \code{TRUE},
