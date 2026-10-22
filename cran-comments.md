@@ -4,7 +4,7 @@
 
 ## What's changed
 
-This is a minor release (1.5.0) with new helper functions and bug fixes.
+This is a patch release (1.5.1) with bug fixes and minor feature additions.
 
 ## Test environments
 
