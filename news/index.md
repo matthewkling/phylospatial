@@ -7,10 +7,13 @@
   gains a `site_weight` argument controlling how much each site
   contributes to taxon range sizes, which underlie endemism metrics and
   prioritization. It can be `NULL` (the default, weighting all sites
-  equally as before), `"area"` (weighting sites by their area), or a
-  numeric vector, such as an area raised to a power between 0 and 1.
-  Weights are rescaled to a mean of 1 and stored in `ps$site_weight`.
-  They are used by endemism metrics in
+  equally as before), `"area"` (weighting sites by their area), or one
+  value per site supplied as a numeric vector, single-layer
+  `SpatRaster`, or `sf` object (for example, site areas raised to a
+  power between 0 and 1). Weights are rescaled to a mean of 1 across
+  occupied sites and stored in `ps$site_weight`.
+
+  Site weights are used by endemism metrics in
   [`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md),
   [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md),
   and
@@ -25,21 +28,23 @@
   and
   [`ps_performance()`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md).
   [`ps_canaper()`](https://matthewkling.github.io/phylospatial/reference/ps_canaper.md)
-  does not support site weights. See the “Site weights” section of
+  does not support them. See the “Site weights” section of
   [`?phylospatial`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
   for guidance on choosing weights, and
   [`?ps_rand`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
   for how they interact with null models.
 
+- [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
+  now warns, rather than throwing an error, when sites vary in area by
+  more than `area_tol` and no `site_weight` is given. The check now
+  considers occupied sites only, and is skipped when `site_weight` is
+  provided.
+
 - New function
   [`ps_area()`](https://matthewkling.github.io/phylospatial/reference/ps_area.md)
-  calculates the area (or length) of each site in a raster, `sf` object,
-  or `phylospatial` object, for use in deriving site weights.
-
-- [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
-  now warns, instead of throwing an error, when sites vary in area by
-  more than `area_tol` and no `site_weight` is given. The check now uses
-  occupied sites only, and is skipped when `site_weight` is provided.
+  returns the area (km²) of each site in a raster, `sf` polygon, or
+  `phylospatial` object, or the length (km) of line features, for use in
+  deriving site weights.
 
 - [`plot.phylospatial()`](https://matthewkling.github.io/phylospatial/reference/plot.phylospatial.md)
   gains a `taxa` argument for choosing which lineage ranges to plot when
