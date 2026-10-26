@@ -1,6 +1,8 @@
 # Changelog
 
-## phylospatial (development version)
+## phylospatial 1.6.0
+
+CRAN release: 2026-10-22
 
 - Sites no longer need to be equal-area.
   [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
