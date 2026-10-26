@@ -1,3 +1,5 @@
+# phylospatial (development version)
+
 # phylospatial 1.6.0
 
 * Sites no longer need to be equal-area. `phylospatial()` gains a `site_weight` argument controlling how much each site contributes to taxon range sizes, which underlie endemism metrics and prioritization. It can be `NULL` (the default, weighting all sites equally as before), `"area"` (weighting sites by their area), or one value per site supplied as a numeric vector, single-layer `SpatRaster`, or `sf` object (for example, site areas raised to a power between 0 and 1). Weights are rescaled to a mean of 1 across occupied sites and stored in `ps$site_weight`.
