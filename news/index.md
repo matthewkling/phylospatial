@@ -19,6 +19,31 @@
   [`ps_dissim_focal()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_focal.md)
   share one internal engine for pairwise comparisons.
 
+- With `fun = "designdist"`,
+  [`ps_dissim_focal()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_focal.md)
+  computes only the focal rows, using
+  [`vegan::designdist2()`](https://vegandevs.github.io/vegan/reference/designdist.html).
+  In asymmetric formulas, `A` refers to the focal site. phylospatial now
+  requires vegan \>= 2.7-1.
+
+- [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
+  no longer supports `fun = "chaodist"`. Chao’s estimators require
+  integer counts of individuals, which phylogenetic community data are
+  not, so this option always failed for phylogenetic dissimilarity.
+
+- [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
+  now gives an error for the `vegdist` methods `"morisita"`, `"chao"`,
+  and `"cao"` unless the data are integer counts, which in practice
+  means abundance data with `tips_only = TRUE` and no `endemism` or
+  `normalize`. These methods previously returned meaningless values with
+  non-integer data (all zeros for `"cao"`), because vegan’s warnings
+  were suppressed.
+
+- [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
+  no longer suppresses all warnings from vegan; only vegan’s advisory
+  warning about using `abcd` notation with quantitative terms is
+  silenced.
+
 - Fixed an error in `ps_expand(spatial = TRUE)` and
   [`to_spatial()`](https://matthewkling.github.io/phylospatial/reference/to_spatial.md)
   when given an unnamed vector or matrix.

@@ -21,7 +21,7 @@ or used in a variety of statistical analyses.
 ps_dissim(
   ps,
   method = "sorensen",
-  fun = c("vegdist", "designdist", "chaodist"),
+  fun = c("vegdist", "designdist"),
   endemism = FALSE,
   normalize = FALSE,
   tips_only = FALSE,
@@ -50,17 +50,18 @@ ps_dissim(
     dissimilarity.
 
   - Any other valid `method` passed to `fun`. For options, see the
-    documentation for those functions.
+    documentation for those functions. The `vegdist` methods "morisita",
+    "chao", and "cao" require integer counts, so they're only available
+    for non-phylogenetic dissimilarity (`tips_only = TRUE`) of abundance
+    data, without `endemism` or `normalize`.
 
 - fun:
 
   Character indicating which general distance function from the `vegan`
   library to use:
   "[vegdist](https://vegandevs.github.io/vegan/reference/vegdist.html)"
-  (the default),
-  "[designdist](https://vegandevs.github.io/vegan/reference/designdist.html)",
-  or
-  "[chaodist](https://vegandevs.github.io/vegan/reference/designdist.html)".
+  (the default) or
+  "[designdist](https://vegandevs.github.io/vegan/reference/designdist.html)".
   (While these functions are not explicitly designed to calculate
   phylogenetic beta diversity, their use here incorporates the
   phylogenetic components.) This argument is ignored if one of the three

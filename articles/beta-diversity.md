@@ -78,115 +78,116 @@ The function
 does this. It accepts the same `method` and scaling options as
 [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md),
 and gives the same values as the corresponding row of the full matrix;
-for the Sorensen family of indices it computes only the focal rows, so
-it stays fast even for large data sets. Note that it computes
-dissimilarity from its own arguments, rather than reusing the matrix
-stored by
+for the Sorensen family and for custom `designdist` formulas it computes
+only the focal rows, so it stays fast even for large data sets, while
+other `vegdist` indices compute the full matrix and keep the relevant
+rows. Note that it computes dissimilarity from its own arguments, rather
+than reusing the matrix stored by
 [`ps_add_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_add_dissim.md).
 
 Focal sites can be given as site indices, as a two-column matrix of
 coordinates in the coordinate system of the data set, or as `sf` or
 `SpatVector` points, which are reprojected as needed. Let’s compare two
-focal sites, one in the Sierra Nevada and one in the Klamath Mountains,
-specified by longitude and latitude:
+focal sites with very different moss floras, one in the Sierra Nevada
+and one in the Mojave Desert, specified by longitude and latitude. We’ll
+also write a small mapping function for this section, which draws one
+panel per layer with the focal site marked in red:
 
 ``` r
 
-focal <- sf::st_as_sf(data.frame(site = c("Sierra Nevada", "Klamath Mountains"),
-                                 lon = c(-119.6, -123.5), lat = c(37.8, 41.5)),
+focal <- sf::st_as_sf(data.frame(site = c("Sierra Nevada", "Mojave Desert"),
+                                 lon = c(-119.6, -116), lat = c(37.8, 34.6)),
                       coords = c("lon", "lat"), crs = 4326)
+focal$site <- factor(focal$site, levels = focal$site) # keep panels in this order
+
+map_focal <- function(r, pts, title){
+      m <- tm_shape(r) +
+            tm_raster(col.scale = tm_scale_continuous(values = "brewer.yl_gn_bu",
+                                                      limits = c(0, 1)),
+                      col.legend = tm_legend(title = "dissimilarity",
+                                             position = tm_pos_out("right", "center")),
+                      col.free = FALSE) +
+            tm_shape(pts) +
+            tm_dots(fill = "red", size = 0.6) +
+            tm_title(title)
+      # with several focal sites, show each site's point only in its own panel
+      if (nrow(pts) > 1) m <- m + tm_facets_wrap(by = "site", nrow = 1)
+      m
+}
 
 fd <- ps_dissim_focal(ps, focal, method = "sorensen")
-names(fd) <- focal$site
-
-tm_shape(fd) +
-      tm_raster(col.scale = tm_scale_continuous(values = "brewer.yl_gn_bu", limits = c(0, 1)),
-                col.legend = tm_legend(title = "dissimilarity"),
-                col.free = FALSE) +
-      tm_shape(focal) +
-      tm_dots(fill = "red", size = 0.5) +
-      tm_title("Phylogenetic dissimilarity from focal sites")
+names(fd) <- levels(focal$site)
+map_focal(fd, focal, "Sorensen's dissimilarity from focal sites")
 ```
 
 ![](beta-diversity_files/figure-html/focal-1.png)
 
 Dissimilarity is zero at each focal site and generally rises with
-distance, but not uniformly: the Sierra Nevada site is more similar to
-the distant northern mountains than to the nearby Central Valley, and
-both sites are most dissimilar from the southern deserts. Patterns like
-these show which parts of the landscape share a site’s evolutionary
-history, and how sharply composition changes along environmental
-gradients.
+distance, but not uniformly. The Sierra Nevada site is more similar to
+the distant mountains of northern California than to the nearby Central
+Valley, and most dissimilar from the southern deserts. The desert site
+shows the reverse pattern, resembling the southeastern deserts and parts
+of the southern coast ranges while differing strongly from the Sierra
+Nevada and the north. Patterns like these show which parts of the
+landscape share a site’s evolutionary history, and how sharply
+composition changes along environmental gradients.
 
 As with
 [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md),
 Sorensen’s dissimilarity can be partitioned into turnover and nestedness
 components. The turnover component reflects replacement of lineages by
 different lineages, while the nestedness component reflects sites
-holding subsets of one another’s lineages. Mapping both for the Sierra
-Nevada site shows that most of its dissimilarity from other sites is due
-to nestedness: this site is rich in lineages, and other sites mostly
-hold subsets of them.
+holding subsets of one another’s lineages. Let’s map both for the Sierra
+Nevada site:
+
+``` r
+
+fp <- c(ps_dissim_focal(ps, focal[1, ], method = "sorensen_turnover"),
+        ps_dissim_focal(ps, focal[1, ], method = "sorensen_nestedness"))
+names(fp) <- c("turnover", "nestedness")
+map_focal(fp, focal[1, ], "Components of dissimilarity from the Sierra Nevada site")
+```
+
+![](beta-diversity_files/figure-html/focal_partition-1.png)
+
+Most of this site’s dissimilarity from the rest of the state is due to
+nestedness: the site is rich in lineages, and other sites mostly hold
+subsets of them. Turnover, the replacement of its lineages by others, is
+modest everywhere.
 
 [`ps_dissim_focal()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_focal.md)
 also offers one index that isn’t available in
 [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md):
 `method = "focal_difference"`, the fraction of the focal site’s branch
 length that is absent from each other site. Unlike symmetric indices, it
-ignores lineages found only at the other site, so a species-rich site
+ignores lineages found only at the other site, so a lineage-rich site
 that contains all of the focal site’s lineages has a value of zero.
 Because it has a direction, it is only defined relative to a focal site.
 It is the complement of a phylogenetic, quantitative version of a
 dispersion field (Graves & Rahbek 2005, *PNAS* 102:7871-7876), the
-overlapping ranges of all lineages present at the focal site.
+overlapping ranges of all lineages present at the focal site. Let’s map
+it for both focal sites, for comparison with Sorensen’s dissimilarity
+above:
 
 ``` r
 
-methods <- c("sorensen", "sorensen_turnover", "sorensen_nestedness", "focal_difference")
-fm <- lapply(methods, function(m) ps_dissim_focal(ps, focal[1, ], method = m)) %>%
-      terra::rast()
-names(fm) <- methods
-
-tm_shape(fm) +
-      tm_raster(col.scale = tm_scale_continuous(values = "brewer.yl_gn_bu", limits = c(0, 1)),
-                col.legend = tm_legend(title = "dissimilarity"),
-                col.free = FALSE) +
-      tm_shape(focal[1, ]) +
-      tm_dots(fill = "red", size = 0.5) +
-      tm_title("Dissimilarity from the Sierra Nevada site")
+fdiff <- ps_dissim_focal(ps, focal, method = "focal_difference")
+names(fdiff) <- levels(focal$site)
+map_focal(fdiff, focal, "Focal difference from focal sites")
 ```
 
-![](beta-diversity_files/figure-html/focal_methods-1.png)
+![](beta-diversity_files/figure-html/focal_difference-1.png)
 
-The difference between symmetric and focal indices is clearest for a
-species-poor focal site. Let’s compare Sorensen’s dissimilarity and
-`focal_difference` for a site in the Mojave Desert:
-
-``` r
-
-desert <- sf::st_as_sf(data.frame(lon = -116, lat = 34.6),
-                       coords = c("lon", "lat"), crs = 4326)
-dd <- c(ps_dissim_focal(ps, desert, method = "sorensen"),
-        ps_dissim_focal(ps, desert, method = "focal_difference"))
-names(dd) <- c("sorensen", "focal_difference")
-
-tm_shape(dd) +
-      tm_raster(col.scale = tm_scale_continuous(values = "brewer.yl_gn_bu", limits = c(0, 1)),
-                col.legend = tm_legend(title = "dissimilarity"),
-                col.free = FALSE) +
-      tm_shape(desert) +
-      tm_dots(fill = "red", size = 0.5) +
-      tm_title("Dissimilarity from a desert site")
-```
-
-![](beta-diversity_files/figure-html/focal_desert-1.png)
-
-Sorensen’s index rates the lineage-rich northern mountains as highly
-dissimilar from the desert site, because they hold many lineages the
-desert site lacks. But `focal_difference` shows that the desert site’s
-own lineages occur nearly everywhere: its assemblage is largely a subset
-of the state’s moss flora, and its lineages are missing mainly from
-parts of the Central Valley and the far southeastern deserts.
+For the lineage-rich Sierra Nevada site, `focal_difference` looks much
+like Sorensen’s dissimilarity in the earlier plot, since sites that
+differ from it mostly do so by lacking its lineages. For the desert
+site, the two indices tell very different stories. Sorensen’s index in
+the earlier figure rates the lineage-rich northern mountains as highly
+dissimilar, because they hold many lineages the desert site lacks. But
+here, `focal_difference` shows that the desert site’s own lineages occur
+nearly everywhere: its assemblage is largely a subset of the state’s
+moss flora, and its lineages are missing mainly from parts of the
+Central Valley and the far southeastern deserts.
 
 ## Distance decay
 

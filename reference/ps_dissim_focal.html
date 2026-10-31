@@ -92,9 +92,13 @@ column per focal site, giving values for every site (<code>NA</code> for unoccup
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function shares its computations with <code><a href="ps_dissim.html">ps_dissim()</a></code>: for any symmetric index, <code>ps_dissim_focal(ps, i, ...)</code>
-gives the same values as the corresponding row of <code>as.matrix(ps_dissim(ps, ...))</code>. For the Sorensen family
-and <code>"focal_difference"</code>, values are computed for the focal sites only, without building the full pairwise
-matrix; other methods compute the full matrix and return the relevant rows.</p>
+gives the same values as the corresponding row of <code>as.matrix(ps_dissim(ps, ...))</code>. For the Sorensen family,
+<code>"focal_difference"</code>, and custom formulas with <code>fun = "designdist"</code> (computed with <code><a href="https://vegandevs.github.io/vegan/reference/designdist.html" class="external-link">vegan::designdist2()</a></code>),
+values are computed for the focal sites only, without building the full pairwise matrix. Other <code>vegdist</code>
+methods compute the full matrix and return the relevant rows.</p>
+<p>With <code>fun = "designdist"</code>, the focal sites are the first data set, so in asymmetric formulas <code>A</code> (or <code>a + b</code>)
+refers to the focal site; for example, <code>method = "(A-J)/A"</code> with <code>terms = "minimum"</code> is equivalent to
+<code>"focal_difference"</code>.</p>
 <p>In addition to the methods available in <code><a href="ps_dissim.html">ps_dissim()</a></code>, this function offers <code>method = "focal_difference"</code>, an
 asymmetric index: the fraction of the focal site's branch length that is absent from each other site.
 Writing \(a\) for the branch length shared by the focal site and another site, and \(b\) for the branch

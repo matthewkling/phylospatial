@@ -66,7 +66,7 @@ on proportional differences in community composition. The results from this func
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ps_dissim</span><span class="op">(</span></span>
 <span>  <span class="va">ps</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"sorensen"</span>,</span>
-<span>  fun <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vegdist"</span>, <span class="st">"designdist"</span>, <span class="st">"chaodist"</span><span class="op">)</span>,</span>
+<span>  fun <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vegdist"</span>, <span class="st">"designdist"</span><span class="op">)</span>,</span>
 <span>  endemism <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  normalize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  tips_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -87,13 +87,15 @@ on proportional differences in community composition. The results from this func
 <dd><p>Character indicating the dissimilarity index to use:</p><ul><li><p>"sorensen": Sorensen's dissimilarity, a.k.a. Bray-Curtis distance (the default)</p></li>
 <li><p>"sorensen_turnover": The turnover component of Sorensen's dissimilarity, a.k.a. Simpson's.</p></li>
 <li><p>"sorensen_nestedness": The nestedness component of Sorensen's dissimilarity.</p></li>
-<li><p>Any other valid <code>method</code> passed to <code>fun</code>. For options, see the documentation for those functions.</p></li>
+<li><p>Any other valid <code>method</code> passed to <code>fun</code>. For options, see the documentation for those functions.
+The <code>vegdist</code> methods "morisita", "chao", and "cao" require integer counts, so they're only available for
+non-phylogenetic dissimilarity (<code>tips_only = TRUE</code>) of abundance data, without <code>endemism</code> or <code>normalize</code>.</p></li>
 </ul></dd>
 
 
 <dt id="arg-fun">fun<a class="anchor" aria-label="anchor" href="#arg-fun"></a></dt>
 <dd><p>Character indicating which general distance function from the <code>vegan</code> library to use: "<a href="https://vegandevs.github.io/vegan/reference/vegdist.html" class="external-link">vegdist</a>"
-(the default), "<a href="https://vegandevs.github.io/vegan/reference/designdist.html" class="external-link">designdist</a>", or "<a href="https://vegandevs.github.io/vegan/reference/designdist.html" class="external-link">chaodist</a>". (While these functions are not explicitly
+(the default) or "<a href="https://vegandevs.github.io/vegan/reference/designdist.html" class="external-link">designdist</a>". (While these functions are not explicitly
 designed to calculate phylogenetic beta diversity, their use here incorporates the phylogenetic components.)
 This argument is ignored if one of the three "sorensen" methods is selected.</p></dd>
 

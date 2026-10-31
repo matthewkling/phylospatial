@@ -62,9 +62,17 @@ This function shares its computations with
 [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md):
 for any symmetric index, `ps_dissim_focal(ps, i, ...)` gives the same
 values as the corresponding row of `as.matrix(ps_dissim(ps, ...))`. For
-the Sorensen family and `"focal_difference"`, values are computed for
-the focal sites only, without building the full pairwise matrix; other
-methods compute the full matrix and return the relevant rows.
+the Sorensen family, `"focal_difference"`, and custom formulas with
+`fun = "designdist"` (computed with
+[`vegan::designdist2()`](https://vegandevs.github.io/vegan/reference/designdist.html)),
+values are computed for the focal sites only, without building the full
+pairwise matrix. Other `vegdist` methods compute the full matrix and
+return the relevant rows.
+
+With `fun = "designdist"`, the focal sites are the first data set, so in
+asymmetric formulas `A` (or `a + b`) refers to the focal site; for
+example, `method = "(A-J)/A"` with `terms = "minimum"` is equivalent to
+`"focal_difference"`.
 
 In addition to the methods available in
 [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md),
