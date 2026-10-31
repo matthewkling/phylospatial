@@ -6,7 +6,8 @@ compute diversity and endemism metrics, test significance with null
 model randomization, analyze community turnover and biotic
 regionalization, and perform spatial conservation prioritizations. All
 functions support quantitative community data in addition to binary
-data.
+data. Methods are described in Kling (2025)
+[doi:10.1111/2041-210X.70056](https://doi.org/10.1111/2041-210X.70056) .
 
 ## See also
 

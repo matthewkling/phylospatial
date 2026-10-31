@@ -35,6 +35,9 @@
 - [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
   : Quantitative phylogenetic dissimilarity
 
+- [`ps_dissim_focal()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_focal.md)
+  : Phylogenetic dissimilarity between focal sites and all other sites
+
 - [`ps_add_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_add_dissim.md)
   :
 

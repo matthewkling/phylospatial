@@ -8,15 +8,19 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/matthewkling/phylospatial/blob/master/DESCRIPTION)
+[`inst/CITATION`](https://github.com/matthewkling/phylospatial/blob/master/inst/CITATION)
 
-Kling M (2026). *phylospatial: Spatial Phylogenetic Analysis*. R package
-version 1.6.0.9000, <https://matthewkling.github.io/phylospatial/>.
+Kling MM (2025). “phylospatial: An R package for spatial phylogenetic
+analysis with quantitative community data.” *Methods in Ecology and
+Evolution*, **16**, 1075–1083.
+[doi:10.1111/2041-210X.70056](https://doi.org/10.1111/2041-210X.70056).
 
-    @Manual{,
-      title = {phylospatial: Spatial Phylogenetic Analysis},
-      author = {Matthew Kling},
-      year = {2026},
-      note = {R package version 1.6.0.9000},
-      url = {https://matthewkling.github.io/phylospatial/},
+    @Article{,
+      title = {{phylospatial}: An {R} package for spatial phylogenetic analysis with quantitative community data},
+      author = {Matthew M. Kling},
+      journal = {Methods in Ecology and Evolution},
+      year = {2025},
+      volume = {16},
+      pages = {1075--1083},
+      doi = {10.1111/2041-210X.70056},
     }

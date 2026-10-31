@@ -123,7 +123,11 @@ dissimilarity measures among sites. Oikos, 125(12), 1719-1732.
 
 ## See also
 
-[`ps_add_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_add_dissim.md)
+[`ps_add_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_add_dissim.md),
+and
+[`ps_dissim_focal()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_focal.md)
+for dissimilarity between focal sites and all other sites, including the
+asymmetric `"focal_difference"` index.
 
 ## Examples
 

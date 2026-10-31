@@ -75,9 +75,9 @@
     
     
 <p>This vignette covers topics related to phylogenetic beta diversity,
-including calculation of pairwise dissimilarity between sites, and use
-of these dissimilarity values in ordination and regionalization
-analyses.</p>
+including calculation of pairwise dissimilarity between sites, mapping
+dissimilarity from focal sites, and use of these dissimilarity values in
+distance decay, ordination, and regionalization analyses.</p>
 <p>To get started, let’s load the <code>phylospatial</code> library, as
 well as <code>tmap</code> for visualization. Note that the functions
 covered here all require a <code>phylospatial</code> object as input;
@@ -130,6 +130,106 @@ site:</p>
 <span><span class="co">#&gt;   - dissimilarity data: sorensen</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="focal-site-dissimilarity">Focal site dissimilarity<a class="anchor" aria-label="anchor" href="#focal-site-dissimilarity"></a>
+</h2>
+<p>A full dissimilarity matrix is hard to inspect directly, since it
+contains a value for every pair of sites. One intuitive way to explore
+it is to choose a focal site and map its dissimilarity to every other
+site, showing where on the landscape similar lineage assemblages recur.
+The function <code><a href="../reference/ps_dissim_focal.html">ps_dissim_focal()</a></code> does this. It accepts the
+same <code>method</code> and scaling options as
+<code><a href="../reference/ps_dissim.html">ps_dissim()</a></code>, and gives the same values as the corresponding
+row of the full matrix; for the Sorensen family of indices it computes
+only the focal rows, so it stays fast even for large data sets. Note
+that it computes dissimilarity from its own arguments, rather than
+reusing the matrix stored by <code><a href="../reference/ps_add_dissim.html">ps_add_dissim()</a></code>.</p>
+<p>Focal sites can be given as site indices, as a two-column matrix of
+coordinates in the coordinate system of the data set, or as
+<code>sf</code> or <code>SpatVector</code> points, which are reprojected
+as needed. Let’s compare two focal sites, one in the Sierra Nevada and
+one in the Klamath Mountains, specified by longitude and latitude:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">focal</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html" class="external-link">st_as_sf</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>site <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sierra Nevada"</span>, <span class="st">"Klamath Mountains"</span><span class="op">)</span>,</span>
+<span>                                 lon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">119.6</span>, <span class="op">-</span><span class="fl">123.5</span><span class="op">)</span>, lat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">37.8</span>, <span class="fl">41.5</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                      coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lon"</span>, <span class="st">"lat"</span><span class="op">)</span>, crs <span class="op">=</span> <span class="fl">4326</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_dissim_focal.html">ps_dissim_focal</a></span><span class="op">(</span><span class="va">ps</span>, <span class="va">focal</span>, method <span class="op">=</span> <span class="st">"sorensen"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fd</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">focal</span><span class="op">$</span><span class="va">site</span></span>
+<span></span>
+<span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">fd</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"brewer.yl_gn_bu"</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                col.legend <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_legend.html" class="external-link">tm_legend</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"dissimilarity"</span><span class="op">)</span>,</span>
+<span>                col.free <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">focal</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_symbols.html" class="external-link">tm_dots</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"red"</span>, size <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_title.html" class="external-link">tm_title</a></span><span class="op">(</span><span class="st">"Phylogenetic dissimilarity from focal sites"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="beta-diversity_files/figure-html/focal-1.png" class="r-plt" alt="" width="576"></p>
+<p>Dissimilarity is zero at each focal site and generally rises with
+distance, but not uniformly: the Sierra Nevada site is more similar to
+the distant northern mountains than to the nearby Central Valley, and
+both sites are most dissimilar from the southern deserts. Patterns like
+these show which parts of the landscape share a site’s evolutionary
+history, and how sharply composition changes along environmental
+gradients.</p>
+<p>As with <code><a href="../reference/ps_dissim.html">ps_dissim()</a></code>, Sorensen’s dissimilarity can be
+partitioned into turnover and nestedness components. The turnover
+component reflects replacement of lineages by different lineages, while
+the nestedness component reflects sites holding subsets of one another’s
+lineages. Mapping both for the Sierra Nevada site shows that most of its
+dissimilarity from other sites is due to nestedness: this site is rich
+in lineages, and other sites mostly hold subsets of them.</p>
+<p><code><a href="../reference/ps_dissim_focal.html">ps_dissim_focal()</a></code> also offers one index that isn’t
+available in <code><a href="../reference/ps_dissim.html">ps_dissim()</a></code>:
+<code>method = "focal_difference"</code>, the fraction of the focal
+site’s branch length that is absent from each other site. Unlike
+symmetric indices, it ignores lineages found only at the other site, so
+a species-rich site that contains all of the focal site’s lineages has a
+value of zero. Because it has a direction, it is only defined relative
+to a focal site. It is the complement of a phylogenetic, quantitative
+version of a dispersion field (Graves &amp; Rahbek 2005, <em>PNAS</em>
+102:7871-7876), the overlapping ranges of all lineages present at the
+focal site.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">methods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sorensen"</span>, <span class="st">"sorensen_turnover"</span>, <span class="st">"sorensen_nestedness"</span>, <span class="st">"focal_difference"</span><span class="op">)</span></span>
+<span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">methods</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="fu"><a href="../reference/ps_dissim_focal.html">ps_dissim_focal</a></span><span class="op">(</span><span class="va">ps</span>, <span class="va">focal</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, method <span class="op">=</span> <span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>      <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fm</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">methods</span></span>
+<span></span>
+<span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">fm</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"brewer.yl_gn_bu"</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                col.legend <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_legend.html" class="external-link">tm_legend</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"dissimilarity"</span><span class="op">)</span>,</span>
+<span>                col.free <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">focal</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_symbols.html" class="external-link">tm_dots</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"red"</span>, size <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_title.html" class="external-link">tm_title</a></span><span class="op">(</span><span class="st">"Dissimilarity from the Sierra Nevada site"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="beta-diversity_files/figure-html/focal_methods-1.png" class="r-plt" alt="" width="576"></p>
+<p>The difference between symmetric and focal indices is clearest for a
+species-poor focal site. Let’s compare Sorensen’s dissimilarity and
+<code>focal_difference</code> for a site in the Mojave Desert:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">desert</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html" class="external-link">st_as_sf</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>lon <span class="op">=</span> <span class="op">-</span><span class="fl">116</span>, lat <span class="op">=</span> <span class="fl">34.6</span><span class="op">)</span>,</span>
+<span>                       coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lon"</span>, <span class="st">"lat"</span><span class="op">)</span>, crs <span class="op">=</span> <span class="fl">4326</span><span class="op">)</span></span>
+<span><span class="va">dd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="../reference/ps_dissim_focal.html">ps_dissim_focal</a></span><span class="op">(</span><span class="va">ps</span>, <span class="va">desert</span>, method <span class="op">=</span> <span class="st">"sorensen"</span><span class="op">)</span>,</span>
+<span>        <span class="fu"><a href="../reference/ps_dissim_focal.html">ps_dissim_focal</a></span><span class="op">(</span><span class="va">ps</span>, <span class="va">desert</span>, method <span class="op">=</span> <span class="st">"focal_difference"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sorensen"</span>, <span class="st">"focal_difference"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span>col.scale <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_scale_continuous.html" class="external-link">tm_scale_continuous</a></span><span class="op">(</span>values <span class="op">=</span> <span class="st">"brewer.yl_gn_bu"</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                col.legend <span class="op">=</span> <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_legend.html" class="external-link">tm_legend</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"dissimilarity"</span><span class="op">)</span>,</span>
+<span>                col.free <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">desert</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_symbols.html" class="external-link">tm_dots</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"red"</span>, size <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_title.html" class="external-link">tm_title</a></span><span class="op">(</span><span class="st">"Dissimilarity from a desert site"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="beta-diversity_files/figure-html/focal_desert-1.png" class="r-plt" alt="" width="576"></p>
+<p>Sorensen’s index rates the lineage-rich northern mountains as highly
+dissimilar from the desert site, because they hold many lineages the
+desert site lacks. But <code>focal_difference</code> shows that the
+desert site’s own lineages occur nearly everywhere: its assemblage is
+largely a subset of the state’s moss flora, and its lineages are missing
+mainly from parts of the Central Valley and the far southeastern
+deserts.</p>
+</div>
+<div class="section level2">
 <h2 id="distance-decay">Distance decay<a class="anchor" aria-label="anchor" href="#distance-decay"></a>
 </h2>
 <p>One frequent use of dissimilarity matrices is to analyze how
@@ -143,7 +243,7 @@ matrix using <code><a href="../reference/ps_geodist.html">ps_geodist()</a></code
 non-phylogenetic species turnover, which we can compute by specifying
 <code>tips_only = TRUE</code>. We can summarize the pattern with a LOESS
 curve:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">phy_beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="../reference/ps_dissim.html">ps_dissim</a></span><span class="op">(</span><span class="va">ps</span>, method <span class="op">=</span> <span class="st">"sorensen"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">spp_beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="../reference/ps_dissim.html">ps_dissim</a></span><span class="op">(</span><span class="va">ps</span>, method <span class="op">=</span> <span class="st">"sorensen"</span>, tips_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">geo_dist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="../reference/ps_geodist.html">ps_geodist</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">1000</span>  <span class="co"># convert to km</span></span>
@@ -183,7 +283,7 @@ variation in phylogenetic turnover, which can then be used for
 visualization or analysis. The funtion offers various ordination
 methods. Let’s perform a PCA, and make maps of the first four
 dimensions:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>      <span class="fu"><a href="../reference/ps_ordinate.html">ps_ordinate</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"pca"</span>, k <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -197,7 +297,7 @@ two sites are to each other, using the <code><a href="../reference/ps_rgb.html">
 Let’s do that here, using the <code>"cmds"</code> (classical
 multidimensional scaling) ordination algorithm, and then plot the result
 using <code><a href="https://r-tmap.github.io/tmap/reference/tm_rgb.html" class="external-link">tmap::tm_rgb()</a></code>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>      <span class="fu"><a href="../reference/ps_rgb.html">ps_rgb</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"cmds"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -228,7 +328,7 @@ evaluate how well different choices for <code>k</code> fit the data by
 comparing the variance explained by different numbers of clusters. Let’s
 do that here, using the <code>"average"</code> hierarchical clustering
 method:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ps_regions_eval.html">ps_regions_eval</a></span><span class="op">(</span><span class="va">ps</span>, k <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">15</span>, plot <span class="op">=</span> <span class="cn">TRUE</span>, method <span class="op">=</span> <span class="st">"average"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="beta-diversity_files/figure-html/k-1.png" class="r-plt" alt="" width="576">
 From the evaluation plot, it looks like a value of <code>k = 4</code>
@@ -237,7 +337,7 @@ with near-maximum distance to the 1:1 line (“dist11”), and with more
 negative “curvature” than its neighbors, though other choices could also
 be reasonable. Let’s generate results for four regions, and then make a
 map of these zones:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>      <span class="fu"><a href="../reference/ps_regions.html">ps_regions</a></span><span class="op">(</span>k <span class="op">=</span> <span class="fl">4</span>, method <span class="op">=</span> <span class="st">"average"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>      <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>

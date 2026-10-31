@@ -2,6 +2,27 @@
 
 ## phylospatial (development version)
 
+- New function
+  [`ps_dissim_focal()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_focal.md)
+  computes phylogenetic dissimilarity between one or more focal sites
+  and every other site, returning a map for each focal site. Focal sites
+  can be given as site indices, coordinates, or `sf`/`SpatVector`
+  points. It accepts all
+  [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
+  options, and for the Sorensen family it computes only the focal rows
+  rather than the full pairwise matrix. It also offers a new asymmetric
+  index, `method = "focal_difference"`: the fraction of the focal site’s
+  branch length absent from each other site (the complement of a
+  quantitative, phylogenetic dispersion field).
+  [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
+  and
+  [`ps_dissim_focal()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_focal.md)
+  share one internal engine for pairwise comparisons.
+
+- Fixed an error in `ps_expand(spatial = TRUE)` and
+  [`to_spatial()`](https://matthewkling.github.io/phylospatial/reference/to_spatial.md)
+  when given an unnamed vector or matrix.
+
 ## phylospatial 1.6.0
 
 CRAN release: 2026-10-22
