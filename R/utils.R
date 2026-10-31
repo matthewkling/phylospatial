@@ -71,8 +71,10 @@ to_spatial <- function(m, template){
                   terra::values(y) <- x
                   return(y)
             }))
-            names(s) <- colnames(m)
-            terra::varnames(s) <- colnames(m)
+            if(!is.null(colnames(m))){
+                  names(s) <- colnames(m)
+                  terra::varnames(s) <- colnames(m)
+            }
       }
       if(inherits(template, "sf")){
             s <- sf::st_sf(as.data.frame(m), geometry = sf::st_geometry(template))

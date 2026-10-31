@@ -1,5 +1,9 @@
 # phylospatial (development version)
 
+* New function `ps_dissim_focal()` computes phylogenetic dissimilarity between one or more focal sites and every other site, returning a map for each focal site. Focal sites can be given as site indices, coordinates, or `sf`/`SpatVector` points. It accepts all `ps_dissim()` options, and for the Sorensen family it computes only the focal rows rather than the full pairwise matrix. It also offers a new asymmetric index, `method = "focal_difference"`: the fraction of the focal site's branch length absent from each other site (the complement of a quantitative, phylogenetic dispersion field). `ps_dissim()` and `ps_dissim_focal()` share one internal engine for pairwise comparisons.
+
+* Fixed an error in `ps_expand(spatial = TRUE)` and `to_spatial()` when given an unnamed vector or matrix.
+
 # phylospatial 1.6.0
 
 * Sites no longer need to be equal-area. `phylospatial()` gains a `site_weight` argument controlling how much each site contributes to taxon range sizes, which underlie endemism metrics and prioritization. It can be `NULL` (the default, weighting all sites equally as before), `"area"` (weighting sites by their area), or one value per site supplied as a numeric vector, single-layer `SpatRaster`, or `sf` object (for example, site areas raised to a power between 0 and 1). Weights are rescaled to a mean of 1 across occupied sites and stored in `ps$site_weight`.

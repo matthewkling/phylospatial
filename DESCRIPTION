@@ -10,6 +10,7 @@ Description: Analyze spatial phylogenetic diversity patterns.
     with null model randomization, analyze community turnover and biotic 
     regionalization, and perform spatial conservation prioritizations. All 
     functions support quantitative community data in addition to binary data.
+    Methods are described in Kling (2025) <doi:10.1111/2041-210X.70056>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

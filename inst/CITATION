@@ -1,0 +1,11 @@
+bibentry(
+  bibtype = "Article",
+  header  = "To cite phylospatial in publications, please use:",
+  title   = "{phylospatial}: An {R} package for spatial phylogenetic analysis with quantitative community data",
+  author  = person(c("Matthew", "M."), "Kling"),
+  journal = "Methods in Ecology and Evolution",
+  year    = "2025",
+  volume  = "16",
+  pages   = "1075--1083",
+  doi     = "10.1111/2041-210X.70056"
+)

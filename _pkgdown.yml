@@ -36,6 +36,7 @@ reference:
 - title: Beta diversity
 - contents:
   - ps_dissim
+  - ps_dissim_focal
   - ps_add_dissim
   - ps_regions
   - ps_regions_eval

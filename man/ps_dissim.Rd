@@ -94,5 +94,6 @@ Pavoine, S. (2016). A guide through a family of phylogenetic dissimilarity measu
 Oikos, 125(12), 1719-1732.
 }
 \seealso{
-\code{\link[=ps_add_dissim]{ps_add_dissim()}}
+\code{\link[=ps_add_dissim]{ps_add_dissim()}}, and \code{\link[=ps_dissim_focal]{ps_dissim_focal()}} for dissimilarity between focal sites and all other
+sites, including the asymmetric \code{"focal_difference"} index.
 }

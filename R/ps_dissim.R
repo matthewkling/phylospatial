@@ -37,7 +37,8 @@
 #'    for supported methods; unsupported methods (e.g. custom `designdist` formulas, turnover decomposition)
 #'    always fall back to `vegan` with a message.
 #' @param ... Additional arguments passed to \code{fun}.
-#' @seealso [ps_add_dissim()]
+#' @seealso [ps_add_dissim()], and [ps_dissim_focal()] for dissimilarity between focal sites and all other
+#'    sites, including the asymmetric `"focal_difference"` index.
 #' @references
 #' Graham, C. H., & Fine, P. V. (2008). Phylogenetic beta diversity: linking ecological and evolutionary
 #' processes across space in time. Ecology Letters, 11(12), 1265-1277.
@@ -70,6 +71,16 @@
 ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", "chaodist"),
                       endemism = FALSE, normalize = FALSE, tips_only = FALSE, n_cores = NULL, ...){
       enforce_ps(ps)
+      if (identical(method, "focal_difference")) stop("`method = \"focal_difference\"` is only defined ",
+                                                      "relative to a focal site; use `ps_dissim_focal()`.")
+      comm <- dissim_comm(ps, endemism = endemism, normalize = normalize, tips_only = tips_only)
+      pairwise_dissim(comm, method = method, fun = fun, n_cores = n_cores, ...)
+}
+
+
+# Prepare the community matrix for pairwise comparisons: optional tip subsetting, endemism weighting,
+# and row normalization, then branch-length weighting. Used by ps_dissim() and ps_dissim_focal().
+dissim_comm <- function(ps, endemism = FALSE, normalize = FALSE, tips_only = FALSE){
       comm <- ps$comm
 
       # Optionally restrict to terminal taxa (non-phylogenetic dissimilarity)
@@ -91,18 +102,53 @@ ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", 
 
       comm[!is.finite(comm)] <- 0
 
-      # Remove zero-variance columns (they don't affect distances but slow computation)
-      keep <- colSums(comm != 0, na.rm = TRUE) > 0
-      comm <- comm[, keep, drop = FALSE]
-
       # Branch length scaling (skip for tips-only non-phylogenetic distances)
       if (!tips_only) {
-            comm <- t(t(comm) * ps$tree$edge.length[keep])
+            comm <- t(t(comm) * ps$tree$edge.length)
       }
 
-      # --- Determine computation strategy ---
-      meth <- ifelse(method %in% c("sorensen", "sorensen_turnover", "sorensen_nestedness"),
-                     method, "other")
+      # Remove zero columns (they don't affect distances but slow computation)
+      keep <- colSums(comm != 0, na.rm = TRUE) > 0
+      comm[, keep, drop = FALSE]
+}
+
+
+# Methods defined by the shared (a) and unshared (b, c) branch length of two sites, where b is the
+# part found only at the first (focal) site and c the part found only at the second.
+abc_methods <- c("sorensen", "sorensen_turnover", "sorensen_nestedness", "focal_difference")
+
+
+# Index values from a, b, c components (vectors or matrices). "focal_difference" is asymmetric:
+# the fraction of the focal site's branch length absent from the other site.
+abc_index <- function(a, b, c, method){
+      switch(method,
+             "sorensen" = (b + c) / (2 * a + b + c),
+             "sorensen_turnover" = pmin(b, c) / (a + pmin(b, c)),
+             "sorensen_nestedness" = (b + c) / (2 * a + b + c) - pmin(b, c) / (a + pmin(b, c)),
+             "focal_difference" = b / (a + b))
+}
+
+
+# Pairwise comparisons among the rows of a prepared community matrix.
+# With `rows = NULL`, returns a `dist` over all pairs. With `rows` given (indices into rows of `comm`),
+# returns a matrix with one row per focal site and one column per site, computed without
+# building the full matrix where possible.
+pairwise_dissim <- function(comm, method = "sorensen", fun = c("vegdist", "designdist", "chaodist"),
+                            n_cores = NULL, rows = NULL, ...){
+
+      meth <- ifelse(method %in% abc_methods, method, "other")
+      if (meth == "focal_difference" && is.null(rows)) stop("`focal_difference` requires focal sites.")
+
+      # --- focal rows: Sorensen family computed directly from a, b, c ---
+      if (!is.null(rows) && meth != "other") {
+            tot <- rowSums(comm)
+            out <- t(vapply(rows, function(i){
+                  a <- colSums(pmin(t(comm), comm[i, ]))
+                  abc_index(a, tot[i] - a, tot - a, meth)
+            }, numeric(nrow(comm))))
+            dimnames(out) <- list(rownames(comm)[rows], rownames(comm))
+            return(out)
+      }
 
       # n_cores: NULL = auto (parallelDist if available), 0 = force vegan, 1+ = parallelDist with N threads
       if (is.null(n_cores)) {
@@ -135,14 +181,13 @@ ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", 
             }
       }
 
+      turnover <- function(comm) suppressWarnings(
+            vegan::designdist(comm, method = "pmin(b,c)/(a+pmin(b,c))", terms = "minimum", abcd = TRUE))
+
       # --- Compute distances ---
       if (use_pardist) {
             if (meth == "sorensen_nestedness") {
-                  dist_total <- parallelDist::parDist(comm, method = "bray", threads = pd_threads)
-                  dist_turn <- suppressWarnings(
-                        vegan::designdist(comm, method = "pmin(b,c)/(a+pmin(b,c))",
-                                          terms = "minimum", abcd = TRUE))
-                  dist <- dist_total - dist_turn
+                  dist <- parallelDist::parDist(comm, method = "bray", threads = pd_threads) - turnover(comm)
             } else {
                   dist <- parallelDist::parDist(comm, method = pd_method, threads = pd_threads)
             }
@@ -153,20 +198,15 @@ ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", 
                           "chaodist" = vegan::chaodist)
 
             dist <- switch(meth,
-                           "sorensen" = suppressWarnings(
-                                 vegan::vegdist(comm, method = "bray")),
-                           "sorensen_turnover" = suppressWarnings(
-                                 vegan::designdist(comm, method = "pmin(b,c)/(a+pmin(b,c))",
-                                                   terms = "minimum", abcd = TRUE)),
+                           "sorensen" = suppressWarnings(vegan::vegdist(comm, method = "bray")),
+                           "sorensen_turnover" = turnover(comm),
                            "sorensen_nestedness" = suppressWarnings(
-                                 vegan::vegdist(comm, method = "bray") -
-                                       vegan::designdist(comm, method = "pmin(b,c)/(a+pmin(b,c))",
-                                                         terms = "minimum", abcd = TRUE)),
-                           "other" = suppressWarnings(
-                                 fun(comm, method = method, ...)))
+                                 vegan::vegdist(comm, method = "bray")) - turnover(comm),
+                           "other" = suppressWarnings(fun(comm, method = method, ...)))
       }
 
-      return(dist)
+      if (!is.null(rows)) dist <- as.matrix(dist)[rows, , drop = FALSE]
+      dist
 }
 
 

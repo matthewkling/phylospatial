@@ -4,7 +4,7 @@
 \alias{moss}
 \title{Load California moss spatial phylogenetic data}
 \source{
-Kling, Gonzalez-Ramirez, Carter, Borokini, and Mishler (2024) bioRxiv, https://doi.org/10.1101/2024.12.16.628580.
+Kling, Gonzalez-Ramirez, Carter, Borokini, and Mishler (2026) Spatial phylogenetics with continuous data: an application to California bryophytes. Systematic Botany 51(1): 101-120, https://doi.org/10.1600/036364426X17703284494638.
 
 Protection: Kling, Mishler, Thornhill, Baldwin, and Ackerly (2019) Facets of phylodiversity: evolutionary
 diversification, divergence and survival as conservation targets. Philosophical Transactions of the Royal
@@ -38,7 +38,7 @@ the moss data set, with \code{NA} values for sites containing no moss taxa.
 }
 \description{
 Get example \code{phylospatial} data set based on a phylogeny and modeled distributions of 443 moss species
-across California. This data set is a coarser version of data from Kling et al. (2024). It contains
+across California. This data set is a coarser version of data from Kling et al. (2026). It contains
 occurrence probabilities, and is available in raster or polygon spatial formats. Companion layers giving
 existing land protection and human population density on the same spatial grid are also available, for
 use as \code{init} and \code{cost} inputs to conservation prioritization functions like \code{\link[=ps_prioritize]{ps_prioritize()}}.
