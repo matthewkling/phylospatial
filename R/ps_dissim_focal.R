@@ -5,9 +5,14 @@
 #' distance from a focal location.
 #'
 #' This function shares its computations with [ps_dissim()]: for any symmetric index, `ps_dissim_focal(ps, i, ...)`
-#' gives the same values as the corresponding row of `as.matrix(ps_dissim(ps, ...))`. For the Sorensen family
-#' and `"focal_difference"`, values are computed for the focal sites only, without building the full pairwise
-#' matrix; other methods compute the full matrix and return the relevant rows.
+#' gives the same values as the corresponding row of `as.matrix(ps_dissim(ps, ...))`. For the Sorensen family,
+#' `"focal_difference"`, and custom formulas with `fun = "designdist"` (computed with [vegan::designdist2()]),
+#' values are computed for the focal sites only, without building the full pairwise matrix. Other `vegdist`
+#' methods compute the full matrix and return the relevant rows.
+#'
+#' With `fun = "designdist"`, the focal sites are the first data set, so in asymmetric formulas `A` (or `a + b`)
+#' refers to the focal site; for example, `method = "(A-J)/A"` with `terms = "minimum"` is equivalent to
+#' `"focal_difference"`.
 #'
 #' In addition to the methods available in [ps_dissim()], this function offers `method = "focal_difference"`, an
 #' asymmetric index: the fraction of the focal site's branch length that is absent from each other site.
@@ -87,6 +92,8 @@ focal_sites <- function(ps, site){
             if (inherits(sp, "SpatRaster")) {
                   site <- sf::st_transform(site, terra::crs(sp))
                   site <- sf::st_coordinates(site)[, 1:2, drop = FALSE]
+                  if (!all(is.finite(site))) stop("Focal points could not be transformed to the coordinate ",
+                                                  "reference system of `ps$spatial`.")
             } else {
                   site <- sf::st_transform(site, sf::st_crs(sp))
                   hit <- sf::st_intersects(site, sp)

@@ -37,9 +37,14 @@ distance from a focal location.
 }
 \details{
 This function shares its computations with \code{\link[=ps_dissim]{ps_dissim()}}: for any symmetric index, \code{ps_dissim_focal(ps, i, ...)}
-gives the same values as the corresponding row of \code{as.matrix(ps_dissim(ps, ...))}. For the Sorensen family
-and \code{"focal_difference"}, values are computed for the focal sites only, without building the full pairwise
-matrix; other methods compute the full matrix and return the relevant rows.
+gives the same values as the corresponding row of \code{as.matrix(ps_dissim(ps, ...))}. For the Sorensen family,
+\code{"focal_difference"}, and custom formulas with \code{fun = "designdist"} (computed with \code{\link[vegan:designdist2]{vegan::designdist2()}}),
+values are computed for the focal sites only, without building the full pairwise matrix. Other \code{vegdist}
+methods compute the full matrix and return the relevant rows.
+
+With \code{fun = "designdist"}, the focal sites are the first data set, so in asymmetric formulas \code{A} (or \code{a + b})
+refers to the focal site; for example, \code{method = "(A-J)/A"} with \code{terms = "minimum"} is equivalent to
+\code{"focal_difference"}.
 
 In addition to the methods available in \code{\link[=ps_dissim]{ps_dissim()}}, this function offers \code{method = "focal_difference"}, an
 asymmetric index: the fraction of the focal site's branch length that is absent from each other site.

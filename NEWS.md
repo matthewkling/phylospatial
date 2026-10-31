@@ -2,6 +2,14 @@
 
 * New function `ps_dissim_focal()` computes phylogenetic dissimilarity between one or more focal sites and every other site, returning a map for each focal site. Focal sites can be given as site indices, coordinates, or `sf`/`SpatVector` points. It accepts all `ps_dissim()` options, and for the Sorensen family it computes only the focal rows rather than the full pairwise matrix. It also offers a new asymmetric index, `method = "focal_difference"`: the fraction of the focal site's branch length absent from each other site (the complement of a quantitative, phylogenetic dispersion field). `ps_dissim()` and `ps_dissim_focal()` share one internal engine for pairwise comparisons.
 
+* With `fun = "designdist"`, `ps_dissim_focal()` computes only the focal rows, using `vegan::designdist2()`. In asymmetric formulas, `A` refers to the focal site. phylospatial now requires vegan >= 2.7-1.
+
+* `ps_dissim()` no longer supports `fun = "chaodist"`. Chao's estimators require integer counts of individuals, which phylogenetic community data are not, so this option always failed for phylogenetic dissimilarity.
+
+* `ps_dissim()` now gives an error for the `vegdist` methods `"morisita"`, `"chao"`, and `"cao"` unless the data are integer counts, which in practice means abundance data with `tips_only = TRUE` and no `endemism` or `normalize`. These methods previously returned meaningless values with non-integer data (all zeros for `"cao"`), because vegan's warnings were suppressed.
+
+* `ps_dissim()` no longer suppresses all warnings from vegan; only vegan's advisory warning about using `abcd` notation with quantitative terms is silenced.
+
 * Fixed an error in `ps_expand(spatial = TRUE)` and `to_spatial()` when given an unnamed vector or matrix.
 
 # phylospatial 1.6.0

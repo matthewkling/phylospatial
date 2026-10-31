@@ -84,3 +84,21 @@ test_that("to_spatial and ps_expand handle unnamed input", {
       expect_no_error(r <- ps_expand(ps, x, spatial = TRUE))
       expect_equal(terra::values(r)[ps$occupied, 1], x)
 })
+
+test_that("designdist formulas use the focal-row path and match ps_dissim", {
+      ps <- moss()
+      rows <- c(10, 300)
+      site <- ps$occupied[rows]
+      f <- "(A+B-2*J)/(A+B)"
+      full <- as.matrix(ps_dissim(ps, fun = "designdist", method = f, terms = "minimum", n_cores = 0))[rows, ]
+      foc <- ps_dissim_focal(ps, site, fun = "designdist", method = f, terms = "minimum", spatial = FALSE)
+      expect_equal(unname(foc[ps$occupied, ]), unname(t(full)), tolerance = 1e-10)
+      # this formula is Sorensen's index
+      expect_equal(foc, ps_dissim_focal(ps, site, spatial = FALSE), tolerance = 1e-10)
+
+      # asymmetric formulas treat the focal site as A
+      expect_equal(ps_dissim_focal(ps, site, fun = "designdist", method = "(A-J)/A", terms = "minimum",
+                                   spatial = FALSE),
+                   ps_dissim_focal(ps, site, method = "focal_difference", spatial = FALSE),
+                   tolerance = 1e-10)
+})

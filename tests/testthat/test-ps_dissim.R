@@ -109,3 +109,29 @@ test_that("`ps_dissim` tips-only matches `vegan::vegdist` on the raw tip matrix"
       d2 <- vegan::vegdist(ps_get_comm(ps, spatial = FALSE), method = "bray")
       expect_equal(as.matrix(d1), as.matrix(d2))
 })
+
+test_that("chaodist is no longer supported", {
+      ps <- ps_simulate(n_tips = 10, n_x = 5, n_y = 5, data_type = "abundance", seed = 1)
+      expect_error(ps_dissim(ps, fun = "chaodist"), "no longer supported")
+})
+
+test_that("count-based vegdist methods require integer data", {
+      psa <- ps_simulate(n_tips = 10, n_x = 5, n_y = 5, data_type = "abundance", seed = 1)
+      psp <- ps_simulate(n_tips = 10, n_x = 5, n_y = 5, data_type = "prob", seed = 1)
+      for (m in c("chao", "cao", "morisita")) {
+            expect_error(ps_dissim(psa, method = m, n_cores = 0), "integer counts")
+            expect_error(ps_dissim(psp, method = m, tips_only = TRUE, n_cores = 0), "integer counts")
+            expect_error(ps_dissim(psa, method = m, tips_only = TRUE, endemism = TRUE, n_cores = 0),
+                         "integer counts")
+            expect_s3_class(ps_dissim(psa, method = m, tips_only = TRUE, n_cores = 0), "dist")
+      }
+})
+
+test_that("quantitative abcd formulas don't warn, but other vegan warnings pass through", {
+      ps <- ps_simulate(n_tips = 10, n_x = 5, n_y = 5, data_type = "prob", seed = 1)
+      expect_no_warning(ps_dissim(ps, method = "(b+c)/(2*a+b+c)", fun = "designdist",
+                                  terms = "minimum", abcd = TRUE, n_cores = 0))
+      expect_no_warning(ps_dissim(ps, method = "sorensen_turnover", n_cores = 0))
+      expect_no_warning(quiet_abcd(warning("perhaps terms should be 'binary' with 'abcd'")))
+      expect_warning(quiet_abcd(warning("some other vegan warning")), "some other")
+})

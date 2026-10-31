@@ -15,9 +15,11 @@
 #'    \item "sorensen_turnover": The turnover component of Sorensen's dissimilarity, a.k.a. Simpson's.
 #'    \item "sorensen_nestedness": The nestedness component of Sorensen's dissimilarity.
 #'    \item Any other valid `method` passed to \code{fun}. For options, see the documentation for those functions.
+#'       The `vegdist` methods "morisita", "chao", and "cao" require integer counts, so they're only available for
+#'       non-phylogenetic dissimilarity (`tips_only = TRUE`) of abundance data, without `endemism` or `normalize`.
 #' }
 #' @param fun Character indicating which general distance function from the `vegan` library to use: "\link[vegan]{vegdist}"
-#'    (the default), "\link[vegan]{designdist}", or "\link[vegan]{chaodist}". (While these functions are not explicitly
+#'    (the default) or "\link[vegan]{designdist}". (While these functions are not explicitly
 #'    designed to calculate phylogenetic beta diversity, their use here incorporates the phylogenetic components.)
 #'    This argument is ignored if one of the three "sorensen" methods is selected.
 #' @param endemism Logical indicating whether community values should be divided by taxon range sizes
@@ -68,9 +70,10 @@
 #' d <- ps_dissim(ps, method = "jaccard", endemism = TRUE)
 #'
 #' @export
-ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist", "chaodist"),
+ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist"),
                       endemism = FALSE, normalize = FALSE, tips_only = FALSE, n_cores = NULL, ...){
       enforce_ps(ps)
+      fun <- check_dissim_fun(fun)
       if (identical(method, "focal_difference")) stop("`method = \"focal_difference\"` is only defined ",
                                                       "relative to a focal site; use `ps_dissim_focal()`.")
       comm <- dissim_comm(ps, endemism = endemism, normalize = normalize, tips_only = tips_only)
@@ -129,15 +132,52 @@ abc_index <- function(a, b, c, method){
 }
 
 
+# Validate `fun`, with a specific message for the removed "chaodist" option
+check_dissim_fun <- function(fun){
+      if (identical(fun, "chaodist")) stop("`fun = \"chaodist\"` is no longer supported: Chao's estimators require ",
+                                           "integer counts of individuals, which phylogenetic community data are not.")
+      match.arg(fun, c("vegdist", "designdist"))
+}
+
+
+# vegdist methods that assume integer counts; vegan warns but still returns (often meaningless) values
+vegdist_count_methods <- c("morisita", "chao", "cao")
+
+check_count_method <- function(comm, method){
+      vd <- c("manhattan", "euclidean", "canberra", "bray", "kulczynski", "gower", "morisita", "horn",
+              "mountford", "jaccard", "raup", "binomial", "chao", "altGower", "cao", "mahalanobis",
+              "clark", "chisq", "chord", "hellinger", "aitchison", "robust.aitchison")
+      m <- vd[pmatch(method, vd)]
+      if (!is.na(m) && m %in% vegdist_count_methods && !isTRUE(all.equal(comm, round(comm)))) {
+            stop("`method = \"", m, "\"` requires integer counts. It's only valid for abundance data with ",
+                 "`tips_only = TRUE` and without `endemism` or `normalize`, since branch-length weighting ",
+                 "and rescaling produce non-integer values.")
+      }
+}
+
+
+# Evaluate a vegan call, muffling only vegan's advisory warning about using abcd/alphagamma notation
+# with quantitative terms, which is how phylospatial computes quantitative Sorensen-family indices.
+# All other warnings pass through to the user.
+quiet_abcd <- function(expr){
+      withCallingHandlers(expr, warning = function(w){
+            if (grepl("perhaps terms should be 'binary'", conditionMessage(w), fixed = TRUE))
+                  invokeRestart("muffleWarning")
+      })
+}
+
+
 # Pairwise comparisons among the rows of a prepared community matrix.
 # With `rows = NULL`, returns a `dist` over all pairs. With `rows` given (indices into rows of `comm`),
 # returns a matrix with one row per focal site and one column per site, computed without
-# building the full matrix where possible.
-pairwise_dissim <- function(comm, method = "sorensen", fun = c("vegdist", "designdist", "chaodist"),
+# building the full matrix for the Sorensen family and for designdist formulas.
+pairwise_dissim <- function(comm, method = "sorensen", fun = c("vegdist", "designdist"),
                             n_cores = NULL, rows = NULL, ...){
 
+      fun <- check_dissim_fun(fun)
       meth <- ifelse(method %in% abc_methods, method, "other")
       if (meth == "focal_difference" && is.null(rows)) stop("`focal_difference` requires focal sites.")
+      if (meth == "other" && fun == "vegdist") check_count_method(comm, method)
 
       # --- focal rows: Sorensen family computed directly from a, b, c ---
       if (!is.null(rows) && meth != "other") {
@@ -147,6 +187,14 @@ pairwise_dissim <- function(comm, method = "sorensen", fun = c("vegdist", "desig
                   abc_index(a, tot[i] - a, tot - a, meth)
             }, numeric(nrow(comm))))
             dimnames(out) <- list(rownames(comm)[rows], rownames(comm))
+            return(out)
+      }
+
+      # --- focal rows: designdist formulas via designdist2, with focal sites as `x` (so A is the focal total) ---
+      if (!is.null(rows) && fun == "designdist") {
+            out <- t(quiet_abcd(vegan::designdist2(comm[rows, , drop = FALSE], comm, method = method, ...)))
+            out <- unclass(out)
+            attributes(out) <- list(dim = dim(out), dimnames = list(rownames(comm)[rows], rownames(comm)))
             return(out)
       }
 
@@ -172,7 +220,7 @@ pairwise_dissim <- function(comm, method = "sorensen", fun = c("vegdist", "desig
                                 "sorensen" = "bray",
                                 "sorensen_turnover" = NA,
                                 "sorensen_nestedness" = "bray",  # compute total via parallelDist, turnover via vegan
-                                "other" = vegan_to_pardist(method))
+                                "other" = if (fun == "vegdist") vegan_to_pardist(method) else NA)
 
             if (is.na(pd_method)) {
                   message("parallelDist does not support method '", method,
@@ -181,7 +229,7 @@ pairwise_dissim <- function(comm, method = "sorensen", fun = c("vegdist", "desig
             }
       }
 
-      turnover <- function(comm) suppressWarnings(
+      turnover <- function(comm) quiet_abcd(
             vegan::designdist(comm, method = "pmin(b,c)/(a+pmin(b,c))", terms = "minimum", abcd = TRUE))
 
       # --- Compute distances ---
@@ -192,17 +240,15 @@ pairwise_dissim <- function(comm, method = "sorensen", fun = c("vegdist", "desig
                   dist <- parallelDist::parDist(comm, method = pd_method, threads = pd_threads)
             }
       } else {
-            fun <- switch(match.arg(fun),
+            fun <- switch(fun,
                           "vegdist" = vegan::vegdist,
-                          "designdist" = vegan::designdist,
-                          "chaodist" = vegan::chaodist)
+                          "designdist" = vegan::designdist)
 
             dist <- switch(meth,
-                           "sorensen" = suppressWarnings(vegan::vegdist(comm, method = "bray")),
+                           "sorensen" = vegan::vegdist(comm, method = "bray"),
                            "sorensen_turnover" = turnover(comm),
-                           "sorensen_nestedness" = suppressWarnings(
-                                 vegan::vegdist(comm, method = "bray")) - turnover(comm),
-                           "other" = suppressWarnings(fun(comm, method = method, ...)))
+                           "sorensen_nestedness" = vegan::vegdist(comm, method = "bray") - turnover(comm),
+                           "other" = quiet_abcd(fun(comm, method = method, ...)))
       }
 
       if (!is.null(rows)) dist <- as.matrix(dist)[rows, , drop = FALSE]
