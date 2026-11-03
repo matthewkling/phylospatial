@@ -39,8 +39,9 @@
 #'    for supported methods; unsupported methods (e.g. custom `designdist` formulas, turnover decomposition)
 #'    always fall back to `vegan` with a message.
 #' @param ... Additional arguments passed to \code{fun}.
-#' @seealso [ps_add_dissim()], and [ps_dissim_focal()] for dissimilarity between focal sites and all other
-#'    sites, including the asymmetric `"focal_difference"` index.
+#' @seealso [ps_add_dissim()]; [ps_dissim_focal()] for dissimilarity between focal sites and all other
+#'    sites, including the asymmetric `"focal_difference"` index; and [ps_dissim_paired()] for dissimilarity
+#'    between two data sets at each site, such as change over time.
 #' @references
 #' Graham, C. H., & Fine, P. V. (2008). Phylogenetic beta diversity: linking ecological and evolutionary
 #' processes across space in time. Ecology Letters, 11(12), 1265-1277.
@@ -84,17 +85,30 @@ ps_dissim <- function(ps, method = "sorensen", fun = c("vegdist", "designdist"),
 # Prepare the community matrix for pairwise comparisons: optional tip subsetting, endemism weighting,
 # and row normalization, then branch-length weighting. Used by ps_dissim() and ps_dissim_focal().
 dissim_comm <- function(ps, endemism = FALSE, normalize = FALSE, tips_only = FALSE){
-      comm <- ps$comm
+      range_size <- if (endemism) range_sizes(ps$comm, ps$site_weight) else NULL
+      comm <- weight_comm(ps$comm, ps$tree, range_size = range_size,
+                          normalize = normalize, tips_only = tips_only)
 
-      # Optionally restrict to terminal taxa (non-phylogenetic dissimilarity)
-      if (tips_only) comm <- comm[, tip_indices(ps$tree), drop = FALSE]
+      # Remove zero columns (they don't affect distances but slow computation)
+      keep <- colSums(comm != 0, na.rm = TRUE) > 0
+      comm[, keep, drop = FALSE]
+}
+
+
+# The weighting steps of dissim_comm(), for a community matrix whose columns match the edges of `tree`.
+# `range_size` (one value per column, or NULL for no endemism weighting) is supplied by the caller, so that
+# ps_dissim_paired() can weight two data sets by shared range sizes. Zero columns are kept, so that two
+# matrices prepared with the same tree stay aligned.
+weight_comm <- function(comm, tree, range_size = NULL, normalize = FALSE, tips_only = FALSE){
 
       # Vectorized endemism: divide each column by its (weighted) range size
-      if (endemism) {
-            col_sums <- range_sizes(comm, ps$site_weight)
-            col_sums[col_sums == 0] <- 1  # avoid division by zero
-            comm <- t(t(comm) / col_sums)  # vectorized column division
+      if (!is.null(range_size)) {
+            range_size[range_size == 0] <- 1  # avoid division by zero
+            comm <- t(t(comm) / range_size)   # vectorized column division
       }
+
+      # Optionally restrict to terminal taxa (non-phylogenetic dissimilarity)
+      if (tips_only) comm <- comm[, tip_indices(tree), drop = FALSE]
 
       # Vectorized normalize: divide each row by its sum
       if (normalize) {
@@ -107,28 +121,32 @@ dissim_comm <- function(ps, endemism = FALSE, normalize = FALSE, tips_only = FAL
 
       # Branch length scaling (skip for tips-only non-phylogenetic distances)
       if (!tips_only) {
-            comm <- t(t(comm) * ps$tree$edge.length)
+            comm <- t(t(comm) * tree$edge.length)
       }
-
-      # Remove zero columns (they don't affect distances but slow computation)
-      keep <- colSums(comm != 0, na.rm = TRUE) > 0
-      comm[, keep, drop = FALSE]
+      comm
 }
 
 
 # Methods defined by the shared (a) and unshared (b, c) branch length of two sites, where b is the
 # part found only at the first (focal) site and c the part found only at the second.
-abc_methods <- c("sorensen", "sorensen_turnover", "sorensen_nestedness", "focal_difference")
+abc_methods <- c("sorensen", "sorensen_turnover", "sorensen_nestedness", "focal_difference", "loss", "gain")
+
+# Asymmetric indices only defined for paired data sets, in ps_dissim_paired()
+paired_methods <- c("loss", "gain")
 
 
 # Index values from a, b, c components (vectors or matrices). "focal_difference" is asymmetric:
-# the fraction of the focal site's branch length absent from the other site.
+# the fraction of the focal site's branch length absent from the other site. "loss" (the same formula)
+# and "gain" are its paired counterparts: the fraction of the first data set's branch length absent
+# from the second, and the fraction of the second data set's branch length absent from the first.
 abc_index <- function(a, b, c, method){
       switch(method,
              "sorensen" = (b + c) / (2 * a + b + c),
              "sorensen_turnover" = pmin(b, c) / (a + pmin(b, c)),
              "sorensen_nestedness" = (b + c) / (2 * a + b + c) - pmin(b, c) / (a + pmin(b, c)),
-             "focal_difference" = b / (a + b))
+             "focal_difference" = b / (a + b),
+             "loss" = b / (a + b),
+             "gain" = c / (a + c))
 }
 
 
@@ -143,11 +161,16 @@ check_dissim_fun <- function(fun){
 # vegdist methods that assume integer counts; vegan warns but still returns (often meaningless) values
 vegdist_count_methods <- c("morisita", "chao", "cao")
 
+# All vegdist methods, in vegan's order (for partial matching as vegdist does)
+vegdist_methods <- c("manhattan", "euclidean", "canberra", "bray", "kulczynski", "gower", "morisita", "horn",
+                     "mountford", "jaccard", "raup", "binomial", "chao", "altGower", "cao", "mahalanobis",
+                     "clark", "chisq", "chord", "hellinger", "aitchison", "robust.aitchison")
+
+# Full vegdist method name from a possibly abbreviated one (NA if not a vegdist method)
+match_vegdist <- function(method) vegdist_methods[pmatch(method, vegdist_methods)]
+
 check_count_method <- function(comm, method){
-      vd <- c("manhattan", "euclidean", "canberra", "bray", "kulczynski", "gower", "morisita", "horn",
-              "mountford", "jaccard", "raup", "binomial", "chao", "altGower", "cao", "mahalanobis",
-              "clark", "chisq", "chord", "hellinger", "aitchison", "robust.aitchison")
-      m <- vd[pmatch(method, vd)]
+      m <- match_vegdist(method)
       if (!is.na(m) && m %in% vegdist_count_methods && !isTRUE(all.equal(comm, round(comm)))) {
             stop("`method = \"", m, "\"` requires integer counts. It's only valid for abundance data with ",
                  "`tips_only = TRUE` and without `endemism` or `normalize`, since branch-length weighting ",
@@ -176,6 +199,8 @@ pairwise_dissim <- function(comm, method = "sorensen", fun = c("vegdist", "desig
 
       fun <- check_dissim_fun(fun)
       meth <- ifelse(method %in% abc_methods, method, "other")
+      if (meth %in% paired_methods) stop("`method = \"", meth, "\"` is only defined for two paired data sets; ",
+                                         "use `ps_dissim_paired()`.")
       if (meth == "focal_difference" && is.null(rows)) stop("`focal_difference` requires focal sites.")
       if (meth == "other" && fun == "vegdist") check_count_method(comm, method)
 

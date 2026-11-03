@@ -79,5 +79,5 @@ Graves, G. R., & Rahbek, C. (2005). Source pool geometry and the assembly of con
 Proceedings of the National Academy of Sciences, 102(22), 7871-7876.
 }
 \seealso{
-\code{\link[=ps_dissim]{ps_dissim()}}
+\code{\link[=ps_dissim]{ps_dissim()}}, and \code{\link[=ps_dissim_paired]{ps_dissim_paired()}} for dissimilarity between two data sets at each site.
 }

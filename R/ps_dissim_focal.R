@@ -39,7 +39,7 @@
 #' @param ... Further arguments passed to [ps_dissim()], such as `fun`, `endemism`, `normalize`, or `tips_only`.
 #' @return A `SpatRaster` or `sf` object with one layer or variable per focal site, or a matrix with one
 #'    column per focal site, giving values for every site (`NA` for unoccupied sites).
-#' @seealso [ps_dissim()]
+#' @seealso [ps_dissim()], and [ps_dissim_paired()] for dissimilarity between two data sets at each site.
 #' @references
 #' Graves, G. R., & Rahbek, C. (2005). Source pool geometry and the assembly of continental avifaunas.
 #' Proceedings of the National Academy of Sciences, 102(22), 7871-7876.

@@ -37,6 +37,7 @@ reference:
 - contents:
   - ps_dissim
   - ps_dissim_focal
+  - ps_dissim_paired
   - ps_add_dissim
   - ps_regions
   - ps_regions_eval
