@@ -129,28 +129,8 @@ rand2 <- ps_rand(ps2, fun = "nullmodel", method = "abuswap_c", metric = "PD",
 
  
 ## Spatially constrained randomization
- 
-Standard null models treat all sites as exchangeable, meaning that species can be shuffled between any pair of sites regardless of how far apart they are. This may not be ecologically realistic: species are more likely to co-occur at nearby sites than distant ones. Spatially constrained null models address this by weighting the randomization so that exchanges occur more frequently between nearby sites. Weights can be continuous or binary and can reflect geographic proximity, environmental similarity, presence in discrete geographic regions, or other spatial properties.
 
-Weighting is available for `fun = "quantize"` (for quantitative data) and `fun = "nullcat"` (for binary data), but not for `fun = "vegan"` methods. For eligible methods, the `wt_row` argument to `ps_rand()` accepts a square weight matrix controlling which pairs of sites are likely to exchange species during randomization. A natural choice is a distance-decay function of geographic distance, which can be computed using `ps_geodist()`; the choice of decay function and bandwidth will affect the strength of the spatial constraint, and should be based on the spatial scale of ecological processes in the study system. The code below demonstrates weight matrix construction for a few common shapes of decay function (Gaussian, exponential, threshold), and also for a scheme involving isolated subregions (e.g. islands) that never exchange species. Note that adding weights generally increases the value of `n_iter` needed for convergence.
- 
-```{r rand_spatial, eval=FALSE}
-# Weight matrices for several alternative distance functions
-geo <- as.matrix(ps_geodist(ps_bin)) / 1000 # distance in km
-W <- dnorm(geo, sd = 100) # Gaussian decay w0th 100 km SD
-W <- exp(-geo / median(geo)) # exponential kernel
-W <- (geo < 200) + 0 #  hard distance threshold
-
-# Weights matrix for discrete isolated regions
-island <- sample(1:5, nrow(ps$comm), replace = T)
-W <- (as.matrix(dist(island)) == 0) + 0
-
-# Spatially constrained randomization
-iters <- ps_suggest_n_iter(ps_bin, fun = "nullcat", method = "curvecat", n_iter = 3e5)
-rand_spatial <- ps_rand(ps_bin, fun = "nullcat", method = "curvecat", n_iter = iters, 
-                        n_rand = 1000, metric = c("PD", "PE"),
-                        wt_row = W)
-```
+Standard null models treat all sites as exchangeable, so a taxon can be moved between any pair of sites regardless of how far apart they are. A spatially constrained null model, in which taxa are only redistributed among nearby sites, is often more ecologically realistic, but it is less straightforward to build than it might seem. In particular, weighting a swap algorithm so that nearby sites exchange taxa more often than distant ones does not by itself constrain the null model: as long as every site is linked to the others through a chain of neighbors, a taxon can travel anywhere through a series of short local swaps, and the result converges to the unconstrained null as `n_iter` grows. For this reason, the `wt_row` and `wt_col` arguments to `ps_rand()` are currently disabled. Support for spatially constrained null models is planned for a future release.
 
 
 

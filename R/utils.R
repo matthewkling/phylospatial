@@ -311,3 +311,23 @@ enforce_spatial <- function(x) stopifnot("This function only works with `phylosp
 # this gives the position in the edge list, not the node INDEX per se (the number contained in edge list)
 tip_indices <- function(tree, invert = FALSE) which(tree$edge[,2] %in% setdiff(tree$edge[,2], tree$edge[,1]) != invert)
 
+
+# Spatial/trait weights (`wt_row`, `wt_col`) are temporarily disabled. Weighting which
+# pairs of rows exchange values in a swap chain does not, in general, give a constrained
+# null: with connected (e.g. distance-decay) weights the chain converges to the
+# unconstrained null, and zone weights are not respected under all quantize settings.
+# The arguments are kept in the API, reserved for a future spatially constrained null.
+check_no_weights <- function(wt_row = NULL, wt_col = NULL) {
+      supplied <- c("wt_row", "wt_col")[!c(is.null(wt_row), is.null(wt_col))]
+      if (length(supplied) == 0) return(invisible(NULL))
+      msg <- paste0(
+            paste0("`", supplied, "`", collapse = " and "),
+            if (length(supplied) == 1) " is" else " are",
+            " not currently supported and must be NULL. ",
+            "Weighting which pairs of sites exchange values does not produce a spatially ",
+            "constrained null model: with distance-decay weights, the result converges to ",
+            "the unconstrained null as `n_iter` grows, and zone-based weights are not ",
+            "respected under the default `quantize` settings. Support for spatially ",
+            "constrained null models is planned for a future release.")
+      stop(simpleError(msg, call = sys.call(-1)))
+}

@@ -51,29 +51,23 @@ test_that("`ps_rand` runs nullcat without error on binary data", {
                               n_iter = 100, n_rand = 3, progress = FALSE))
 })
 
-test_that("`ps_rand` supports spatial weights via wt_row", {
-
-      skip_if_not_installed("nullcat")
+test_that("`ps_rand` rejects spatial weights", {
 
       bn <- ps_simulate(10, 10, 10, "binary")
+      W <- matrix(1, nrow(bn$comm), nrow(bn$comm))
 
-      # build a distance-decay weight matrix from geographic distances
-      geo <- as.matrix(ps_geodist(bn))
-      W <- exp(-geo / median(geo))
+      # rejected for every `fun`, before any computation
+      for (f in c("tip_shuffle", "nullcat", "quantize", "nullmodel")) {
+            expect_error(ps_rand(bn, "PD", f, n_rand = 3, wt_row = W, progress = FALSE),
+                         "`wt_row` is not currently supported")
+      }
+      expect_error(ps_rand(bn, "PD", wt_col = W, n_rand = 3, progress = FALSE),
+                   "`wt_col` is not currently supported")
+      expect_error(ps_rand(bn, "PD", wt_row = W, wt_col = W, n_rand = 3, progress = FALSE),
+                   "`wt_row` and `wt_col` are not currently supported")
 
-      # nullcat path with weights
-      expect_no_error(ps_rand(bn, "PD", "nullcat", method = "curvecat",
-                              n_iter = 100, n_rand = 3, wt_row = W, progress = FALSE))
-
-      # quantize path with weights
-      ps <- ps_simulate(10, 10, 10, "prob")
-      geo_q <- as.matrix(ps_geodist(ps))
-      W_q <- exp(-geo_q / median(geo_q))
-      expect_no_error(ps_rand(ps, "PD", "quantize", n_rand = 3,
-                              n_iter = 100, wt_row = W_q, progress = FALSE))
-
-      # weights ignored with warning for unsupported fun
-      expect_warning(ps_rand(bn, "PD", "tip_shuffle", n_rand = 3,
-                             wt_row = W, progress = FALSE),
-                     "wt_row")
+      # explicit NULLs are fine
+      expect_no_error(ps_rand(bn, "PD", n_rand = 3, wt_row = NULL, wt_col = NULL,
+                              progress = FALSE))
 })
+

@@ -34,7 +34,7 @@ or an actual function:
 package, which offer a wide range of randomization algorithms with different properties.
 \item "nullcat": uses null model algorithms from the \link[nullcat]{nullcat} package. Only works
 with binary community data. This is the recommended path for binary data when mixing diagnostics
-(via \code{ps_suggest_n_iter()}) or spatial weights  (via \code{wt_row} or \code{wt_col}) are desired.
+(via \code{ps_suggest_n_iter()}) are desired.
 \item "quantize": uses \link[nullcat]{quantize}, which converts a quantitative matrix to discrete strata,
 applies a categorical variant of the selected null model, and then maps randomized strata back to values.
 Only works with quantitative (probability or abundance) community data.
@@ -72,11 +72,10 @@ standard deviation of the randomizations.}
 
 \item{progress}{Logical: should a progress bar be displayed?}
 
-\item{wt_row, wt_col}{Optional square numeric weight matrices controlling which pairs of
-rows (sites) or columns (species) are likely to exchange values during randomization.
-Only used with \code{fun = "nullcat"} or \code{fun = "quantize"}. Enables spatially or
-trait-constrained null models; e.g. a geographic distance decay matrix from
-\link{ps_geodist} can be used as \code{wt_row}. See \link[nullcat]{nullcat} for details.}
+\item{wt_row, wt_col}{Not currently supported, and must be \code{NULL} (the default); supplying
+a weight matrix gives an error. Reserved for a future spatially constrained null model.
+Weighting which pairs of sites exchange values does not by itself constrain the null
+model spatially, so this option has been disabled. See \code{vignette("alpha-diversity")}.}
 
 \item{...}{Additional arguments passed to the selected function: \link[nullcat]{quantize},
 \link[nullcat]{nullcat}, \link[vegan]{simulate.nullmodel}, or a custom function.
@@ -119,14 +118,6 @@ if(requireNamespace("nullcat")){
     rand <- ps_rand(ps2, fun = "nullcat", method = "curvecat", n_iter = 1000)
 }
 
-# spatially constrained randomization using geographic distance weights
-if(requireNamespace("nullcat")){
-    geo <- as.matrix(ps_geodist(ps2))
-    W <- exp(-geo / median(geo))
-    rand <- ps_rand(ps2, fun = "nullcat", method = "curvecat",
-                    n_iter = 1000, wt_row = W)
-}
-
 # using binary data, with a vegan `nullmodel` algorithm
 rand <- ps_rand(ps2, "PD", "nullmodel", "r2")
 
@@ -137,5 +128,5 @@ rand <- ps_rand(ps3, metric = c("ShPD", "SiPD"),
 }
 }
 \seealso{
-\code{\link[=ps_diversity]{ps_diversity()}}, \code{\link[=ps_geodist]{ps_geodist()}}
+\code{\link[=ps_diversity]{ps_diversity()}}
 }

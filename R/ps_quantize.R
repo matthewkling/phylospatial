@@ -15,16 +15,13 @@
 #' recomputing overhead that is shared across randomizations.
 #'
 #' @param ps Object of class `phylospatial`
-#' @param wt_row,wt_col Optional square numeric weight matrices controlling which pairs of
-#'    rows (sites) or columns (species) are likely to exchange values during randomization.
-#'    Enables spatially constrained or functional-group constrained null models; e.g. a
-#'    geographic distance decay matrix from \link{ps_geodist} can be transformed and used as
-#'    `wt_row`. See \link[nullcat]{nullcat} for details. If left unspecified (the default),
-#'    gives unweighted randomization.
+#' @param wt_row,wt_col Not currently supported, and must be `NULL` (the default); supplying
+#'    a weight matrix gives an error. Reserved for a future spatially constrained null model.
+#'    See [ps_rand()] for details.
 #' @param ... Additional arguments passed to \link[nullcat]{quantize}, such as `method`,
 #'    `n_strata`, `transform`, `fixed`, `n_iter`, etc.
 #' @return A randomized version of `ps`
-#' @seealso [ps_rand()], [ps_geodist()]
+#' @seealso [ps_rand()]
 #' @examples
 #' \donttest{
 #' if (requireNamespace("nullcat", quietly = TRUE)) {
@@ -32,20 +29,13 @@
 #'   ps_rand <- ps_quantize(ps, n_strata = 4,
 #'     n_iter = 1000,
 #'     method = "curvecat", fixed = "cell")
-#'
-#'   # spatially constrained randomization
-#'   geo <- as.matrix(ps_geodist(ps))
-#'   W <- exp(-geo / median(geo))
-#'   ps_rand <- ps_quantize(ps, n_strata = 4,
-#'     n_iter = 1000,
-#'     method = "curvecat", fixed = "cell",
-#'     wt_row = W)
 #' }
 #' }
 #' @export
 ps_quantize <- function(ps, wt_row = NULL, wt_col = NULL, ...) {
 
       enforce_ps(ps)
+      check_no_weights(wt_row, wt_col)
 
       if(ps$data_type == "binary"){
             dots <- list(...)
@@ -60,7 +50,7 @@ ps_quantize <- function(ps, wt_row = NULL, wt_col = NULL, ...) {
       colnames(tip_comm) <- phy$tip.label
 
       # randomize the occupied-only tip matrix
-      tip_comm_rand <- quantize(tip_comm, wt_row = wt_row, wt_col = wt_col, ...)
+      tip_comm_rand <- quantize(tip_comm, ...)
 
       # expand back to full extent for phylospatial constructor
       tip_comm_full <- matrix(0, ps$n_sites, ncol(tip_comm_rand))

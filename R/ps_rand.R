@@ -16,7 +16,7 @@
 #'    package, which offer a wide range of randomization algorithms with different properties.
 #'    \item "nullcat": uses null model algorithms from the \link[nullcat]{nullcat} package. Only works
 #'    with binary community data. This is the recommended path for binary data when mixing diagnostics
-#'    (via `ps_suggest_n_iter()`) or spatial weights  (via `wt_row` or `wt_col`) are desired.
+#'    (via `ps_suggest_n_iter()`) are desired.
 #'    \item "quantize": uses \link[nullcat]{quantize}, which converts a quantitative matrix to discrete strata,
 #'    applies a categorical variant of the selected null model, and then maps randomized strata back to values.
 #'    Only works with quantitative (probability or abundance) community data.
@@ -46,11 +46,10 @@
 #' @param spatial Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE).
 #' @param n_cores Integer giving the number of compute cores to use for parallel processing.
 #' @param progress Logical: should a progress bar be displayed?
-#' @param wt_row,wt_col Optional square numeric weight matrices controlling which pairs of
-#'    rows (sites) or columns (species) are likely to exchange values during randomization.
-#'    Only used with `fun = "nullcat"` or `fun = "quantize"`. Enables spatially or
-#'    trait-constrained null models; e.g. a geographic distance decay matrix from
-#'    \link{ps_geodist} can be used as `wt_row`. See \link[nullcat]{nullcat} for details.
+#' @param wt_row,wt_col Not currently supported, and must be `NULL` (the default); supplying
+#'    a weight matrix gives an error. Reserved for a future spatially constrained null model.
+#'    Weighting which pairs of sites exchange values does not by itself constrain the null
+#'    model spatially, so this option has been disabled. See `vignette("alpha-diversity")`.
 #' @param ... Additional arguments passed to the selected function: \link[nullcat]{quantize},
 #'    \link[nullcat]{nullcat}, \link[vegan]{simulate.nullmodel}, or a custom function.
 #'    Note that the `nsim` argument to simulate.nullmodel should not be used here; specify `n_rand` instead.
@@ -62,7 +61,7 @@
 #'    `"tip_shuffle"` method is not affected, since it moves intact terminal ranges among taxa.
 #' @return A matrix with a row for every row of \code{x}, a column for every metric specified in `metric`, and
 #'    values for the `summary` statistic. Or if `spatial = TRUE`, a `sf` or `SpatRaster` object containing these data.
-#' @seealso [ps_diversity()], [ps_geodist()]
+#' @seealso [ps_diversity()]
 #' @examples
 #' \donttest{
 #' # simulate a `phylospatial` data set and run randomization with default settings
@@ -80,14 +79,6 @@
 #' ps2 <- ps_simulate(data_type = "binary")
 #' if(requireNamespace("nullcat")){
 #'     rand <- ps_rand(ps2, fun = "nullcat", method = "curvecat", n_iter = 1000)
-#' }
-#'
-#' # spatially constrained randomization using geographic distance weights
-#' if(requireNamespace("nullcat")){
-#'     geo <- as.matrix(ps_geodist(ps2))
-#'     W <- exp(-geo / median(geo))
-#'     rand <- ps_rand(ps2, fun = "nullcat", method = "curvecat",
-#'                     n_iter = 1000, wt_row = W)
 #' }
 #'
 #' # using binary data, with a vegan `nullmodel` algorithm
@@ -114,6 +105,7 @@ ps_rand <- function(ps,
                     ...){
 
       enforce_ps(ps)
+      check_no_weights(wt_row, wt_col)
       if (any(metric == "all")) metric <- metrics()
       match.arg(metric, metrics(), several.ok = TRUE)
       match.arg(summary, c("quantile", "zscore"))
@@ -142,16 +134,6 @@ ps_rand <- function(ps,
             fun <- "custom"
       } else {
             stopifnot("Invalid argument to 'fun'" = fun %in% c("tip_shuffle", "nullmodel", "nullcat", "quantize"))
-      }
-
-      # Validate weights
-      if (!is.null(wt_row) && !fun %in% c("nullcat", "quantize")) {
-            warning("`wt_row` is only used with fun = 'nullcat' or 'quantize'; ignoring.")
-            wt_row <- NULL
-      }
-      if (!is.null(wt_col) && !fun %in% c("nullcat", "quantize")) {
-            warning("`wt_col` is only used with fun = 'nullcat' or 'quantize'; ignoring.")
-            wt_col <- NULL
       }
 
       if (fun == "nullmodel") {
@@ -188,8 +170,7 @@ ps_rand <- function(ps,
             }
             if(data_type == "binary") stop("`fun = 'quantize'` does not work with binary community data; use 'nullmodel' or 'nullcat' with an appropriate method instead.")
             prep <- nullcat::quantize_prep(tip_comm, method = method,
-                                           n_iter = n_iter,
-                                           wt_row = wt_row, wt_col = wt_col, ...)
+                                           n_iter = n_iter, ...)
       } else {
             prep <- NULL
       }
@@ -200,8 +181,7 @@ ps_rand <- function(ps,
             rcomm <- switch(fun,
                             "tip_shuffle" = tip_shuffle(tip_comm),
                             "nullcat" = nullcat::nullcat(tip_comm, method = method,
-                                                         n_iter = n_iter,
-                                                         wt_row = wt_row, wt_col = wt_col, ...),
+                                                         n_iter = n_iter, ...),
                             "quantize" = quantize(prep = prep),
                             "nullmodel" = do.call(stats::simulate,
                                                   c(list(vegan::nullmodel(tip_comm, method = method),

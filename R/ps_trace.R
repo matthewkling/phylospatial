@@ -38,6 +38,8 @@
 #' @export
 ps_suggest_n_iter <- function(ps, fun = c("nullcat", "quantize"), plot = TRUE, ...) {
       enforce_ps(ps)
+      dots <- list(...)
+      check_no_weights(dots[["wt_row"]], dots[["wt_col"]])
       fun <- match.arg(fun)
       if (!requireNamespace("nullcat", quietly = TRUE)) {
             stop("Package 'nullcat' is required for this function.", call. = FALSE)
@@ -81,6 +83,8 @@ ps_suggest_n_iter <- function(ps, fun = c("nullcat", "quantize"), plot = TRUE, .
 #' @export
 ps_trace <- function(ps, fun = c("nullcat", "quantize"), plot = TRUE, ...) {
       enforce_ps(ps)
+      dots <- list(...)
+      check_no_weights(dots[["wt_row"]], dots[["wt_col"]])
       fun <- match.arg(fun)
       if (!requireNamespace("nullcat", quietly = TRUE)) {
             stop("Package 'nullcat' is required for this function.", call. = FALSE)
