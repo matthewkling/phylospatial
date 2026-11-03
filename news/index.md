@@ -3,6 +3,27 @@
 ## phylospatial (development version)
 
 - New function
+  [`ps_dissim_paired()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_paired.md)
+  computes phylogenetic dissimilarity between two data sets at each
+  site, comparing every site in one data set to the same site in the
+  other: for example, change over time, or observed versus modeled
+  communities. It supports the methods available in
+  [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
+  (except the `vegdist` methods `"gower"`, `"mahalanobis"`, `"chisq"`,
+  and `"raup"`, whose values depend on all sites in a data set), plus
+  two asymmetric indices describing the direction of change: `"loss"`,
+  the fraction of the first data set’s branch length absent from the
+  second, and `"gain"`, the fraction of the second data set’s branch
+  length absent from the first. Because
+  [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
+  drops taxa with no occurrences, data sets built from the same
+  phylogeny can have different trees; supplying the original phylogeny
+  as `tree` aligns them. With `endemism = TRUE`, the new `ranges`
+  argument chooses whether lineages are weighted by their combined range
+  across both data sets (the default), by their range in the first data
+  set, or by each data set’s own ranges.
+
+- New function
   [`ps_dissim_focal()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_focal.md)
   computes phylogenetic dissimilarity between one or more focal sites
   and every other site, returning a map for each focal site. Focal sites

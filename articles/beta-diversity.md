@@ -2,8 +2,9 @@
 
 This vignette covers topics related to phylogenetic beta diversity,
 including calculation of pairwise dissimilarity between sites, mapping
-dissimilarity from focal sites, and use of these dissimilarity values in
-distance decay, ordination, and regionalization analyses.
+dissimilarity from focal sites, comparing two data sets for the same
+sites, and use of these dissimilarity values in distance decay,
+ordination, and regionalization analyses.
 
 To get started, let’s load the `phylospatial` library, as well as `tmap`
 for visualization. Note that the functions covered here all require a
@@ -23,7 +24,7 @@ ps <- moss()
 
 The `phylospatial` package provides a range of methods for calculating
 pairwise community phylogenetic distances among locations. It can
-calculate phylogenetic versions of any quantitative community
+calculate phylogenetic versions of (almost) any quantitative community
 dissimilarity metric available trough the `vegan` package, including the
 various predefined indices provided through
 [`vegan::vegdist`](https://vegandevs.github.io/vegan/reference/vegdist.html)
@@ -189,13 +190,127 @@ nearly everywhere: its assemblage is largely a subset of the state’s
 moss flora, and its lineages are missing mainly from parts of the
 Central Valley and the far southeastern deserts.
 
+## Paired dissimilarity
+
+The functions above compare different sites within one data set. A
+related question is how lineage composition differs between two data
+sets for the same sites: how assemblages change between time periods,
+for example, or how modeled communities differ from observed ones. The
+function
+[`ps_dissim_paired()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_paired.md)
+compares each site in one `phylospatial` object to the same site in
+another, returning a map of dissimilarity. It accepts the same `method`
+and scaling options as
+[`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md),
+with a few exceptions noted in its documentation.
+
+To illustrate, let’s construct a hypothetical future moss flora in which
+every lineage’s range shifts 60 km north, and the 20 lineages with the
+smallest ranges go extinct in this region. Where no cell lies to the
+south to supply incoming lineages, we’ll keep the original community:
+
+``` r
+
+comm1 <- ps_get_comm(ps)
+comm2 <- terra::shift(comm1, dy = 60000) %>% # shift ranges 60 km north
+      terra::extend(comm1) %>%
+      terra::crop(comm1) %>%
+      terra::cover(comm1) %>% # keep original communities where nothing shifts in
+      terra::mask(comm1[[1]]) # restrict to the study area
+
+range_size <- terra::global(comm1, "sum", na.rm = TRUE)[, 1]
+extinct <- order(range_size)[1:20]
+comm2[[extinct]] <- comm2[[extinct]] * 0
+
+ps2 <- phylospatial(comm2, ps$tree)
+```
+
+Because
+[`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
+drops taxa with no occurrences, the regionally-extinct lineages are
+dropped from the new data set (with a warning), so its tree differs from
+the original one. This will be common with real data, whenever a taxon
+is absent from one of the two data sets. To compare data sets like
+these, we supply the phylogeny used to build both of them as `tree`, and
+[`ps_dissim_paired()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_paired.md)
+aligns them on it, giving the same result as if the absent taxa had been
+kept with zero occurrences. (Without `tree`, data sets with different
+trees give an error.)
+
+Let’s map Sorensen’s dissimilarity between the two time periods, along
+with its non-phylogenetic counterpart based only on terminal taxa:
+
+``` r
+
+map_change <- function(r, title){
+      tm_shape(r) +
+            tm_raster(col.scale = tm_scale_continuous(values = "brewer.yl_gn_bu",
+                                                      limits = c(0, 1)),
+                      col.legend = tm_legend(title = "dissimilarity",
+                                             position = tm_pos_out("right", "center")),
+                      col.free = FALSE) +
+            tm_title(title)
+}
+
+chg <- c(ps_dissim_paired(ps, ps2, tree = ps$tree),
+         ps_dissim_paired(ps, ps2, tree = ps$tree, tips_only = TRUE))
+names(chg) <- c("phylogenetic", "terminal taxa only")
+map_change(chg, "Sorensen's dissimilarity between time periods")
+```
+
+![](beta-diversity_files/figure-html/paired-1.png)
+
+Change is greatest where composition varies most from south to north, so
+that the community just to the south differs most from the local one;
+sites along the southern border are unchanged by construction.
+Phylogenetic dissimilarity is lower than its non-phylogenetic
+counterpart nearly everywhere. Many of the lineages arriving at a site
+are close relatives of the ones leaving it, sharing much of their branch
+length, so evolutionary history changes less than species composition
+does.
+
+A symmetric index like Sorensen’s says how much a site changes, but not
+in which direction.
+[`ps_dissim_paired()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_paired.md)
+also offers two asymmetric indices for this: `method = "loss"`, the
+fraction of a site’s branch length in the first data set that is absent
+from the second, and `method = "gain"`, the fraction of its branch
+length in the second data set that is absent from the first. As with the
+other quantitative indices, for probability or abundance data these
+include declines and increases in lineages present at both times, not
+only local losses and arrivals.
+
+``` r
+
+dirn <- c(ps_dissim_paired(ps, ps2, method = "loss", tree = ps$tree),
+          ps_dissim_paired(ps, ps2, method = "gain", tree = ps$tree))
+map_change(dirn, "Loss and gain of branch length between time periods")
+```
+
+![](beta-diversity_files/figure-html/paired_direction-1.png)
+
+Loss and gain peak in different places. High loss marks sites where a
+lineage-rich community is replaced by a poorer one from the south, so
+the site loses much of its branch length while gaining little; high gain
+marks the reverse, where a site receives a richer community than the one
+it had. The overall change in the previous figure thus combines two
+different processes in different parts of the state.
+
+Setting `endemism = TRUE` weights lineages by their range sizes, as in
+[`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md).
+By default,
+[`ps_dissim_paired()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_paired.md)
+uses each lineage’s combined range across both data sets, so that both
+are weighted on a common scale; the `ranges` argument offers
+alternatives, such as treating the first data set as a baseline.
+
 ## Distance decay
 
-One frequent use of dissimilarity matrices is to analyze how commmunity
-phylogentic similarity declines with geographic distance, environmental
-difference, or other geographic properties. Common methods for this kind
-of analysis include generalized dissimilarity modeling and partial
-Mantel tests.
+One frequent use of pairwise dissimilarity matrices is to analyze how
+commmunity phylogentic similarity declines with geographic distance,
+environmental difference, or other geographic properties. Common methods
+for this kind of analysis include generalized dissimilarity modeling and
+partial Mantel tests.
 
 Here let’s just visualize how phylogenetic turnover changes with the
 distance between sites. We can compute a pairwise geographic distance

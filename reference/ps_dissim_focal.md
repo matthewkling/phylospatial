@@ -96,7 +96,10 @@ of Sciences, 102(22), 7871-7876.
 
 ## See also
 
-[`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
+[`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md),
+and
+[`ps_dissim_paired()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_paired.md)
+for dissimilarity between two data sets at each site.
 
 ## Examples
 

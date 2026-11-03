@@ -38,6 +38,9 @@
 - [`ps_dissim_focal()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_focal.md)
   : Phylogenetic dissimilarity between focal sites and all other sites
 
+- [`ps_dissim_paired()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_paired.md)
+  : Phylogenetic dissimilarity between paired data sets
+
 - [`ps_add_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_add_dissim.md)
   :
 
