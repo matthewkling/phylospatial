@@ -63,12 +63,9 @@ the phylospatial object using the permuted tip matrix.</p>
 
 
 <dt id="arg-wt-row-wt-col">wt_row, wt_col<a class="anchor" aria-label="anchor" href="#arg-wt-row-wt-col"></a></dt>
-<dd><p>Optional square numeric weight matrices controlling which pairs of
-rows (sites) or columns (species) are likely to exchange values during randomization.
-Enables spatially constrained or functional-group constrained null models; e.g. a
-geographic distance decay matrix from <a href="ps_geodist.html">ps_geodist</a> can be transformed and used as
-<code>wt_row</code>. See <a href="https://matthewkling.github.io/nullcat/reference/nullcat.html" class="external-link">nullcat</a> for details. If left unspecified (the default),
-gives unweighted randomization.</p></dd>
+<dd><p>Not currently supported, and must be <code>NULL</code> (the default); supplying
+a weight matrix gives an error. Reserved for a future spatially constrained null model.
+See <code><a href="ps_rand.html">ps_rand()</a></code> for details.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -93,7 +90,7 @@ recomputing overhead that is shared across randomizations.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="ps_rand.html">ps_rand()</a></code>, <code><a href="ps_geodist.html">ps_geodist()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="ps_rand.html">ps_rand()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -104,16 +101,7 @@ recomputing overhead that is shared across randomizations.</p>
 <span class="r-in"><span>  <span class="va">ps_rand</span> <span class="op">&lt;-</span> <span class="fu">ps_quantize</span><span class="op">(</span><span class="va">ps</span>, n_strata <span class="op">=</span> <span class="fl">4</span>,</span></span>
 <span class="r-in"><span>    n_iter <span class="op">=</span> <span class="fl">1000</span>,</span></span>
 <span class="r-in"><span>    method <span class="op">=</span> <span class="st">"curvecat"</span>, fixed <span class="op">=</span> <span class="st">"cell"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># spatially constrained randomization</span></span></span>
-<span class="r-in"><span>  <span class="va">geo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="ps_geodist.html">ps_geodist</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">geo</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">geo</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">ps_rand</span> <span class="op">&lt;-</span> <span class="fu">ps_quantize</span><span class="op">(</span><span class="va">ps</span>, n_strata <span class="op">=</span> <span class="fl">4</span>,</span></span>
-<span class="r-in"><span>    n_iter <span class="op">=</span> <span class="fl">1000</span>,</span></span>
-<span class="r-in"><span>    method <span class="op">=</span> <span class="st">"curvecat"</span>, fixed <span class="op">=</span> <span class="st">"cell"</span>,</span></span>
-<span class="r-in"><span>    wt_row <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>[is.lonlat] unknown crs</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

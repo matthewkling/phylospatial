@@ -226,46 +226,19 @@ we need to set <code>n_iter</code> arbitrarily):</p>
 <div class="section level2">
 <h2 id="spatially-constrained-randomization">Spatially constrained randomization<a class="anchor" aria-label="anchor" href="#spatially-constrained-randomization"></a>
 </h2>
-<p>Standard null models treat all sites as exchangeable, meaning that
-species can be shuffled between any pair of sites regardless of how far
-apart they are. This may not be ecologically realistic: species are more
-likely to co-occur at nearby sites than distant ones. Spatially
-constrained null models address this by weighting the randomization so
-that exchanges occur more frequently between nearby sites. Weights can
-be continuous or binary and can reflect geographic proximity,
-environmental similarity, presence in discrete geographic regions, or
-other spatial properties.</p>
-<p>Weighting is available for <code>fun = "quantize"</code> (for
-quantitative data) and <code>fun = "nullcat"</code> (for binary data),
-but not for <code>fun = "vegan"</code> methods. For eligible methods,
-the <code>wt_row</code> argument to <code><a href="../reference/ps_rand.html">ps_rand()</a></code> accepts a
-square weight matrix controlling which pairs of sites are likely to
-exchange species during randomization. A natural choice is a
-distance-decay function of geographic distance, which can be computed
-using <code><a href="../reference/ps_geodist.html">ps_geodist()</a></code>; the choice of decay function and
-bandwidth will affect the strength of the spatial constraint, and should
-be based on the spatial scale of ecological processes in the study
-system. The code below demonstrates weight matrix construction for a few
-common shapes of decay function (Gaussian, exponential, threshold), and
-also for a scheme involving isolated subregions (e.g. islands) that
-never exchange species. Note that adding weights generally increases the
-value of <code>n_iter</code> needed for convergence.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Weight matrices for several alternative distance functions</span></span>
-<span><span class="va">geo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="../reference/ps_geodist.html">ps_geodist</a></span><span class="op">(</span><span class="va">ps_bin</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">1000</span> <span class="co"># distance in km</span></span>
-<span><span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">geo</span>, sd <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="co"># Gaussian decay w0th 100 km SD</span></span>
-<span><span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">geo</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">geo</span><span class="op">)</span><span class="op">)</span> <span class="co"># exponential kernel</span></span>
-<span><span class="va">W</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">geo</span> <span class="op">&lt;</span> <span class="fl">200</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0</span> <span class="co">#  hard distance threshold</span></span>
-<span></span>
-<span><span class="co"># Weights matrix for discrete isolated regions</span></span>
-<span><span class="va">island</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ps</span><span class="op">$</span><span class="va">comm</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
-<span><span class="va">W</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/dist.html" class="external-link">dist</a></span><span class="op">(</span><span class="va">island</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0</span></span>
-<span></span>
-<span><span class="co"># Spatially constrained randomization</span></span>
-<span><span class="va">iters</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter</a></span><span class="op">(</span><span class="va">ps_bin</span>, fun <span class="op">=</span> <span class="st">"nullcat"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, n_iter <span class="op">=</span> <span class="fl">3e5</span><span class="op">)</span></span>
-<span><span class="va">rand_spatial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps_bin</span>, fun <span class="op">=</span> <span class="st">"nullcat"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, n_iter <span class="op">=</span> <span class="va">iters</span>, </span>
-<span>                        n_rand <span class="op">=</span> <span class="fl">1000</span>, metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span><span class="op">)</span>,</span>
-<span>                        wt_row <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></code></pre></div>
+<p>Standard null models treat all sites as exchangeable, so a taxon can
+be moved between any pair of sites regardless of how far apart they are.
+A spatially constrained null model, in which taxa are only redistributed
+among nearby sites, is often more ecologically realistic, but it is less
+straightforward to build than it might seem. In particular, weighting a
+swap algorithm so that nearby sites exchange taxa more often than
+distant ones does not by itself constrain the null model: as long as
+every site is linked to the others through a chain of neighbors, a taxon
+can travel anywhere through a series of short local swaps, and the
+result converges to the unconstrained null as <code>n_iter</code> grows.
+For this reason, the <code>wt_row</code> and <code>wt_col</code>
+arguments to <code><a href="../reference/ps_rand.html">ps_rand()</a></code> are currently disabled. Support for
+spatially constrained null models is planned for a future release.</p>
 </div>
 <div class="section level2">
 <h2 id="canape">CANAPE<a class="anchor" aria-label="anchor" href="#canape"></a>
@@ -279,7 +252,7 @@ and CE, which are returned by <code><a href="../reference/ps_rand.html">ps_rand(
 sites into five endemism cateogories. Here’s an example with the moss
 data; note that depending on the randomization, only a subset of the
 five categories may occur in the result here:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_canape.html">ps_canape</a></span><span class="op">(</span><span class="va">rand</span>, alpha <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cp</span><span class="op">)</span></span></code></pre></div>
 <p><img src="alpha-diversity_files/figure-html/canape-1.png" class="r-plt" alt="" width="576"></p>

@@ -61,7 +61,7 @@ ps_rand(
     package. Only works with binary community data. This is the
     recommended path for binary data when mixing diagnostics (via
     [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md))
-    or spatial weights (via `wt_row` or `wt_col`) are desired.
+    are desired.
 
   - "quantize": uses
     [quantize](https://matthewkling.github.io/nullcat/reference/quantize.html),
@@ -133,15 +133,12 @@ ps_rand(
 
 - wt_row, wt_col:
 
-  Optional square numeric weight matrices controlling which pairs of
-  rows (sites) or columns (species) are likely to exchange values during
-  randomization. Only used with `fun = "nullcat"` or `fun = "quantize"`.
-  Enables spatially or trait-constrained null models; e.g. a geographic
-  distance decay matrix from
-  [ps_geodist](https://matthewkling.github.io/phylospatial/reference/ps_geodist.md)
-  can be used as `wt_row`. See
-  [nullcat](https://matthewkling.github.io/nullcat/reference/nullcat.html)
-  for details.
+  Not currently supported, and must be `NULL` (the default); supplying a
+  weight matrix gives an error. Reserved for a future spatially
+  constrained null model. Weighting which pairs of sites exchange values
+  does not by itself constrain the null model spatially, so this option
+  has been disabled. See
+  [`vignette("alpha-diversity")`](https://matthewkling.github.io/phylospatial/articles/alpha-diversity.md).
 
 - ...:
 
@@ -174,8 +171,7 @@ intact terminal ranges among taxa.
 
 ## See also
 
-[`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md),
-[`ps_geodist()`](https://matthewkling.github.io/phylospatial/reference/ps_geodist.md)
+[`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md)
 
 ## Examples
 
@@ -197,15 +193,6 @@ ps2 <- ps_simulate(data_type = "binary")
 if(requireNamespace("nullcat")){
     rand <- ps_rand(ps2, fun = "nullcat", method = "curvecat", n_iter = 1000)
 }
-
-# spatially constrained randomization using geographic distance weights
-if(requireNamespace("nullcat")){
-    geo <- as.matrix(ps_geodist(ps2))
-    W <- exp(-geo / median(geo))
-    rand <- ps_rand(ps2, fun = "nullcat", method = "curvecat",
-                    n_iter = 1000, wt_row = W)
-}
-#> Warning: [is.lonlat] unknown crs
 
 # using binary data, with a vegan `nullmodel` algorithm
 rand <- ps_rand(ps2, "PD", "nullmodel", "r2")

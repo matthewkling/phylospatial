@@ -2,6 +2,27 @@
 
 ## phylospatial (development version)
 
+- The `wt_row` and `wt_col` arguments to
+  [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+  and
+  [`ps_quantize()`](https://matthewkling.github.io/phylospatial/reference/ps_quantize.md)
+  are temporarily disabled, and now give an error unless `NULL`;
+  [`ps_trace()`](https://matthewkling.github.io/phylospatial/reference/ps_trace.md)
+  and
+  [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md)
+  give the same error if they are passed through `...`. These weights
+  were documented as producing spatially constrained null models, but
+  they do not. With distance-decay weights, or any weights that link all
+  sites through chains of neighbors, the randomization converges to the
+  same null as unweighted randomization as `n_iter` grows, so any
+  apparent spatial constraint reflects incomplete mixing. Zone-based
+  weights (sites split into groups with zero weight between them) are
+  not respected under `quantize`’s default `fixed = "cell"` setting, and
+  the convergence diagnostics ignored weights for `fun = "quantize"`.
+  The arguments are kept as placeholders for a planned spatially
+  constrained null model, and the distance-weighting examples have been
+  removed from the documentation and the alpha diversity vignette.
+
 - New function
   [`ps_dissim_paired()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_paired.md)
   computes phylogenetic dissimilarity between two data sets at each

@@ -19,15 +19,11 @@ ps_quantize(ps, wt_row = NULL, wt_col = NULL, ...)
 
 - wt_row, wt_col:
 
-  Optional square numeric weight matrices controlling which pairs of
-  rows (sites) or columns (species) are likely to exchange values during
-  randomization. Enables spatially constrained or functional-group
-  constrained null models; e.g. a geographic distance decay matrix from
-  [ps_geodist](https://matthewkling.github.io/phylospatial/reference/ps_geodist.md)
-  can be transformed and used as `wt_row`. See
-  [nullcat](https://matthewkling.github.io/nullcat/reference/nullcat.html)
-  for details. If left unspecified (the default), gives unweighted
-  randomization.
+  Not currently supported, and must be `NULL` (the default); supplying a
+  weight matrix gives an error. Reserved for a future spatially
+  constrained null model. See
+  [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+  for details.
 
 - ...:
 
@@ -56,8 +52,7 @@ randomizations.
 
 ## See also
 
-[`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md),
-[`ps_geodist()`](https://matthewkling.github.io/phylospatial/reference/ps_geodist.md)
+[`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
 
 ## Examples
 
@@ -68,15 +63,6 @@ if (requireNamespace("nullcat", quietly = TRUE)) {
   ps_rand <- ps_quantize(ps, n_strata = 4,
     n_iter = 1000,
     method = "curvecat", fixed = "cell")
-
-  # spatially constrained randomization
-  geo <- as.matrix(ps_geodist(ps))
-  W <- exp(-geo / median(geo))
-  ps_rand <- ps_quantize(ps, n_strata = 4,
-    n_iter = 1000,
-    method = "curvecat", fixed = "cell",
-    wt_row = W)
 }
-#> Warning: [is.lonlat] unknown crs
 # }
 ```
