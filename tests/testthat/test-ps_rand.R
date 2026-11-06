@@ -71,3 +71,25 @@ test_that("`ps_rand` rejects spatial weights", {
                               progress = FALSE))
 })
 
+
+test_that("`ps_rand` quantiles count ties with the observed value as one half", {
+      set.seed(1)
+      ps <- ps_simulate(10, 10, 10, "probability")
+
+      # a null that never changes anything: every site ties in every replicate
+      q <- ps_rand(ps, c("PD", "PE"), fun = function(x, ...) x, n_rand = 5,
+                   spatial = FALSE, progress = FALSE)
+      q <- q[ps$occupied, ]
+      expect_true(all(q == 0.5))
+
+      # a null that is the identity in half the replicates: t >= 0.5, so q within [0.25, 0.75]
+      i <- 0
+      half <- function(x, ...) {
+            i <<- i + 1
+            if (i %% 2 == 1) x else x[sample(nrow(x)), , drop = FALSE]
+      }
+      q <- ps_rand(ps, c("PD", "PE"), fun = half, n_rand = 20, spatial = FALSE, progress = FALSE)
+      q <- q[ps$occupied, ]
+      expect_true(all(q >= 0.25 & q <= 0.75))
+      expect_false(all(q == 0.5))
+})

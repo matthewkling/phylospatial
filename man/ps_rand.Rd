@@ -63,7 +63,11 @@ value for your dataset.}
 
 \item{summary}{Character indicating which summary statistic to return. If \code{"quantile"}, the default, the function
 returns the proportion of randomizations in which the observed diversity metric was greater than the randomized
-metric. If \code{"zscore"}, it returns a "standardized effect size" or z-score relating the observed value to the mean and
+metric, counting ties (randomizations equal to the observed value) as one half. A site whose randomized values all
+equal its observed value (for example, a site the null model cannot alter) therefore gets a quantile of 0.5. More
+generally, if a fraction \code{t} of randomizations tie the observed value, the quantile is bounded within
+\verb{[t/2, 1 - t/2]}, so the site cannot be significant in either tail at level \code{alpha} when \code{t >= 2 * alpha}.
+If \code{"zscore"}, it returns a "standardized effect size" or z-score relating the observed value to the mean and
 standard deviation of the randomizations.}
 
 \item{spatial}{Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE).}
