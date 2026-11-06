@@ -2,6 +2,21 @@
 
 ## phylospatial (development version)
 
+- Bug fix: `ps_rand(summary = "quantile")` now counts randomizations
+  that tie the observed value as one half (a mid-rank quantile).
+  Previously ties counted entirely against the observed value, so sites
+  whose null values equalled the observed value got spuriously low
+  quantiles: a site that the null model cannot alter received a quantile
+  of 0, which reads as significantly low diversity. Such sites now get
+  0.5. This mainly affects null models that leave some sites unchanged.
+  For example, under `fun = "quantize"` with the default strata, sites
+  whose values all fall in a single stratum are never altered. In the
+  [`moss()`](https://matthewkling.github.io/phylospatial/reference/moss.md)
+  data these were 64 of 527 sites, accounting for 22% of sites with PD
+  quantiles below 0.05. Results can change wherever ties occur,
+  including CANAPE categories from
+  [`ps_canape()`](https://matthewkling.github.io/phylospatial/reference/ps_canape.md).
+
 - The `wt_row` and `wt_col` arguments to
   [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
   and

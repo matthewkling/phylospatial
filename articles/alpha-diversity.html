@@ -191,9 +191,11 @@ matrices against which to compare our actual data; we can use
 parallelization to speed things up by setting <code>n_cores</code>. Then
 we’ll plot the results for PE. This is a quantile value that gives the
 proportion of randomizations in which observed PE was greater than
-randomized PE in a given grid cell. (If you wanted to identify
-“statistically significant” grid cells in a one-tailed test with alpha =
-0.05, these would be cells with values greater than 0.95.)</p>
+randomized PE in a given grid cell (plus half the proportion of
+randomizations where observed PE exactly equals the randomized value).
+If you wanted to identify “statistically significant” grid cells in a
+one-tailed test with alpha = 0.05, these would be cells with quantile
+values greater than 0.95.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">1000</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span>, <span class="st">"CE"</span>, <span class="st">"RPE"</span><span class="op">)</span>,</span>
@@ -230,15 +232,8 @@ we need to set <code>n_iter</code> arbitrarily):</p>
 be moved between any pair of sites regardless of how far apart they are.
 A spatially constrained null model, in which taxa are only redistributed
 among nearby sites, is often more ecologically realistic, but it is less
-straightforward to build than it might seem. In particular, weighting a
-swap algorithm so that nearby sites exchange taxa more often than
-distant ones does not by itself constrain the null model: as long as
-every site is linked to the others through a chain of neighbors, a taxon
-can travel anywhere through a series of short local swaps, and the
-result converges to the unconstrained null as <code>n_iter</code> grows.
-For this reason, the <code>wt_row</code> and <code>wt_col</code>
-arguments to <code><a href="../reference/ps_rand.html">ps_rand()</a></code> are currently disabled. Support for
-spatially constrained null models is planned for a future release.</p>
+straightforward to build than it might seem. Support for spatially
+constrained null models is planned for an upcoming release.</p>
 </div>
 <div class="section level2">
 <h2 id="canape">CANAPE<a class="anchor" aria-label="anchor" href="#canape"></a>

@@ -126,7 +126,11 @@ value for your dataset.</p></dd>
 <dt id="arg-summary">summary<a class="anchor" aria-label="anchor" href="#arg-summary"></a></dt>
 <dd><p>Character indicating which summary statistic to return. If <code>"quantile"</code>, the default, the function
 returns the proportion of randomizations in which the observed diversity metric was greater than the randomized
-metric. If <code>"zscore"</code>, it returns a "standardized effect size" or z-score relating the observed value to the mean and
+metric, counting ties (randomizations equal to the observed value) as one half. A site whose randomized values all
+equal its observed value (for example, a site the null model cannot alter) therefore gets a quantile of 0.5. More
+generally, if a fraction <code>t</code> of randomizations tie the observed value, the quantile is bounded within
+<code>[t/2, 1 - t/2]</code>, so the site cannot be significant in either tail at level <code>alpha</code> when <code>t &gt;= 2 * alpha</code>.
+If <code>"zscore"</code>, it returns a "standardized effect size" or z-score relating the observed value to the mean and
 standard deviation of the randomizations.</p></dd>
 
 

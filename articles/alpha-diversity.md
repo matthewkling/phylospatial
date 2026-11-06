@@ -140,9 +140,11 @@ matrices against which to compare our actual data; we can use
 parallelization to speed things up by setting `n_cores`. Then we’ll plot
 the results for PE. This is a quantile value that gives the proportion
 of randomizations in which observed PE was greater than randomized PE in
-a given grid cell. (If you wanted to identify “statistically
-significant” grid cells in a one-tailed test with alpha = 0.05, these
-would be cells with values greater than 0.95.)
+a given grid cell (plus half the proportion of randomizations where
+observed PE exactly equals the randomized value). If you wanted to
+identify “statistically significant” grid cells in a one-tailed test
+with alpha = 0.05, these would be cells with quantile values greater
+than 0.95.
 
 ``` r
 
@@ -186,16 +188,8 @@ Standard null models treat all sites as exchangeable, so a taxon can be
 moved between any pair of sites regardless of how far apart they are. A
 spatially constrained null model, in which taxa are only redistributed
 among nearby sites, is often more ecologically realistic, but it is less
-straightforward to build than it might seem. In particular, weighting a
-swap algorithm so that nearby sites exchange taxa more often than
-distant ones does not by itself constrain the null model: as long as
-every site is linked to the others through a chain of neighbors, a taxon
-can travel anywhere through a series of short local swaps, and the
-result converges to the unconstrained null as `n_iter` grows. For this
-reason, the `wt_row` and `wt_col` arguments to
-[`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
-are currently disabled. Support for spatially constrained null models is
-planned for a future release.
+straightforward to build than it might seem. Support for spatially
+constrained null models is planned for an upcoming release.
 
 ## CANAPE
 
