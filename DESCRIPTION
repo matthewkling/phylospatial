@@ -29,12 +29,11 @@ Suggests:
     betapart,
     knitr,
     rmarkdown,
-    tmap,
     magrittr,
     hillR,
     picante,
     phytools,
-    nullcat  (>= 0.2.0),
+    nullcat (>= 0.2.0.9000),
     parallelDist,
     prioritizr (>= 9.0.0),
     highs,
@@ -47,3 +46,4 @@ LazyData: true
 VignetteBuilder: knitr
 BugReports: https://github.com/matthewkling/phylospatial/issues
 Config/roxygen2/version: 8.0.0
+RoxygenNote: 7.3.1

@@ -15,11 +15,6 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.dim = c(6, 4)
 )
-
-if (!requireNamespace("tmap", quietly = TRUE) || grepl("devel", R.version.string)) {
-  knitr::opts_chunk$set(eval = FALSE)
-  message("Package 'tmap' needed for this vignette. Either it is not installed, or it is being called from R-devel where it has compatibility issues. Code will not be evaluated.")
-}
 ```
 
 
@@ -62,23 +57,23 @@ The second optional variable is `cost`, representing the relative cost of protec
 First let's load the libraries we'll need, and initialize a `phylospatial` data set using the example data for California mosses. (See `vignette("phylospatial-data")` for details on constructing `phylospatial` objects.) The `moss()` function can also load two companion layers on the same grid, which we'll use as our `init` and `cost` inputs. The `"protection"` layer gives the existing protection level of each grid cell, ranging from 0 to 1, based on the California Protected Areas Database and California Conservation Easement Database. The `"popdens"` layer gives human population density, which we'll use as a rough proxy for the cost of protecting land. Population density varies by several orders of magnitude, so we'll log-transform it so that cost doesn't overwhelm biodiversity value, and add 1 so that every site has a nonzero cost.
 
 ```{r init, message=FALSE, warning=FALSE, fig.dim = c(7, 4)}
-library(phylospatial); library(tmap); library(magrittr)
+library(phylospatial); library(terra)
 
 ps <- moss()
 init <- moss(data = "protection")
 cost <- 1 + log1p(moss(data = "popdens"))
 
-terra::plot(c(init, cost), main = c("existing protection", "cost"))
+plot(c(init, cost), main = c("existing protection", "cost"), axes = FALSE)
 ```
 
-Now we'll pass those inputs to `ps_prioritize()`. Plotting the result, the highest-priority sites are those with low rank values, shown in yellow.
+Now we'll pass those inputs to `ps_prioritize()`. Plotting the result, the highest-priority sites are those with low rank values, shown in yellow. Since the differences that matter most are among the top-ranked sites, we'll color the ranks in classes of increasing width:
 
 ```{r optim, eval=FALSE}
 priority <- ps_prioritize(ps, init = init, cost = cost)
 
-tm_shape(priority) + 
-      tm_raster(col.scale = tm_scale_continuous_log(values = "-inferno")) + 
-      tm_layout(legend.outside = TRUE)
+rank_breaks <- c(0, 10, 25, 50, 100, 250, global(priority, "max", na.rm = TRUE)[[1]])
+plot(priority, breaks = rank_breaks, col = rev(hcl.colors(6, "inferno")),
+     axes = FALSE, plg = list(title = "priority rank"))
 ```
 
 ```{r precompute, eval=FALSE, echo=FALSE}
@@ -93,9 +88,9 @@ utils::write.csv(perf, "~/R/phylospatial/inst/extdata/priority-performance.csv",
 ```{r postcompute, echo=FALSE}
 priority <- terra::rast(system.file("extdata", "priority.tif", package = "phylospatial"))
 
-tm_shape(priority) + 
-      tm_raster(col.scale = tm_scale_continuous_log(values = "-inferno")) + 
-      tm_layout(legend.outside = TRUE)
+rank_breaks <- c(0, 10, 25, 50, 100, 250, global(priority, "max", na.rm = TRUE)[[1]])
+plot(priority, breaks = rank_breaks, col = rev(hcl.colors(6, "inferno")),
+     axes = FALSE, plg = list(title = "priority rank"))
 ```
 
 
@@ -142,10 +137,8 @@ set.seed(123)
 priority <- ps_prioritize(ps, init = init, cost = cost, n_reps = 2500,
                           method = "prob", max_iter = 10)
 
-tm_shape(priority$top10) + 
-      tm_raster(col.scale = tm_scale_continuous(values = "inferno"),
-                col.legend = tm_legend(title = "proportion of runs\nin which site was\ntop-10 priority")) + 
-      tm_layout(legend.outside = TRUE)
+plot(priority$top10, col = hcl.colors(100, "inferno"), axes = FALSE,
+     main = "Proportion of runs in which site was a top-10 priority")
 ```
 
 ```{r precompute2, eval=FALSE, echo=FALSE}
@@ -159,10 +152,8 @@ terra::writeRaster(priority, "~/R/phylospatial/inst/extdata/priority-prob.tif", 
 ```{r postcompute2, echo=FALSE}
 priority <- terra::rast(system.file("extdata", "priority-prob.tif", package = "phylospatial"))
 
-tm_shape(priority$top10) + 
-      tm_raster(col.scale = tm_scale_continuous(values = "inferno"),
-                col.legend = tm_legend(title = "proportion of runs\nin which site was\ntop-10 priority")) + 
-      tm_layout(legend.outside = TRUE)
+plot(priority$top10, col = hcl.colors(100, "inferno"), axes = FALSE,
+     main = "Proportion of runs in which site was a top-10 priority")
 ```
 
 
@@ -205,23 +196,21 @@ Here we'll find the lowest-cost set of sites that protects at least half of ever
 library(prioritizr)
 
 prob <- ps_prioritizr(ps, init = init, cost = cost,
-                      objective = "min_set", target = .5) %>%
-      add_default_solver(gap = 0, verbose = FALSE)
+                      objective = "min_set", target = .5)
+prob <- add_default_solver(prob, gap = 0, verbose = FALSE)
 
 solution <- solve(prob)
 
-tm_shape(solution) + 
-      tm_raster(col.scale = tm_scale_categorical(values = c("gray80", "darkred")),
-                col.legend = tm_legend(title = "selected")) + 
-      tm_layout(legend.outside = TRUE)
+plot(solution, type = "classes", col = c("gray80", "darkred"),
+     levels = c("not selected", "selected"), axes = FALSE)
 ```
 
 ```{r precompute3, eval=FALSE, echo=FALSE}
 # pre-process because solvers are not available when building on CRAN -- need to manually run this when updating vignette!
 library(prioritizr)
 prob <- ps_prioritizr(ps, init = init, cost = cost,
-                      objective = "min_set", target = .5) %>%
-      add_default_solver(gap = 0, verbose = FALSE)
+                      objective = "min_set", target = .5)
+prob <- add_default_solver(prob, gap = 0, verbose = FALSE)
 solution <- solve(prob)
 terra::writeRaster(solution, "~/R/phylospatial/inst/extdata/priority-prioritizr.tif", overwrite = TRUE)
 ```
@@ -229,10 +218,8 @@ terra::writeRaster(solution, "~/R/phylospatial/inst/extdata/priority-prioritizr.
 ```{r postcompute3, echo=FALSE}
 solution <- terra::rast(system.file("extdata", "priority-prioritizr.tif", package = "phylospatial"))
 
-tm_shape(solution) + 
-      tm_raster(col.scale = tm_scale_categorical(values = c("gray80", "darkred")),
-                col.legend = tm_legend(title = "selected")) + 
-      tm_layout(legend.outside = TRUE)
+plot(solution, type = "classes", col = c("gray80", "darkred"),
+     levels = c("not selected", "selected"), axes = FALSE)
 ```
 
 The budget-constrained objectives work the same way, with a `budget` argument specifying the maximum total cost of newly selected sites. Note that `"targets"` problems can take much longer to solve to optimality than the other objectives; a small nonzero `gap` or a `time_limit` can help.

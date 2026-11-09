@@ -4,7 +4,13 @@
 \alias{ps_trace}
 \title{Trace diagnostics for null model mixing}
 \usage{
-ps_trace(ps, fun = c("nullcat", "quantize"), plot = TRUE, ...)
+ps_trace(
+  ps,
+  fun = c("nullcat", "quantize"),
+  plot = TRUE,
+  site_groups = NULL,
+  ...
+)
 }
 \arguments{
 \item{ps}{A \code{phylospatial} object.}
@@ -13,6 +19,12 @@ ps_trace(ps, fun = c("nullcat", "quantize"), plot = TRUE, ...)
 to \code{\link[=ps_rand]{ps_rand()}}.}
 
 \item{plot}{Logical: if \code{TRUE}, plot the traces.}
+
+\item{site_groups}{Optional grouping of sites, as passed to \code{\link[=ps_rand]{ps_rand()}}. Randomizations then run
+independently within groups, with \code{n_iter} applied to each group, so the trace is run on the
+largest group (searched across up to the first 10 columns of a matrix of groupings), and the
+result estimates the \code{n_iter} needed per group. Use the same \code{site_groups} (e.g. tilings from
+\code{\link[=ps_tile_groups]{ps_tile_groups()}} with the same \code{spacing}) as in the intended \code{ps_rand()} call.}
 
 \item{...}{Additional arguments passed to \code{\link[nullcat:trace_cat]{nullcat::trace_cat()}}, such as \code{method},
 \code{n_iter}, \code{thin}, \code{n_chains}, \code{n_strata}, \code{fixed}, \code{stat}, etc.}

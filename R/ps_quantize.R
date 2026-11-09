@@ -15,9 +15,11 @@
 #' recomputing overhead that is shared across randomizations.
 #'
 #' @param ps Object of class `phylospatial`
-#' @param wt_row,wt_col Not currently supported, and must be `NULL` (the default); supplying
-#'    a weight matrix gives an error. Reserved for a future spatially constrained null model.
-#'    See [ps_rand()] for details.
+#' @param site_groups Optional vector giving each site's group, so that sites are randomized
+#'    independently within groups. One element per site (as for `site_weight` in [phylospatial()])
+#'    or per occupied site. See [ps_rand()] for details.
+#' @param wt_row,wt_col No longer supported, and must be `NULL` (the default); supplying
+#'    a weight matrix gives an error. Use `site_groups` instead. See [ps_rand()] for details.
 #' @param ... Additional arguments passed to \link[nullcat]{quantize}, such as `method`,
 #'    `n_strata`, `transform`, `fixed`, `n_iter`, etc.
 #' @return A randomized version of `ps`
@@ -32,10 +34,11 @@
 #' }
 #' }
 #' @export
-ps_quantize <- function(ps, wt_row = NULL, wt_col = NULL, ...) {
+ps_quantize <- function(ps, site_groups = NULL, wt_row = NULL, wt_col = NULL, ...) {
 
       enforce_ps(ps)
       check_no_weights(wt_row, wt_col)
+      site_groups <- prep_site_groups(ps, site_groups, allow_matrix = FALSE)
 
       if(ps$data_type == "binary"){
             dots <- list(...)
@@ -50,7 +53,7 @@ ps_quantize <- function(ps, wt_row = NULL, wt_col = NULL, ...) {
       colnames(tip_comm) <- phy$tip.label
 
       # randomize the occupied-only tip matrix
-      tip_comm_rand <- quantize(tip_comm, ...)
+      tip_comm_rand <- quantize(tip_comm, row_groups = site_groups, ...)
 
       # expand back to full extent for phylospatial constructor
       tip_comm_full <- matrix(0, ps$n_sites, ncol(tip_comm_rand))

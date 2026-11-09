@@ -39,21 +39,38 @@
 #'    for non-sequential vegan methods). Use [ps_suggest_n_iter()] to estimate an appropriate
 #'    value for your dataset.
 #' @param n_rand Integer giving the number of random communities to generate.
-#' @param summary Character indicating which summary statistic to return. If `"quantile"`, the default, the function
-#'    returns the proportion of randomizations in which the observed diversity metric was greater than the randomized
-#'    metric, counting ties (randomizations equal to the observed value) as one half. A site whose randomized values all
-#'    equal its observed value (for example, a site the null model cannot alter) therefore gets a quantile of 0.5. More
-#'    generally, if a fraction `t` of randomizations tie the observed value, the quantile is bounded within
-#'    `[t/2, 1 - t/2]`, so the site cannot be significant in either tail at level `alpha` when `t >= 2 * alpha`.
-#'    If `"zscore"`, it returns a "standardized effect size" or z-score relating the observed value to the mean and
+#' @param summary Character vector of one or more summary statistics to return, each as a set of
+#'    variables named with the statistic's first letter followed by the metric name (e.g. `qPE`, `zPE`, `tPE`):
+#' \itemize{
+#'    \item `"quantile"` (the default): the proportion of randomizations in which the observed diversity metric
+#'    was greater than the randomized metric, counting ties (randomizations equal to the observed value) as one
+#'    half. A site whose randomized values all equal its observed value (for example, a site the null model
+#'    cannot alter) therefore gets a quantile of 0.5.
+#'    \item `"zscore"`: a "standardized effect size" or z-score relating the observed value to the mean and
 #'    standard deviation of the randomizations.
+#'    \item `"ties"`: the proportion `t` of randomizations whose value equals the observed value. Quantiles are
+#'    bounded within `[t/2, 1 - t/2]`, so a site cannot be significant in either tail at level `alpha` when
+#'    `t >= 2 * alpha`. Ties are common at sites a null model can rarely change, such as sites alone (or nearly
+#'    so) in their group under `site_groups`.
+#' }
+#'    Whatever the `summary`, a warning is given if the randomized values of some sites equal their observed
+#'    values in every randomization.
 #' @param spatial Logical: should the function return a spatial object (TRUE, default) or a matrix (FALSE).
 #' @param n_cores Integer giving the number of compute cores to use for parallel processing.
 #' @param progress Logical: should a progress bar be displayed?
-#' @param wt_row,wt_col Not currently supported, and must be `NULL` (the default); supplying
-#'    a weight matrix gives an error. Reserved for a future spatially constrained null model.
-#'    Weighting which pairs of sites exchange values does not by itself constrain the null
-#'    model spatially, so this option has been disabled. See `vignette("alpha-diversity")`.
+#' @param site_groups Optional grouping of sites for a spatially constrained null model, used only with
+#'    `fun = "nullcat"` or `fun = "quantize"`. Sites are randomized independently within each group, so taxa
+#'    are only redistributed among sites in the same group. Either a vector giving each site's group (e.g. a
+#'    region), applied to every randomization, or a matrix with one column per randomization (`n_rand`
+#'    columns), giving a different grouping for each; [ps_tile_groups()] generates such a matrix of random
+#'    spatial tilings, which pools each site with its neighbors. Rows (or elements) correspond either to all
+#'    sites, as for the `site_weight` argument of [phylospatial()], or to occupied sites only, as returned by
+#'    [ps_tile_groups()]. With `site_groups`, `n_iter` iterations are run within every group, so `n_iter`
+#'    only needs to be large enough for the largest group; pass the same `site_groups` to
+#'    [ps_suggest_n_iter()] to estimate it. See [nullcat::nullcat()] for details.
+#' @param wt_row,wt_col No longer supported, and must be `NULL` (the default); supplying a weight matrix
+#'    gives an error. Weighting which pairs of sites exchange values does not constrain the null model
+#'    spatially; use `site_groups` instead. See `vignette("alpha-diversity")`.
 #' @param ... Additional arguments passed to the selected function: \link[nullcat]{quantize},
 #'    \link[nullcat]{nullcat}, \link[vegan]{simulate.nullmodel}, or a custom function.
 #'    Note that the `nsim` argument to simulate.nullmodel should not be used here; specify `n_rand` instead.
@@ -65,7 +82,7 @@
 #'    `"tip_shuffle"` method is not affected, since it moves intact terminal ranges among taxa.
 #' @return A matrix with a row for every row of \code{x}, a column for every metric specified in `metric`, and
 #'    values for the `summary` statistic. Or if `spatial = TRUE`, a `sf` or `SpatRaster` object containing these data.
-#' @seealso [ps_diversity()]
+#' @seealso [ps_diversity()], [ps_tile_groups()], [ps_canape()]
 #' @examples
 #' \donttest{
 #' # simulate a `phylospatial` data set and run randomization with default settings
@@ -92,6 +109,16 @@
 #' ps3 <- ps_simulate(data_type = "abund")
 #' rand <- ps_rand(ps3, metric = c("ShPD", "SiPD"),
 #'       fun = "nullmodel", method = "abuswap_c")
+#'
+#' # spatially constrained null model: randomize within a different random
+#' # tiling of 500 km hexagons in each randomization
+#' if(requireNamespace("nullcat")){
+#'     ps4 <- moss()
+#'     tiles <- ps_tile_groups(ps4, spacing = 500e3, n = 20)
+#'     rand <- ps_rand(ps4, metric = "PE", fun = "quantize", n_rand = 20,
+#'                     zero_stratum = TRUE, n_iter = 5000,
+#'                     site_groups = tiles, summary = c("quantile", "ties"))
+#' }
 #' }
 #' @export
 ps_rand <- function(ps,
@@ -104,6 +131,7 @@ ps_rand <- function(ps,
                     spatial = TRUE,
                     n_cores = 1,
                     progress = interactive(),
+                    site_groups = NULL,
                     wt_row = NULL,
                     wt_col = NULL,
                     ...){
@@ -112,7 +140,15 @@ ps_rand <- function(ps,
       check_no_weights(wt_row, wt_col)
       if (any(metric == "all")) metric <- metrics()
       match.arg(metric, metrics(), several.ok = TRUE)
-      match.arg(summary, c("quantile", "zscore"))
+      summary <- match.arg(summary, c("quantile", "zscore", "ties"), several.ok = TRUE)
+      if (any(c("row_groups", "wt_row") %in% names(list(...)))) {
+            stop("Use `site_groups` to constrain randomization by site.", call. = FALSE)
+      }
+      if (!is.null(site_groups) && !(is.character(fun) && fun %in% c("nullcat", "quantize"))) {
+            stop("`site_groups` can only be used with `fun = \"nullcat\"` or `fun = \"quantize\"`.",
+                 call. = FALSE)
+      }
+      site_groups <- prep_site_groups(ps, site_groups, n_rand = n_rand)
 
       # --- PRECOMPUTE STATIC VALUES ---
       tree <- ps$tree
@@ -162,9 +198,13 @@ ps_rand <- function(ps,
             storage.mode(tip_comm) <- "integer"
       }
 
+      # Shuffle terminal ranges among tips. Tip columns are matched to the tree by
+      # position (in build_tree_ranges), so the data columns must be permuted; permuting
+      # only the column names would leave the community unchanged.
       tip_shuffle <- function(x) {
-            colnames(x) <- sample(colnames(x))
-            x
+            out <- x[, sample(ncol(x)), drop = FALSE]
+            colnames(out) <- colnames(x)
+            out
       }
 
       # For quantize, compute one-time overhead
@@ -180,13 +220,20 @@ ps_rand <- function(ps,
       }
 
       # --- CORE RANDOMIZATION FUNCTION ---
-      div_rand <- function() {
+      div_rand <- function(i) {
+            # site groups for this randomization (NULL, a vector, or column i of a matrix)
+            g <- if (is.matrix(site_groups)) site_groups[, i] else site_groups
+
             # Randomize tip matrix
             rcomm <- switch(fun,
                             "tip_shuffle" = tip_shuffle(tip_comm),
                             "nullcat" = nullcat::nullcat(tip_comm, method = method,
-                                                         n_iter = n_iter, ...),
-                            "quantize" = quantize(prep = prep),
+                                                         n_iter = n_iter, row_groups = g, ...),
+                            "quantize" = {
+                                  p <- prep
+                                  p["row_groups"] <- list(g)
+                                  quantize(prep = p)
+                            },
                             "nullmodel" = do.call(stats::simulate,
                                                   c(list(vegan::nullmodel(tip_comm, method = method),
                                                          nsim = 1, burnin = n_iter), vegan_dots))[, , 1],
@@ -209,7 +256,7 @@ ps_rand <- function(ps,
       if (n_cores == 1) {
             if (progress) pb <- utils::txtProgressBar(min = 0, max = n_rand, initial = 0, style = 3)
             for (i in 1:n_rand) {
-                  rand[, , i + 1] <- div_rand()
+                  rand[, , i + 1] <- div_rand(i)
                   if (progress) utils::setTxtProgressBar(pb, i)
             }
             if (progress) close(pb)
@@ -222,7 +269,7 @@ ps_rand <- function(ps,
             future::plan(future::multisession, workers = n_cores)
             rnd <- furrr::future_map(
                   1:n_rand,
-                  function(i) div_rand(),
+                  function(i) div_rand(i),
                   .progress = progress,
                   .options = furrr::furrr_options(seed = TRUE)
             )
@@ -231,16 +278,19 @@ ps_rand <- function(ps,
       }
 
       # --- SUMMARIZE RESULTS ---
-      if (summary == "quantile") {
-            # mid-rank quantile: ties with the observed value count as one half
-            q <- apply(rand, 1:2, function(x) mean((x[1] > x[-1]) + 0.5 * (x[1] == x[-1]), na.rm = TRUE))
-      } else {
-            q <- apply(rand, 1:2, function(x) {
-                  (x[1] - mean(x[-1], na.rm = TRUE)) / sd(x[-1], na.rm = TRUE)
-            })
-      }
+      ties <- apply(rand, 1:2, function(x) mean(x[1] == x[-1], na.rm = TRUE))
+      warn_all_ties(ties, metric)
 
-      colnames(q) <- paste0(substr(summary, 1, 1), metric)
+      q <- do.call(cbind, lapply(summary, function(s) {
+            out <- switch(s,
+                  # mid-rank quantile: ties with the observed value count as one half
+                  quantile = apply(rand, 1:2, function(x) mean((x[1] > x[-1]) + 0.5 * (x[1] == x[-1]), na.rm = TRUE)),
+                  zscore = apply(rand, 1:2, function(x) (x[1] - mean(x[-1], na.rm = TRUE)) / sd(x[-1], na.rm = TRUE)),
+                  ties = ties)
+            out <- matrix(out, ncol = length(metric))
+            colnames(out) <- paste0(substr(s, 1, 1), metric)
+            out
+      }))
 
       # expand to full extent
       if (spatial) {
@@ -254,3 +304,16 @@ ps_rand <- function(ps,
 # Return a vector of the binary null model options in vegan::commsim
 binary_models <- function() c("r00", "r0", "r1", "r2", "c0", "swap", "tswap",
                               "curveball", "quasiswap", "greedyqswap", "backtracking")
+
+
+# internal -- warn about sites whose null distribution never departs from the observed value
+warn_all_ties <- function(ties, metric) {
+      n <- colSums(ties == 1, na.rm = TRUE)
+      if (!any(n > 0)) return(invisible(NULL))
+      warning("At some sites, every randomized value equalled the observed value, so the null model ",
+              "provided no comparison for them (", paste0(metric[n > 0], ": ", n[n > 0], " sites", collapse = "; "),
+              "). Their quantiles are 0.5 and their z-scores undefined. This happens, for example, at ",
+              "sites that are alone in their group under `site_groups`, or whose values the null model ",
+              "cannot rearrange; use `summary = \"ties\"` to see the share of tied randomizations at each site.",
+              call. = FALSE)
+}

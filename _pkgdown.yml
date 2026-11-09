@@ -28,6 +28,8 @@ reference:
   - ps_rand
   - ps_suggest_n_iter
   - ps_trace
+  - ps_tile_groups
+  - ps_group_sizes
   - ps_quantize
   - quantize
   - ps_canape

@@ -135,8 +135,9 @@ test_that("site weights carry through ps_rand randomizations", {
       # with an identity null model, every randomized value equals the observed value
       # only if the randomizations use the same site weights as the observed data;
       # all-tied randomizations give a quantile of exactly 0.5
-      q <- ps_rand(psw, metric = c("PE", "CE", "RPE"), fun = function(x) x,
-                   n_rand = 3, progress = FALSE, spatial = FALSE)
+      expect_warning(q <- ps_rand(psw, metric = c("PE", "CE", "RPE"), fun = function(x) x,
+                                  n_rand = 3, progress = FALSE, spatial = FALSE),
+                     "every randomized value")
       expect_true(all(q[psw$occupied, ] == 0.5))
 })
 

@@ -4,14 +4,17 @@
 \alias{ps_quantize}
 \title{Stratified randomization of a phylospatial object}
 \usage{
-ps_quantize(ps, wt_row = NULL, wt_col = NULL, ...)
+ps_quantize(ps, site_groups = NULL, wt_row = NULL, wt_col = NULL, ...)
 }
 \arguments{
 \item{ps}{Object of class \code{phylospatial}}
 
-\item{wt_row, wt_col}{Not currently supported, and must be \code{NULL} (the default); supplying
-a weight matrix gives an error. Reserved for a future spatially constrained null model.
-See \code{\link[=ps_rand]{ps_rand()}} for details.}
+\item{site_groups}{Optional vector giving each site's group, so that sites are randomized
+independently within groups. One element per site (as for \code{site_weight} in \code{\link[=phylospatial]{phylospatial()}})
+or per occupied site. See \code{\link[=ps_rand]{ps_rand()}} for details.}
+
+\item{wt_row, wt_col}{No longer supported, and must be \code{NULL} (the default); supplying
+a weight matrix gives an error. Use \code{site_groups} instead. See \code{\link[=ps_rand]{ps_rand()}} for details.}
 
 \item{...}{Additional arguments passed to \link[nullcat]{quantize}, such as \code{method},
 \code{n_strata}, \code{transform}, \code{fixed}, \code{n_iter}, etc.}

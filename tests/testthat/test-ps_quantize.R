@@ -12,7 +12,7 @@ test_that("`ps_quantize` rejects spatial weights", {
       ps <- ps_simulate()
       W <- matrix(1, ps$n_sites, ps$n_sites)
 
-      expect_error(ps_quantize(ps, wt_row = W, n_iter = 100), "`wt_row` is not currently supported")
-      expect_error(ps_quantize(ps, wt_col = W, n_iter = 100), "`wt_col` is not currently supported")
+      expect_error(ps_quantize(ps, wt_row = W, n_iter = 100), "`wt_row` is no longer supported")
+      expect_error(ps_quantize(ps, wt_col = W, n_iter = 100), "`wt_col` is no longer supported")
       expect_no_error(ps_quantize(ps, wt_row = NULL, wt_col = NULL, n_iter = 100))
 })

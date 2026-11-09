@@ -15,19 +15,14 @@ knitr::opts_chunk$set(
   comment = "#>",
 fig.dim = c(6, 4)
 )
-
-if (!requireNamespace("tmap", quietly = TRUE) || grepl("devel", R.version.string)) {
-  knitr::opts_chunk$set(eval = FALSE)
-  message("Package 'tmap' needed for this vignette. Either it is not installed, or it is being called from R-devel where it has compatibility issues. Code will not be evaluated.")
-}
 ```
 
 This vignette covers topics related to phylogenetic beta diversity, including calculation of pairwise dissimilarity between sites, mapping dissimilarity from focal sites, comparing two data sets for the same sites, and use of these dissimilarity values in distance decay, ordination, and regionalization analyses.
 
-To get started, let's load the `phylospatial` library, as well as `tmap` for visualization. Note that the functions covered here all require a `phylospatial` object as input; see `vignette("phylospatial-data")` for details on constructing data sets. We'll use the `moss()` example data here.
+To get started, let's load the `phylospatial` library, as well as `terra` for visualization. Note that the functions covered here all require a `phylospatial` object as input; see `vignette("phylospatial-data")` for details on constructing data sets. We'll use the `moss()` example data here.
 
 ```{r setup, message=FALSE, warning=FALSE}
-library(phylospatial); library(tmap); library(magrittr)
+library(phylospatial); library(terra)
 ps <- moss()
 ```
 
@@ -50,7 +45,7 @@ ps
 
 A full dissimilarity matrix is hard to inspect directly, since it contains a value for every pair of sites. One intuitive way to explore it is to choose a focal site and map its dissimilarity to every other site, showing where on the landscape similar lineage assemblages recur. The function `ps_dissim_focal()` does this. It accepts the same `method` and scaling options as `ps_dissim()`, and gives the same values as the corresponding row of the full matrix; for the Sorensen family and for custom `designdist` formulas it computes only the focal rows, so it stays fast even for large data sets, while other `vegdist` indices compute the full matrix and keep the relevant rows. Note that it computes dissimilarity from its own arguments, rather than reusing the matrix stored by `ps_add_dissim()`.
 
-Focal sites can be given as site indices, as a two-column matrix of coordinates in the coordinate system of the data set, or as `sf` or `SpatVector` points, which are reprojected as needed. Let's compare two focal sites with very different moss floras, one in the Sierra Nevada and one in the Mojave Desert, specified by longitude and latitude. We'll also write a small mapping function for this section, which draws one panel per layer with the focal site marked in red:
+Focal sites can be given as site indices, as a two-column matrix of coordinates in the coordinate system of the data set, or as `sf` or `SpatVector` points, which are reprojected as needed. Let's compare two focal sites with very different moss floras, one in the Sierra Nevada and one in the Mojave Desert, specified by longitude and latitude. We'll also write a small mapping function for this section, which draws one panel per layer, on a common color scale, with the focal site marked in red:
 
 ```{r focal, message=FALSE, warning=FALSE, fig.dim = c(8, 4.4), out.width = "100%"}
 focal <- sf::st_as_sf(data.frame(site = c("Sierra Nevada", "Mojave Desert"),
@@ -58,24 +53,17 @@ focal <- sf::st_as_sf(data.frame(site = c("Sierra Nevada", "Mojave Desert"),
                       coords = c("lon", "lat"), crs = 4326)
 focal$site <- factor(focal$site, levels = focal$site) # keep panels in this order
 
-map_focal <- function(r, pts, title){
-      m <- tm_shape(r) +
-            tm_raster(col.scale = tm_scale_continuous(values = "brewer.yl_gn_bu",
-                                                      limits = c(0, 1)),
-                      col.legend = tm_legend(title = "dissimilarity",
-                                             position = tm_pos_out("right", "center")),
-                      col.free = FALSE) +
-            tm_shape(pts) +
-            tm_dots(fill = "red", size = 0.6) +
-            tm_title(title)
-      # with several focal sites, show each site's point only in its own panel
-      if (nrow(pts) > 1) m <- m + tm_facets_wrap(by = "site", nrow = 1)
-      m
+map_focal <- function(r, pts){
+      pts <- project(vect(pts), crs(r))
+      plot(r, col = hcl.colors(100, "YlGnBu", rev = TRUE), range = c(0, 1),
+           nc = nlyr(r), axes = FALSE,
+           # with several focal sites, show each site's point only in its own panel
+           fun = function(i) points(pts[min(i, nrow(pts))], col = "red", pch = 19, cex = 1.2))
 }
 
 fd <- ps_dissim_focal(ps, focal, method = "sorensen")
 names(fd) <- levels(focal$site)
-map_focal(fd, focal, "Sorensen's dissimilarity from focal sites")
+map_focal(fd, focal)
 ```
 
 Dissimilarity is zero at each focal site and generally rises with distance, but not uniformly. The Sierra Nevada site is more similar to the distant mountains of northern California than to the nearby Central Valley, and most dissimilar from the southern deserts. The desert site shows the reverse pattern, resembling the southeastern deserts and parts of the southern coast ranges while differing strongly from the Sierra Nevada and the north. Patterns like these show which parts of the landscape share a site's evolutionary history, and how sharply composition changes along environmental gradients.
@@ -86,7 +74,7 @@ As with `ps_dissim()`, Sorensen's dissimilarity can be partitioned into turnover
 fp <- c(ps_dissim_focal(ps, focal[1, ], method = "sorensen_turnover"),
         ps_dissim_focal(ps, focal[1, ], method = "sorensen_nestedness"))
 names(fp) <- c("turnover", "nestedness")
-map_focal(fp, focal[1, ], "Components of dissimilarity from the Sierra Nevada site")
+map_focal(fp, focal[1, ])
 ```
 
 Most of this site's dissimilarity from the rest of the state is due to nestedness: the site is rich in lineages, and other sites mostly hold subsets of them. Turnover, the replacement of its lineages by others, is modest everywhere.
@@ -96,7 +84,7 @@ Most of this site's dissimilarity from the rest of the state is due to nestednes
 ```{r focal_difference, message=FALSE, warning=FALSE, fig.dim = c(8, 4.4), out.width = "100%"}
 fdiff <- ps_dissim_focal(ps, focal, method = "focal_difference")
 names(fdiff) <- levels(focal$site)
-map_focal(fdiff, focal, "Focal difference from focal sites")
+map_focal(fdiff, focal)
 ```
 
 For the lineage-rich Sierra Nevada site, `focal_difference` looks much like Sorensen's dissimilarity in the earlier plot, since sites that differ from it mostly do so by lacking its lineages. For the desert site, the two indices tell very different stories. Sorensen's index in the earlier figure rates the lineage-rich northern mountains as highly dissimilar, because they hold many lineages the desert site lacks. But here, `focal_difference` shows that the desert site's own lineages occur nearly everywhere: its assemblage is largely a subset of the state's moss flora, and its lineages are missing mainly from parts of the Central Valley and the far southeastern deserts.
@@ -109,11 +97,10 @@ To illustrate, let's construct a hypothetical future moss flora in which every l
 
 ```{r paired_data, message=FALSE, warning=FALSE}
 comm1 <- ps_get_comm(ps)
-comm2 <- terra::shift(comm1, dy = 60000) %>% # shift ranges 60 km north
-      terra::extend(comm1) %>%
-      terra::crop(comm1) %>%
-      terra::cover(comm1) %>% # keep original communities where nothing shifts in
-      terra::mask(comm1[[1]]) # restrict to the study area
+comm2 <- shift(comm1, dy = 60000)          # shift ranges 60 km north
+comm2 <- crop(extend(comm2, comm1), comm1) # back onto the original grid
+comm2 <- cover(comm2, comm1)               # keep original communities where nothing shifts in
+comm2 <- mask(comm2, comm1[[1]])           # restrict to the study area
 
 range_size <- terra::global(comm1, "sum", na.rm = TRUE)[, 1]
 extinct <- order(range_size)[1:20]
@@ -127,20 +114,15 @@ Because `phylospatial()` drops taxa with no occurrences, the regionally-extinct 
 Let's map Sorensen's dissimilarity between the two time periods, along with its non-phylogenetic counterpart based only on terminal taxa:
 
 ```{r paired, message=FALSE, warning=FALSE, fig.dim = c(8, 4.4), out.width = "100%"}
-map_change <- function(r, title){
-      tm_shape(r) +
-            tm_raster(col.scale = tm_scale_continuous(values = "brewer.yl_gn_bu",
-                                                      limits = c(0, 1)),
-                      col.legend = tm_legend(title = "dissimilarity",
-                                             position = tm_pos_out("right", "center")),
-                      col.free = FALSE) +
-            tm_title(title)
+map_change <- function(r){
+      plot(r, col = hcl.colors(100, "YlGnBu", rev = TRUE), range = c(0, 1),
+           nc = nlyr(r), axes = FALSE)
 }
 
 chg <- c(ps_dissim_paired(ps, ps2, tree = ps$tree),
          ps_dissim_paired(ps, ps2, tree = ps$tree, tips_only = TRUE))
 names(chg) <- c("phylogenetic", "terminal taxa only")
-map_change(chg, "Sorensen's dissimilarity between time periods")
+map_change(chg)
 ```
 
 Change is greatest where composition varies most from south to north, so that the community just to the south differs most from the local one; sites along the southern border are unchanged by construction. Phylogenetic dissimilarity is lower than its non-phylogenetic counterpart nearly everywhere. Many of the lineages arriving at a site are close relatives of the ones leaving it, sharing much of their branch length, so evolutionary history changes less than species composition does.
@@ -150,7 +132,8 @@ A symmetric index like Sorensen's says how much a site changes, but not in which
 ```{r paired_direction, message=FALSE, warning=FALSE, fig.dim = c(8, 4.4), out.width = "100%"}
 dirn <- c(ps_dissim_paired(ps, ps2, method = "loss", tree = ps$tree),
           ps_dissim_paired(ps, ps2, method = "gain", tree = ps$tree))
-map_change(dirn, "Loss and gain of branch length between time periods")
+names(dirn) <- c("loss", "gain")
+map_change(dirn)
 ```
 
 Loss and gain peak in different places. High loss marks sites where a lineage-rich community is replaced by a poorer one from the south, so the site loses much of its branch length while gaining little; high gain marks the reverse, where a site receives a richer community than the one it had. The overall change in the previous figure thus combines two different processes in different parts of the state.
@@ -196,24 +179,18 @@ legend("bottomright",
 
 Additional approaches for assessing spatial turnover patterns include ordination or clustering, both of which reduce a dissimilarity matrix into a lower-dimensional summary. Ordination, which is implemented in the function `ps_ordinate()`, identifies the dominant axes of variation in phylogenetic turnover, which can then be used for visualization or analysis. The funtion offers various ordination methods. Let's perform a PCA, and make maps of the first four dimensions:
 
-```{r ordinate, message=FALSE, warning=FALSE}
-ps %>%
-      ps_ordinate(method = "pca", k = 4) %>%
-      tm_shape() +
-      tm_raster(col.scale = tm_scale_continuous(values = "brewer.pi_yg"),
-                col.free = FALSE) +
-      tm_title("Phylogenetic community ordination")
+```{r ordinate, message=FALSE, warning=FALSE, fig.dim = c(7, 5)}
+ord <- ps_ordinate(ps, method = "pca", k = 4)
+lim <- max(abs(minmax(ord)))  # common, symmetric color scale for all axes
+plot(ord, col = hcl.colors(100, "PiYG"), range = c(-lim, lim), axes = FALSE)
 ```
 
-We can also qualitatively visualize compositional patterns by converting ordination axes to a set of colors representing how similar two sites are to each other, using the `ps_rgb()` function. Let's do that here, using the `"cmds"` (classical multidimensional scaling) ordination algorithm, and then plot the result using `tmap::tm_rgb()`:
+We can also qualitatively visualize compositional patterns by converting ordination axes to a set of colors representing how similar two sites are to each other, using the `ps_rgb()` function. Let's do that here, using the `"cmds"` (classical multidimensional scaling) ordination algorithm, and then plot the result using `terra::plotRGB()`:
 
 ```{r rgb, message=FALSE, warning=FALSE}
-ps %>%
-      ps_rgb(method = "cmds") %>%
-      tm_shape() +
-      tm_rgb(col.scale = tm_scale_rgb(max_color_value = 1), 
-             interpolate = FALSE) +
-      tm_title("Phylogenetic community ordination")
+rgb <- ps_rgb(ps, method = "cmds")
+plotRGB(rgb, scale = 1, smooth = FALSE, mar = c(0, 0, 2, 0),
+        main = "Phylogenetic community ordination")
 ```
 
 
@@ -230,10 +207,7 @@ ps_regions_eval(ps, k = 1:15, plot = TRUE, method = "average")
 From the evaluation plot, it looks like a value of `k = 4` stands out as the most distinct "elbow" in explained variance ("SSE"), with near-maximum distance to the 1:1 line ("dist11"), and with more negative "curvature" than its neighbors, though other choices could also be reasonable. Let's generate results for four regions, and then make a map of these zones:
 
 ```{r regions, message=FALSE, warning=FALSE}
-ps %>%
-      ps_regions(k = 4, method = "average") %>%
-      tm_shape() +
-      tm_raster(col.scale = tm_scale_categorical(values = "brewer.dark2"),
-                col.legend = tm_legend(show = FALSE)) +
-      tm_title("phylogenetic region")
+regions <- ps_regions(ps, k = 4, method = "average")
+plot(regions, type = "classes", col = palette.colors(4, "Dark 2"), legend = FALSE,
+     axes = FALSE, main = "Phylogenetic regions")
 ```
