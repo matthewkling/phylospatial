@@ -17,7 +17,13 @@ identifies the point at which chains stabilize.
 ## Usage
 
 ``` r
-ps_suggest_n_iter(ps, fun = c("nullcat", "quantize"), plot = TRUE, ...)
+ps_suggest_n_iter(
+  ps,
+  fun = c("nullcat", "quantize"),
+  plot = TRUE,
+  site_groups = NULL,
+  ...
+)
 ```
 
 ## Arguments
@@ -36,6 +42,22 @@ ps_suggest_n_iter(ps, fun = c("nullcat", "quantize"), plot = TRUE, ...)
 
   Logical: if `TRUE`, plot the mixing traces with the suggested burn-in
   marked.
+
+- site_groups:
+
+  Optional grouping of sites, as passed to
+  [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md).
+  Randomizations then run independently within groups, with `n_iter`
+  applied to each group. The trace runs the grouped randomization as a
+  whole (using the first column of a matrix of groupings), so the result
+  estimates the `n_iter` needed per group, which can be more or fewer
+  than the full matrix needs. Use the same `site_groups` (e.g. tilings
+  from
+  [`ps_tile_groups()`](https://matthewkling.github.io/phylospatial/reference/ps_tile_groups.md)
+  with the same `spacing`) as in the intended
+  [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+  call. Each traced chain costs as much as one grouped randomization of
+  `n_iter` iterations.
 
 - ...:
 
@@ -76,6 +98,7 @@ if (requireNamespace("nullcat", quietly = TRUE)) {
                     n_iter = 2000, n_chains = 3, plot = TRUE)
 }
 
+#> Warning: 46 of 400 rows and 1 of 10 columns have all their values in a single stratum, so the randomization cannot change them under `fixed = "cell"`: their randomized values will equal the observed values. To randomize them, separate low values into their own strata (e.g. `zero_stratum = TRUE`, or a `transform`), or use a different `fixed` mode.
 
 #> suggested_n_iter object
 #> -----------------------

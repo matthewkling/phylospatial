@@ -51,7 +51,7 @@ the phylospatial object using the permuted tip matrix.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ps_quantize</span><span class="op">(</span><span class="va">ps</span>, wt_row <span class="op">=</span> <span class="cn">NULL</span>, wt_col <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ps_quantize</span><span class="op">(</span><span class="va">ps</span>, site_groups <span class="op">=</span> <span class="cn">NULL</span>, wt_row <span class="op">=</span> <span class="cn">NULL</span>, wt_col <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -62,10 +62,15 @@ the phylospatial object using the permuted tip matrix.</p>
 <dd><p>Object of class <code>phylospatial</code></p></dd>
 
 
+<dt id="arg-site-groups">site_groups<a class="anchor" aria-label="anchor" href="#arg-site-groups"></a></dt>
+<dd><p>Optional vector giving each site's group, so that sites are randomized
+independently within groups. One element per site (as for <code>site_weight</code> in <code><a href="phylospatial.html">phylospatial()</a></code>)
+or per occupied site. See <code><a href="ps_rand.html">ps_rand()</a></code> for details.</p></dd>
+
+
 <dt id="arg-wt-row-wt-col">wt_row, wt_col<a class="anchor" aria-label="anchor" href="#arg-wt-row-wt-col"></a></dt>
-<dd><p>Not currently supported, and must be <code>NULL</code> (the default); supplying
-a weight matrix gives an error. Reserved for a future spatially constrained null model.
-See <code><a href="ps_rand.html">ps_rand()</a></code> for details.</p></dd>
+<dd><p>No longer supported, and must be <code>NULL</code> (the default); supplying
+a weight matrix gives an error. Use <code>site_groups</code> instead. See <code><a href="ps_rand.html">ps_rand()</a></code> for details.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -102,6 +107,7 @@ recomputing overhead that is shared across randomizations.</p>
 <span class="r-in"><span>    n_iter <span class="op">=</span> <span class="fl">1000</span>,</span></span>
 <span class="r-in"><span>    method <span class="op">=</span> <span class="st">"curvecat"</span>, fixed <span class="op">=</span> <span class="st">"cell"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>216 of 396 rows and 2 of 10 columns have all their values in a single stratum, so the randomization cannot change them under `fixed = "cell"`: their randomized values will equal the observed values. To randomize them, separate low values into their own strata (e.g. `zero_stratum = TRUE`, or a `transform`), or use a different `fixed` mode.</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

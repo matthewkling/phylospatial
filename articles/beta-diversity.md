@@ -6,9 +6,9 @@ dissimilarity from focal sites, comparing two data sets for the same
 sites, and use of these dissimilarity values in distance decay,
 ordination, and regionalization analyses.
 
-To get started, let’s load the `phylospatial` library, as well as `tmap`
-for visualization. Note that the functions covered here all require a
-`phylospatial` object as input; see
+To get started, let’s load the `phylospatial` library, as well as
+`terra` for visualization. Note that the functions covered here all
+require a `phylospatial` object as input; see
 [`vignette("phylospatial-data")`](https://matthewkling.github.io/phylospatial/articles/phylospatial-data.md)
 for details on constructing data sets. We’ll use the
 [`moss()`](https://matthewkling.github.io/phylospatial/reference/moss.md)
@@ -16,7 +16,7 @@ example data here.
 
 ``` r
 
-library(phylospatial); library(tmap); library(magrittr)
+library(phylospatial); library(terra)
 ps <- moss()
 ```
 
@@ -92,7 +92,8 @@ coordinates in the coordinate system of the data set, or as `sf` or
 focal sites with very different moss floras, one in the Sierra Nevada
 and one in the Mojave Desert, specified by longitude and latitude. We’ll
 also write a small mapping function for this section, which draws one
-panel per layer with the focal site marked in red:
+panel per layer, on a common color scale, with the focal site marked in
+red:
 
 ``` r
 
@@ -101,24 +102,17 @@ focal <- sf::st_as_sf(data.frame(site = c("Sierra Nevada", "Mojave Desert"),
                       coords = c("lon", "lat"), crs = 4326)
 focal$site <- factor(focal$site, levels = focal$site) # keep panels in this order
 
-map_focal <- function(r, pts, title){
-      m <- tm_shape(r) +
-            tm_raster(col.scale = tm_scale_continuous(values = "brewer.yl_gn_bu",
-                                                      limits = c(0, 1)),
-                      col.legend = tm_legend(title = "dissimilarity",
-                                             position = tm_pos_out("right", "center")),
-                      col.free = FALSE) +
-            tm_shape(pts) +
-            tm_dots(fill = "red", size = 0.6) +
-            tm_title(title)
-      # with several focal sites, show each site's point only in its own panel
-      if (nrow(pts) > 1) m <- m + tm_facets_wrap(by = "site", nrow = 1)
-      m
+map_focal <- function(r, pts){
+      pts <- project(vect(pts), crs(r))
+      plot(r, col = hcl.colors(100, "YlGnBu", rev = TRUE), range = c(0, 1),
+           nc = nlyr(r), axes = FALSE,
+           # with several focal sites, show each site's point only in its own panel
+           fun = function(i) points(pts[min(i, nrow(pts))], col = "red", pch = 19, cex = 1.2))
 }
 
 fd <- ps_dissim_focal(ps, focal, method = "sorensen")
 names(fd) <- levels(focal$site)
-map_focal(fd, focal, "Sorensen's dissimilarity from focal sites")
+map_focal(fd, focal)
 ```
 
 ![](beta-diversity_files/figure-html/focal-1.png)
@@ -146,7 +140,7 @@ Nevada site:
 fp <- c(ps_dissim_focal(ps, focal[1, ], method = "sorensen_turnover"),
         ps_dissim_focal(ps, focal[1, ], method = "sorensen_nestedness"))
 names(fp) <- c("turnover", "nestedness")
-map_focal(fp, focal[1, ], "Components of dissimilarity from the Sierra Nevada site")
+map_focal(fp, focal[1, ])
 ```
 
 ![](beta-diversity_files/figure-html/focal_partition-1.png)
@@ -174,7 +168,7 @@ above:
 
 fdiff <- ps_dissim_focal(ps, focal, method = "focal_difference")
 names(fdiff) <- levels(focal$site)
-map_focal(fdiff, focal, "Focal difference from focal sites")
+map_focal(fdiff, focal)
 ```
 
 ![](beta-diversity_files/figure-html/focal_difference-1.png)
@@ -212,11 +206,10 @@ south to supply incoming lineages, we’ll keep the original community:
 ``` r
 
 comm1 <- ps_get_comm(ps)
-comm2 <- terra::shift(comm1, dy = 60000) %>% # shift ranges 60 km north
-      terra::extend(comm1) %>%
-      terra::crop(comm1) %>%
-      terra::cover(comm1) %>% # keep original communities where nothing shifts in
-      terra::mask(comm1[[1]]) # restrict to the study area
+comm2 <- shift(comm1, dy = 60000)          # shift ranges 60 km north
+comm2 <- crop(extend(comm2, comm1), comm1) # back onto the original grid
+comm2 <- cover(comm2, comm1)               # keep original communities where nothing shifts in
+comm2 <- mask(comm2, comm1[[1]])           # restrict to the study area
 
 range_size <- terra::global(comm1, "sum", na.rm = TRUE)[, 1]
 extinct <- order(range_size)[1:20]
@@ -242,20 +235,15 @@ with its non-phylogenetic counterpart based only on terminal taxa:
 
 ``` r
 
-map_change <- function(r, title){
-      tm_shape(r) +
-            tm_raster(col.scale = tm_scale_continuous(values = "brewer.yl_gn_bu",
-                                                      limits = c(0, 1)),
-                      col.legend = tm_legend(title = "dissimilarity",
-                                             position = tm_pos_out("right", "center")),
-                      col.free = FALSE) +
-            tm_title(title)
+map_change <- function(r){
+      plot(r, col = hcl.colors(100, "YlGnBu", rev = TRUE), range = c(0, 1),
+           nc = nlyr(r), axes = FALSE)
 }
 
 chg <- c(ps_dissim_paired(ps, ps2, tree = ps$tree),
          ps_dissim_paired(ps, ps2, tree = ps$tree, tips_only = TRUE))
 names(chg) <- c("phylogenetic", "terminal taxa only")
-map_change(chg, "Sorensen's dissimilarity between time periods")
+map_change(chg)
 ```
 
 ![](beta-diversity_files/figure-html/paired-1.png)
@@ -284,7 +272,8 @@ only local losses and arrivals.
 
 dirn <- c(ps_dissim_paired(ps, ps2, method = "loss", tree = ps$tree),
           ps_dissim_paired(ps, ps2, method = "gain", tree = ps$tree))
-map_change(dirn, "Loss and gain of branch length between time periods")
+names(dirn) <- c("loss", "gain")
+map_change(dirn)
 ```
 
 ![](beta-diversity_files/figure-html/paired_direction-1.png)
@@ -366,12 +355,9 @@ first four dimensions:
 
 ``` r
 
-ps %>%
-      ps_ordinate(method = "pca", k = 4) %>%
-      tm_shape() +
-      tm_raster(col.scale = tm_scale_continuous(values = "brewer.pi_yg"),
-                col.free = FALSE) +
-      tm_title("Phylogenetic community ordination")
+ord <- ps_ordinate(ps, method = "pca", k = 4)
+lim <- max(abs(minmax(ord)))  # common, symmetric color scale for all axes
+plot(ord, col = hcl.colors(100, "PiYG"), range = c(-lim, lim), axes = FALSE)
 ```
 
 ![](beta-diversity_files/figure-html/ordinate-1.png)
@@ -383,16 +369,13 @@ are to each other, using the
 function. Let’s do that here, using the `"cmds"` (classical
 multidimensional scaling) ordination algorithm, and then plot the result
 using
-[`tmap::tm_rgb()`](https://r-tmap.github.io/tmap/reference/tm_rgb.html):
+[`terra::plotRGB()`](https://rspatial.github.io/terra/reference/plotRGB.html):
 
 ``` r
 
-ps %>%
-      ps_rgb(method = "cmds") %>%
-      tm_shape() +
-      tm_rgb(col.scale = tm_scale_rgb(max_color_value = 1), 
-             interpolate = FALSE) +
-      tm_title("Phylogenetic community ordination")
+rgb <- ps_rgb(ps, method = "cmds")
+plotRGB(rgb, scale = 1, smooth = FALSE, mar = c(0, 0, 2, 0),
+        main = "Phylogenetic community ordination")
 ```
 
 ![](beta-diversity_files/figure-html/rgb-1.png)
@@ -434,12 +417,9 @@ for four regions, and then make a map of these zones:
 
 ``` r
 
-ps %>%
-      ps_regions(k = 4, method = "average") %>%
-      tm_shape() +
-      tm_raster(col.scale = tm_scale_categorical(values = "brewer.dark2"),
-                col.legend = tm_legend(show = FALSE)) +
-      tm_title("phylogenetic region")
+regions <- ps_regions(ps, k = 4, method = "average")
+plot(regions, type = "classes", col = palette.colors(4, "Dark 2"), legend = FALSE,
+     axes = FALSE, main = "Phylogenetic regions")
 ```
 
 ![](beta-diversity_files/figure-html/regions-1.png)

@@ -8,7 +8,7 @@ and rebuilding the phylospatial object using the permuted tip matrix.
 ## Usage
 
 ``` r
-ps_quantize(ps, wt_row = NULL, wt_col = NULL, ...)
+ps_quantize(ps, site_groups = NULL, wt_row = NULL, wt_col = NULL, ...)
 ```
 
 ## Arguments
@@ -17,11 +17,20 @@ ps_quantize(ps, wt_row = NULL, wt_col = NULL, ...)
 
   Object of class `phylospatial`
 
+- site_groups:
+
+  Optional vector giving each site's group, so that sites are randomized
+  independently within groups. One element per site (as for
+  `site_weight` in
+  [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md))
+  or per occupied site. See
+  [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+  for details.
+
 - wt_row, wt_col:
 
-  Not currently supported, and must be `NULL` (the default); supplying a
-  weight matrix gives an error. Reserved for a future spatially
-  constrained null model. See
+  No longer supported, and must be `NULL` (the default); supplying a
+  weight matrix gives an error. Use `site_groups` instead. See
   [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
   for details.
 
@@ -64,5 +73,6 @@ if (requireNamespace("nullcat", quietly = TRUE)) {
     n_iter = 1000,
     method = "curvecat", fixed = "cell")
 }
+#> Warning: 216 of 396 rows and 2 of 10 columns have all their values in a single stratum, so the randomization cannot change them under `fixed = "cell"`: their randomized values will equal the observed values. To randomize them, separate low values into their own strata (e.g. `zero_stratum = TRUE`, or a `transform`), or use a different `fixed` mode.
 # }
 ```

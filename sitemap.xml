@@ -31,6 +31,7 @@
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_geodist.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_get_comm.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_grid.html</loc></url>
+<url><loc>https://matthewkling.github.io/phylospatial/reference/ps_group_sizes.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_ordinate.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_performance.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_prioritize.html</loc></url>
@@ -42,6 +43,7 @@
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_rgb.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_simulate.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.html</loc></url>
+<url><loc>https://matthewkling.github.io/phylospatial/reference/ps_tile_groups.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/ps_trace.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/quantize.html</loc></url>
 <url><loc>https://matthewkling.github.io/phylospatial/reference/to_spatial.html</loc></url>

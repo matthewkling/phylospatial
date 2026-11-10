@@ -4,9 +4,9 @@ This vignette covers topics related to alpha diversity and endemism,
 including calculation of basic diversity metrics as well as statistical
 significance testing using null randomization.
 
-To get started, let’s load the `phylospatial` library, as well as `tmap`
-for visualization. Note that the functions covered here all require a
-`phylospatial` object as input; see
+To get started, let’s load the `phylospatial` library, as well as
+`terra` for visualization. Note that the functions covered here all
+require a `phylospatial` object as input; see
 [`vignette("phylospatial-data")`](https://matthewkling.github.io/phylospatial/articles/phylospatial-data.md)
 for details on constructing data sets. We’ll use the
 [`moss()`](https://matthewkling.github.io/phylospatial/reference/moss.md)
@@ -14,7 +14,7 @@ example data here.
 
 ``` r
 
-library(phylospatial); library(tmap)
+library(phylospatial); library(terra)
 ps <- moss()
 ```
 
@@ -84,21 +84,12 @@ and PE:
 ``` r
 
 div <- ps_diversity(ps, metric = c("PD", "PE"))
-tm_shape(div$PD) + 
-      tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
-      tm_layout(legend.outside = TRUE)
+plot(div, axes = FALSE)
 ```
 
-![](alpha-diversity_files/figure-html/alpha-1.png)
+![plot of chunk alpha](figures/alpha-diversity-alpha-1.png)
 
-``` r
-
-tm_shape(div$PE) + 
-      tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
-      tm_layout(legend.outside = TRUE)
-```
-
-![](alpha-diversity_files/figure-html/alpha-2.png)
+plot of chunk alpha
 
 ## Null model randomization
 
@@ -113,6 +104,17 @@ null model algorithm called `"curvecat"`, which is a categorical version
 of the “curveball” algorithm that holds marginal row and column
 multisets fixed.
 
+`quantize` works by binning the occurrence values into strata,
+randomizing the strata with the categorical null model, and then
+reassigning the original values. By default it uses five equal-width
+strata, but occurrence probabilities from species distribution models,
+like the moss data, are often highly skewed: here the median value is
+about 0.0000002. Equal-width strata would put 90% of the values in the
+lowest stratum, and sites whose values all fall in that stratum could
+not be randomized at all. A log transform with a small floor gives more
+balanced strata, treating probabilities below about 0.001 as effectively
+absent, so we’ll pass this `transform` to all of our randomizations.
+
 This is a “sequential” (Markov chain) randomization algorithm and thus
 requires sufficient iterations to reach stationarity, so before running
 our randomizations, we need to decide how many iterations to run each
@@ -125,14 +127,17 @@ choice, we can call
 
 ``` r
 
+tf <- function(x) log10(x + 0.001)
 set.seed(123)
-iters <- ps_suggest_n_iter(ps, fun = "quantize", method = "curvecat", 
-                           n_iter = 3e5, plot = TRUE)
+iters <- ps_suggest_n_iter(ps, fun = "quantize", method = "curvecat", transform = tf,
+                           n_iter = 2e5, plot = TRUE)
 ```
 
-![](alpha-diversity_files/figure-html/n_iter-1.png)
+![plot of chunk n_iter](figures/alpha-diversity-n_iter-1.png)
 
-This suggests we need around 200,000 iterations for our matrix to mix
+plot of chunk n_iter
+
+This suggests we need around 30,000 iterations for our matrix to mix
 sufficiently, so we’ll pass that value to
 [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md).
 Let’s generate a null distribution of `n_rand = 1000` randomized
@@ -148,16 +153,16 @@ than 0.95.
 
 ``` r
 
-rand <- ps_rand(ps, n_rand = 1000, progress = FALSE,
+rand <- ps_rand(ps, n_rand = 1000,
                 metric = c("PD", "PE", "CE", "RPE"),
-                fun = "quantize", method = "curvecat",
+                fun = "quantize", method = "curvecat", transform = tf,
                 n_iter = iters, n_cores = 8)
-tm_shape(rand$qPE) + 
-      tm_raster(col.scale = tm_scale_continuous(values = "inferno")) +
-      tm_layout(legend.outside = TRUE)
+plot(rand$qPE, axes = FALSE)
 ```
 
-![](alpha-diversity_files/figure-html/postcompute-1.png)
+![plot of chunk rand](figures/alpha-diversity-rand-1.png)
+
+plot of chunk rand
 
 There are numerous alternative options for randomization algorithms, a
 choice that will depend on the type of occurrence data you have
@@ -184,17 +189,125 @@ rand2 <- ps_rand(ps2, fun = "nullmodel", method = "abuswap_c", metric = "PD",
 
 ## Spatially constrained randomization
 
-Standard null models treat all sites as exchangeable, so a taxon can be
-moved between any pair of sites regardless of how far apart they are. A
-spatially constrained null model, in which taxa are only redistributed
-among nearby sites, is often more ecologically realistic, but it is less
-straightforward to build than it might seem. Support for spatially
-constrained null models is planned for an upcoming release.
+The randomizations above treat all sites as exchangeable, so a taxon can
+be moved between any pair of sites regardless of how far apart they are.
+Significance patterns identified this way partly reflect broad regional
+gradients in diversity. A spatially constrained null model, in which
+taxa are only redistributed among nearby sites, tests a more local
+hypothesis: is a site’s diversity unusual compared to its surroundings?
+Spatial constraints are imposed with the `site_groups` argument to
+[`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md),
+and are only compatible with `fun = "nullcat"` or `fun = "quantize"`.
+
+Because spatially constrained randomizations run separately within each
+subset of sites, `n_iter` applies to each subset, and needs to be large
+enough to mix the largest one. That can be more or fewer iterations than
+the full matrix needs (since smaller pools have less to mix but can also
+have more constraints), so pass your `site_groups` to
+[`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md),
+which traces the grouped randomization as it will be run and estimates
+the iterations needed per subset.
+
+There are two flavors of spatially constrained nulls: fixed zones and
+distance kernels.
+
+### Fixed zones
+
+To randomize communities within discrete zones (geographic regions,
+ecoregions, etc.), supply a vector giving each site’s zone to
+`site_groups`, with one value per site (or per occupied site). Taxa are
+never exchanged between zones, so each zone keeps its own pool of taxa,
+while range sizes and endemism weights are still computed across the
+whole study area. For example, here’s a randomization within six zones
+defined by clustering the sites’ coordinates:
+
+``` r
+
+zones <- kmeans(terra::xyFromCell(ps$spatial, ps$occupied), centers = 6)$cluster
+rand_zones <- ps_rand(ps, n_rand = 1000, site_groups = zones,
+                      fun = "quantize", method = "curvecat", transform = tf,
+                      n_iter = iters)
+```
+
+### Distance kernels
+
+To instead use a smoother, distance-based approach, use
+`site_groups = ps_tile_groups(...)`, which pools each site with its
+neighbors, more often the closer they are.
+
+This is implemented by tiling the study area with hexagonal tiles, sized
+by `spacing` (the distance between neighboring tile centers) or
+alternatively by `group_size` (the nominal number of sites per tile). In
+any single randomization, a site only exchanges data with other sites in
+its own tile, but the tiling is randomly shifted and rotated in each
+randomization, so across randomizations, nearby sites share a tile more
+often than distant ones. The result is a smooth distance kernel: the
+frequency with which two sites share a tile declines roughly linearly at
+short distances, falls to one half when they are `0.42 * spacing` apart,
+and tapers to zero at about `1.15 * spacing`.
+
+Sites near edges and gaps tend to fall in tiles with few other sites,
+and a site that is alone in its tile can’t be randomized, so it’s worth
+checking pool sizes when choosing `spacing`. Let’s define our tiles
+using a `spacing` of 250 km, and map each site’s average pool size.
+Since the moss data have a coordinate reference system, tiles are laid
+out on the sphere and `spacing` is in meters:
+
+``` r
+
+tiles <- ps_tile_groups(ps, spacing = 250e3, n = 1000)
+plot(ps_group_sizes(ps, tiles), axes = FALSE)
+```
+
+![plot of chunk tiles](figures/alpha-diversity-tiles-1.png)
+
+plot of chunk tiles
+
+Next let’s check how many iterations we need, using the same
+[`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md)
+call as above but with our tiles:
+
+``` r
+
+iters <- ps_suggest_n_iter(ps, fun = "quantize", method = "curvecat", transform = tf,
+                           n_iter = 1.5e5, plot = FALSE, site_groups = tiles)
+```
+
+Here each tile needs more iterations (roughly 80,000) than the full
+matrix did (roughly 30,000): within a small tile, sites tend to be
+similar to their neighbors, so there are fewer opportunities to exchange
+taxa between them, and it takes more steps to mix.
+
+Now let’s run our distance-based randomization, and compare it to the
+unconstrained version above. The code is the same as for the
+unconstrained call, except that we now set `site_groups` to our tiles.
+(Adding `summary = c("quantile", "ties")` would also return the share of
+randomizations that tie the observed value at each site, which flags
+sites, typically in small edge tiles, whose quantiles are pulled toward
+0.5.)
+
+``` r
+
+rand_spatial <- ps_rand(ps, n_rand = 1000, progress = FALSE,
+                        site_groups = tiles,
+                        metric = c("PD", "PE", "CE", "RPE"),
+                        fun = "quantize", method = "curvecat", transform = tf,
+                        n_iter = iters, n_cores = 8)
+
+rand_comp <- setNames(c(rand$qPE, rand_spatial$qPE),
+                      c("unconstrained", "spacing = 250 km"))
+plot(rand_comp, range = c(0, 1), axes = FALSE)
+```
+
+![plot of chunk
+rand_spatial](figures/alpha-diversity-rand_spatial-1.png)
+
+plot of chunk rand_spatial
 
 ## CANAPE
 
 A lot can be done with randomization results like the ones we generated
-above. One thing you can do is use them to classify significant endemism
+above. One common analysis is use them to classify significant endemism
 hotspots in a “categorical analysis of neo- and paleo-endemism” (CANAPE,
 [Mishler et al. 2014](https://doi.org/10.1038/ncomms5473)). The function
 [`ps_canape()`](https://matthewkling.github.io/phylospatial/reference/ps_canape.md)
@@ -207,7 +320,11 @@ subset of the five categories may occur in the result here:
 ``` r
 
 cp <- ps_canape(rand, alpha = .05)
-terra::plot(cp)
+coltab(cp) <- data.frame(value = 0:4, # conventional CANAPE colors, by category
+                         col = c("gray90", "#CB7FFF", "#9D00FF", "red", "royalblue"))
+plot(cp, axes = FALSE)
 ```
 
-![](alpha-diversity_files/figure-html/canape-1.png)
+![plot of chunk canape](figures/alpha-diversity-canape-1.png)
+
+plot of chunk canape

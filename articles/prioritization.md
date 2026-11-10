@@ -131,13 +131,13 @@ biodiversity value, and add 1 so that every site has a nonzero cost.
 
 ``` r
 
-library(phylospatial); library(tmap); library(magrittr)
+library(phylospatial); library(terra)
 
 ps <- moss()
 init <- moss(data = "protection")
 cost <- 1 + log1p(moss(data = "popdens"))
 
-terra::plot(c(init, cost), main = c("existing protection", "cost"))
+plot(c(init, cost), main = c("existing protection", "cost"), axes = FALSE)
 ```
 
 ![](prioritization_files/figure-html/init-1.png)
@@ -145,15 +145,17 @@ terra::plot(c(init, cost), main = c("existing protection", "cost"))
 Now we’ll pass those inputs to
 [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md).
 Plotting the result, the highest-priority sites are those with low rank
-values, shown in yellow.
+values, shown in yellow. Since the differences that matter most are
+among the top-ranked sites, we’ll color the ranks in classes of
+increasing width:
 
 ``` r
 
 priority <- ps_prioritize(ps, init = init, cost = cost)
 
-tm_shape(priority) + 
-      tm_raster(col.scale = tm_scale_continuous_log(values = "-inferno")) + 
-      tm_layout(legend.outside = TRUE)
+rank_breaks <- c(0, 10, 25, 50, 100, 250, global(priority, "max", na.rm = TRUE)[[1]])
+plot(priority, breaks = rank_breaks, col = rev(hcl.colors(6, "inferno")),
+     axes = FALSE, plg = list(title = "priority rank"))
 ```
 
 ![](prioritization_files/figure-html/postcompute-1.png)
@@ -263,10 +265,8 @@ set.seed(123)
 priority <- ps_prioritize(ps, init = init, cost = cost, n_reps = 2500,
                           method = "prob", max_iter = 10)
 
-tm_shape(priority$top10) + 
-      tm_raster(col.scale = tm_scale_continuous(values = "inferno"),
-                col.legend = tm_legend(title = "proportion of runs\nin which site was\ntop-10 priority")) + 
-      tm_layout(legend.outside = TRUE)
+plot(priority$top10, col = hcl.colors(100, "inferno"), axes = FALSE,
+     main = "Proportion of runs in which site was a top-10 priority")
 ```
 
 ![](prioritization_files/figure-html/postcompute2-1.png)
@@ -405,15 +405,13 @@ solvers otherwise stop once they are within 10% of the optimum).
 library(prioritizr)
 
 prob <- ps_prioritizr(ps, init = init, cost = cost,
-                      objective = "min_set", target = .5) %>%
-      add_default_solver(gap = 0, verbose = FALSE)
+                      objective = "min_set", target = .5)
+prob <- add_default_solver(prob, gap = 0, verbose = FALSE)
 
 solution <- solve(prob)
 
-tm_shape(solution) + 
-      tm_raster(col.scale = tm_scale_categorical(values = c("gray80", "darkred")),
-                col.legend = tm_legend(title = "selected")) + 
-      tm_layout(legend.outside = TRUE)
+plot(solution, type = "classes", col = c("gray80", "darkred"),
+     levels = c("not selected", "selected"), axes = FALSE)
 ```
 
 ![](prioritization_files/figure-html/postcompute3-1.png)

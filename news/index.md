@@ -2,6 +2,59 @@
 
 ## phylospatial (development version)
 
+- Bug fix: the default `ps_rand(fun = "tip_shuffle")` null model did not
+  randomize anything. It shuffled the tip names of the community matrix
+  rather than its columns, but tips are matched to the phylogeny by
+  position, so every randomized community was identical to the observed
+  one. Combined with the previous handling of ties, this gave quantiles
+  of 0 at every site. Tip ranges are now shuffled among tips as
+  intended. The bug was introduced in version 1.2.0; `tip_shuffle`
+  results from versions 1.2.0 to 1.6.0 should be rerun.
+
+- Spatially constrained null models:
+  [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md),
+  [`ps_quantize()`](https://matthewkling.github.io/phylospatial/reference/ps_quantize.md),
+  [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md),
+  and
+  [`ps_trace()`](https://matthewkling.github.io/phylospatial/reference/ps_trace.md)
+  gain a `site_groups` argument (for `fun = "nullcat"` or `"quantize"`),
+  which randomizes the community independently within groups of sites. A
+  vector applies the same groups (e.g. regions) to every randomization;
+  a matrix with one column per randomization gives a different grouping
+  for each. Groups can be given for all sites or for occupied sites
+  only. `n_iter` is applied within each group, and the trace functions
+  trace the grouped randomization as a whole, estimating the `n_iter`
+  needed per group (which can be more or fewer than for the full
+  matrix). This requires `nullcat` 0.2.0.9001 or later.
+
+- New function
+  [`ps_tile_groups()`](https://matthewkling.github.io/phylospatial/reference/ps_tile_groups.md)
+  generates random hexagonal tilings of the occupied sites (via
+  [`nullcat::tile_groups()`](https://matthewkling.github.io/nullcat/reference/tile_groups.html)),
+  for use as `site_groups`. Randomizing within a different random tiling
+  in each randomization pools each site with its neighbors, giving a
+  distance-based null model: two sites share a tile about half the time
+  at a distance of `0.42 * spacing`. Sites are tiled on the sphere (with
+  `spacing` in meters) when the data have a coordinate reference system,
+  and in the plane otherwise.
+
+- New function
+  [`ps_group_sizes()`](https://matthewkling.github.io/phylospatial/reference/ps_group_sizes.md)
+  maps each site’s average pool size under a site grouping, to help
+  choose a tile `spacing`.
+
+- [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)’s
+  `summary` argument accepts several values, and a new option, `"ties"`,
+  returns the proportion of randomizations tying the observed value at
+  each site (variables named `t<metric>`). Quantiles are bounded within
+  `[t/2, 1 - t/2]`.
+  [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+  now also warns when, at some sites, every randomization ties the
+  observed value, i.e. the null model provided no comparison.
+
+- The error for non-`NULL` `wt_row` / `wt_col` now points to
+  `site_groups`.
+
 - Bug fix: `ps_rand(summary = "quantile")` now counts randomizations
   that tie the observed value as one half (a mid-rank quantile).
   Previously ties counted entirely against the observed value, so sites

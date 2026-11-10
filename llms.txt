@@ -100,6 +100,10 @@ To cite `phylospatial` in publications, please use:
   : Suggest number of iterations for null model convergence
 - [`ps_trace()`](https://matthewkling.github.io/phylospatial/reference/ps_trace.md)
   : Trace diagnostics for null model mixing
+- [`ps_tile_groups()`](https://matthewkling.github.io/phylospatial/reference/ps_tile_groups.md)
+  : Random spatial tilings of a phylospatial data set
+- [`ps_group_sizes()`](https://matthewkling.github.io/phylospatial/reference/ps_group_sizes.md)
+  : Average pool size of each site under a site grouping
 - [`ps_quantize()`](https://matthewkling.github.io/phylospatial/reference/ps_quantize.md)
   : Stratified randomization of a phylospatial object
 - [`quantize()`](https://matthewkling.github.io/phylospatial/reference/quantize.md)

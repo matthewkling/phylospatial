@@ -21,6 +21,7 @@ ps_rand(
   spatial = TRUE,
   n_cores = 1,
   progress = interactive(),
+  site_groups = NULL,
   wt_row = NULL,
   wt_col = NULL,
   ...
@@ -110,18 +111,30 @@ ps_rand(
 
 - summary:
 
-  Character indicating which summary statistic to return. If
-  `"quantile"`, the default, the function returns the proportion of
-  randomizations in which the observed diversity metric was greater than
-  the randomized metric, counting ties (randomizations equal to the
-  observed value) as one half. A site whose randomized values all equal
-  its observed value (for example, a site the null model cannot alter)
-  therefore gets a quantile of 0.5. More generally, if a fraction `t` of
-  randomizations tie the observed value, the quantile is bounded within
-  `[t/2, 1 - t/2]`, so the site cannot be significant in either tail at
-  level `alpha` when `t >= 2 * alpha`. If `"zscore"`, it returns a
-  "standardized effect size" or z-score relating the observed value to
-  the mean and standard deviation of the randomizations.
+  Character vector of one or more summary statistics to return, each as
+  a set of variables named with the statistic's first letter followed by
+  the metric name (e.g. `qPE`, `zPE`, `tPE`):
+
+  - `"quantile"` (the default): the proportion of randomizations in
+    which the observed diversity metric was greater than the randomized
+    metric, counting ties (randomizations equal to the observed value)
+    as one half. A site whose randomized values all equal its observed
+    value (for example, a site the null model cannot alter) therefore
+    gets a quantile of 0.5.
+
+  - `"zscore"`: a "standardized effect size" or z-score relating the
+    observed value to the mean and standard deviation of the
+    randomizations.
+
+  - `"ties"`: the proportion `t` of randomizations whose value equals
+    the observed value. Quantiles are bounded within `[t/2, 1 - t/2]`,
+    so a site cannot be significant in either tail at level `alpha` when
+    `t >= 2 * alpha`. Ties are common at sites a null model can rarely
+    change, such as sites alone (or nearly so) in their group under
+    `site_groups`.
+
+  Whatever the `summary`, a warning is given if the randomized values of
+  some sites equal their observed values in every randomization.
 
 - spatial:
 
@@ -137,13 +150,36 @@ ps_rand(
 
   Logical: should a progress bar be displayed?
 
+- site_groups:
+
+  Optional grouping of sites for a spatially constrained null model,
+  used only with `fun = "nullcat"` or `fun = "quantize"`. Sites are
+  randomized independently within each group, so taxa are only
+  redistributed among sites in the same group. Either a vector giving
+  each site's group (e.g. a region), applied to every randomization, or
+  a matrix with one column per randomization (`n_rand` columns), giving
+  a different grouping for each;
+  [`ps_tile_groups()`](https://matthewkling.github.io/phylospatial/reference/ps_tile_groups.md)
+  generates such a matrix of random spatial tilings, which pools each
+  site with its neighbors. Rows (or elements) correspond either to all
+  sites, as for the `site_weight` argument of
+  [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md),
+  or to occupied sites only, as returned by
+  [`ps_tile_groups()`](https://matthewkling.github.io/phylospatial/reference/ps_tile_groups.md).
+  With `site_groups`, `n_iter` iterations are run within every group;
+  the number needed can be more or fewer than for the full matrix, so
+  pass the same `site_groups` to
+  [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md)
+  to estimate it. See
+  [`nullcat::nullcat()`](https://matthewkling.github.io/nullcat/reference/nullcat.html)
+  for details.
+
 - wt_row, wt_col:
 
-  Not currently supported, and must be `NULL` (the default); supplying a
-  weight matrix gives an error. Reserved for a future spatially
-  constrained null model. Weighting which pairs of sites exchange values
-  does not by itself constrain the null model spatially, so this option
-  has been disabled. See
+  No longer supported, and must be `NULL` (the default); supplying a
+  weight matrix gives an error. Weighting which pairs of sites exchange
+  values does not constrain the null model spatially; use `site_groups`
+  instead. See
   [`vignette("alpha-diversity")`](https://matthewkling.github.io/phylospatial/articles/alpha-diversity.md).
 
 - ...:
@@ -177,7 +213,9 @@ intact terminal ranges among taxa.
 
 ## See also
 
-[`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md)
+[`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md),
+[`ps_tile_groups()`](https://matthewkling.github.io/phylospatial/reference/ps_tile_groups.md),
+[`ps_canape()`](https://matthewkling.github.io/phylospatial/reference/ps_canape.md)
 
 ## Examples
 
@@ -193,6 +231,8 @@ if(requireNamespace("nullcat")){
       fun = "quantize", method = "curvecat",
       transform = sqrt, n_strata = 4, fixed = "cell")
 }
+#> Warning: 17 of 349 rows and 0 of 10 columns have all their values in a single stratum, so the randomization cannot change them under `fixed = "cell"`: their randomized values will equal the observed values. To randomize them, separate low values into their own strata (e.g. `zero_stratum = TRUE`, or a `transform`), or use a different `fixed` mode.
+#> Warning: At some sites, every randomized value equalled the observed value, so the null model provided no comparison for them (PD: 17 sites). Their quantiles are 0.5 and their z-scores undefined. This happens, for example, at sites that are alone in their group under `site_groups`, or whose values the null model cannot rearrange; use `summary = "ties"` to see the share of tied randomizations at each site.
 
 # binary data with nullcat's curvecat algorithm
 ps2 <- ps_simulate(data_type = "binary")
@@ -207,5 +247,15 @@ rand <- ps_rand(ps2, "PD", "nullmodel", "r2")
 ps3 <- ps_simulate(data_type = "abund")
 rand <- ps_rand(ps3, metric = c("ShPD", "SiPD"),
       fun = "nullmodel", method = "abuswap_c")
+
+# spatially constrained null model: randomize within a different random
+# tiling of 500 km hexagons in each randomization
+if(requireNamespace("nullcat")){
+    ps4 <- moss()
+    tiles <- ps_tile_groups(ps4, spacing = 500e3, n = 20)
+    rand <- ps_rand(ps4, metric = "PE", fun = "quantize", n_rand = 20,
+                    zero_stratum = TRUE, n_iter = 5000,
+                    site_groups = tiles, summary = c("quantile", "ties"))
+}
 # }
 ```
