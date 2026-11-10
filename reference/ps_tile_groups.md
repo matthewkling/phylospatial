@@ -1,7 +1,7 @@
 # Random spatial tilings of a phylospatial data set
 
-Generates random hexagonal tilings of the occupied sites in a
-`phylospatial` object, for use as `site_groups` in
+Generates random tilings of the occupied sites in a `phylospatial`
+object, for use as `site_groups` in
 [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md).
 This is a wrapper around
 [`nullcat::tile_groups()`](https://matthewkling.github.io/nullcat/reference/tile_groups.html)
@@ -21,10 +21,11 @@ ps_tile_groups(ps, spacing = NULL, n = 1, group_size = NULL)
 
 - spacing:
 
-  Distance between the centers of neighboring tiles: in meters if `ps`
-  has a coordinate reference system, otherwise in coordinate units.
-  Either a single value or a vector of `n` values (one per tiling).
-  Supply either `spacing` or `group_size`.
+  The size of the tiles: the distance between the centers of neighboring
+  hexagonal tiles, or on the sphere, the equivalent spacing for tiles of
+  the same area. In meters if `ps` has a coordinate reference system,
+  otherwise in coordinate units. Either a single value or a vector of
+  `n` values (one per tiling). Supply either `spacing` or `group_size`.
 
 - n:
 
@@ -52,9 +53,9 @@ constrained null model: in each randomization, the community matrix is
 randomized independently within each tile of a different, randomly
 placed and oriented tiling, so taxa are only redistributed among nearby
 sites. Across randomizations, two sites a distance `d` apart share a
-tile with a probability that falls from 1 at `d = 0` to about 0.5 at
-`d = 0.42 * spacing`, and to 0 at about `1.15 * spacing` (somewhat more
-for the occasional elongated tile in geographic coordinates). See
+tile with a probability that depends only on `d`: it falls from 1 at
+`d = 0` to about 0.5 at `d = 0.42 * spacing`, and to 0 at about
+`1.15 * spacing` in the plane or `1.3 * spacing` on the sphere. See
 [`nullcat::tile_groups()`](https://matthewkling.github.io/nullcat/reference/tile_groups.html)
 for details.
 
@@ -62,8 +63,10 @@ Site coordinates are cell centers for raster data, or feature centroids
 for `sf` data. If `ps` has a coordinate reference system, sites are
 projected to longitude and latitude and tiled on the sphere, with
 `spacing` in meters, so results don't depend on the map projection.
-Without a coordinate reference system, sites are tiled in the plane,
-with `spacing` in coordinate units.
+Tiles on the sphere all have the same area, but vary in shape between
+irregular hexagons and near-squares. Without a coordinate reference
+system, sites are tiled with regular hexagons in the plane, with
+`spacing` in coordinate units.
 
 The scale of the tiling can be set either as a distance (`spacing`) or
 as a nominal number of sites per tile (`group_size`). `group_size` is

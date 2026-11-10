@@ -29,14 +29,15 @@
 
 - New function
   [`ps_tile_groups()`](https://matthewkling.github.io/phylospatial/reference/ps_tile_groups.md)
-  generates random hexagonal tilings of the occupied sites (via
+  generates random tilings of the occupied sites (via
   [`nullcat::tile_groups()`](https://matthewkling.github.io/nullcat/reference/tile_groups.html)),
   for use as `site_groups`. Randomizing within a different random tiling
   in each randomization pools each site with its neighbors, giving a
   distance-based null model: two sites share a tile about half the time
   at a distance of `0.42 * spacing`. Sites are tiled on the sphere (with
-  `spacing` in meters) when the data have a coordinate reference system,
-  and in the plane otherwise.
+  equal-area tiles and `spacing` in meters) when the data have a
+  coordinate reference system, and with regular hexagons in the plane
+  otherwise.
 
 - New function
   [`ps_group_sizes()`](https://matthewkling.github.io/phylospatial/reference/ps_group_sizes.md)

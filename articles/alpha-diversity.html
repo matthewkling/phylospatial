@@ -195,8 +195,9 @@ all the same parameters we plan to use for <code><a href="../reference/ps_rand.h
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tf</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="fl">0.001</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">iters</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter</a></span><span class="op">(</span><span class="va">ps</span>, fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, transform <span class="op">=</span> <span class="va">tf</span>,</span>
-<span>                           n_iter <span class="op">=</span> <span class="fl">2e5</span>, plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">iters</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter</a></span><span class="op">(</span></span>
+<span>      <span class="va">ps</span>, fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, transform <span class="op">=</span> <span class="va">tf</span>,</span>
+<span>      n_iter <span class="op">=</span> <span class="fl">2e5</span>, plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
 <img src="figures/alpha-diversity-n_iter-1.png" alt="plot of chunk n_iter"><div class="figcaption">plot of chunk n_iter</div>
 </div>
@@ -216,7 +217,7 @@ values greater than 0.95.</p>
 <code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>                metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span>, <span class="st">"CE"</span>, <span class="st">"RPE"</span><span class="op">)</span>,</span>
 <span>                fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, transform <span class="op">=</span> <span class="va">tf</span>,</span>
-<span>                n_iter <span class="op">=</span> <span class="va">iters</span>, n_cores <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
+<span>                n_iter <span class="op">=</span> <span class="va">iters</span>, n_cores <span class="op">=</span> <span class="fl">8</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">rand</span><span class="op">$</span><span class="va">qPE</span>, axes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
 <img src="figures/alpha-diversity-rand-1.png" alt="plot of chunk rand"><div class="figcaption">plot of chunk rand</div>
@@ -239,7 +240,7 @@ we need to set <code>n_iter</code> arbitrarily):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_simulate.html">ps_simulate</a></span><span class="op">(</span>data_type <span class="op">=</span> <span class="st">"abundance"</span><span class="op">)</span></span>
 <span><span class="va">rand2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps2</span>, fun <span class="op">=</span> <span class="st">"nullmodel"</span>, method <span class="op">=</span> <span class="st">"abuswap_c"</span>, metric <span class="op">=</span> <span class="st">"PD"</span>, </span>
-<span>                 n_iter <span class="op">=</span> <span class="fl">1e6</span>, n_rand <span class="op">=</span> <span class="fl">999</span><span class="op">)</span></span></code></pre></div>
+<span>                 n_iter <span class="op">=</span> <span class="fl">1e6</span>, n_rand <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="spatially-constrained-randomization">Spatially constrained randomization<a class="anchor" aria-label="anchor" href="#spatially-constrained-randomization"></a>
@@ -255,9 +256,9 @@ argument to <code><a href="../reference/ps_rand.html">ps_rand()</a></code>, and 
 <code>fun = "nullcat"</code> or <code>fun = "quantize"</code>.</p>
 <p>Because spatially constrained randomizations run separately within
 each subset of sites, <code>n_iter</code> applies to each subset, and
-needs to be large enough to mix the largest one. That can be more or
-fewer iterations than the full matrix needs (since smaller pools have
-less to mix but can also have more constraints), so pass your
+needs to be large enough to mix all of them. That can be more or fewer
+iterations than the full matrix needs (since smaller pools have less to
+mix but can also have more constraints), so pass your
 <code>site_groups</code> to <code><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter()</a></code>, which
 traces the grouped randomization as it will be run and estimates the
 iterations needed per subset.</p>
@@ -286,24 +287,28 @@ coordinates:</p>
 <p>To instead use a smoother, distance-based approach, use
 <code>site_groups = ps_tile_groups(...)</code>, which pools each site
 with its neighbors, more often the closer they are.</p>
-<p>This is implemented by tiling the study area with hexagonal tiles,
-sized by <code>spacing</code> (the distance between neighboring tile
-centers) or alternatively by <code>group_size</code> (the nominal number
-of sites per tile). In any single randomization, a site only exchanges
-data with other sites in its own tile, but the tiling is randomly
-shifted and rotated in each randomization, so across randomizations,
-nearby sites share a tile more often than distant ones. The result is a
-smooth distance kernel: the frequency with which two sites share a tile
+<p>This is implemented by partitioning the study area into compact tiles
+of equal area, sized by <code>spacing</code> (the distance between
+neighboring tile centers, for a grid of regular hexagons) or
+alternatively by <code>group_size</code> (the nominal number of sites
+per tile). In any single randomization, a site only exchanges data with
+other sites in its own tile, but the tiling is randomly shifted and
+rotated in each randomization, so across randomizations, nearby sites
+share a tile more often than distant ones. The result is a smooth
+distance kernel: the frequency with which two sites share a tile
 declines roughly linearly at short distances, falls to one half when
-they are <code>0.42 * spacing</code> apart, and tapers to zero at about
-<code>1.15 * spacing</code>.</p>
+they are about <code>0.42 * spacing</code> apart, and tapers to zero by
+about <code>1.3 * spacing</code>. For data with a coordinate reference
+system, like the moss data, tiles are laid out on the sphere, where they
+all have the area of a hexagon with the given spacing but vary in shape
+between irregular hexagons and near-squares. See the <a href="https://matthewkling.github.io/nullcat/articles/nullcat.html#random-spatial-tilings" class="external-link">nullcat
+vignette</a> for illustrations of the tiles and the kernel.</p>
 <p>Sites near edges and gaps tend to fall in tiles with few other sites,
 and a site that is alone in its tile can’t be randomized, so it’s worth
 checking pool sizes when choosing <code>spacing</code>. Let’s define our
 tiles using a <code>spacing</code> of 250 km, and map each site’s
-average pool size. Since the moss data have a coordinate reference
-system, tiles are laid out on the sphere and <code>spacing</code> is in
-meters:</p>
+average pool size. Since the moss data are tiled on the sphere,
+<code>spacing</code> is in meters:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_tile_groups.html">ps_tile_groups</a></span><span class="op">(</span><span class="va">ps</span>, spacing <span class="op">=</span> <span class="fl">250e3</span>, n <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/ps_group_sizes.html">ps_group_sizes</a></span><span class="op">(</span><span class="va">ps</span>, <span class="va">tiles</span><span class="op">)</span>, axes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -313,8 +318,9 @@ meters:</p>
 <p>Next let’s check how many iterations we need, using the same
 <code><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter()</a></code> call as above but with our tiles:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">iters</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter</a></span><span class="op">(</span><span class="va">ps</span>, fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, transform <span class="op">=</span> <span class="va">tf</span>,</span>
-<span>                           n_iter <span class="op">=</span> <span class="fl">1.5e5</span>, plot <span class="op">=</span> <span class="cn">FALSE</span>, site_groups <span class="op">=</span> <span class="va">tiles</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">iters_spatial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_suggest_n_iter.html">ps_suggest_n_iter</a></span><span class="op">(</span></span>
+<span>      <span class="va">ps</span>, fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, transform <span class="op">=</span> <span class="va">tf</span>,</span>
+<span>      n_iter <span class="op">=</span> <span class="fl">1.5e5</span>, plot <span class="op">=</span> <span class="cn">FALSE</span>, site_groups <span class="op">=</span> <span class="va">tiles</span><span class="op">)</span></span></code></pre></div>
 <p>Here each tile needs more iterations (roughly 80,000) than the full
 matrix did (roughly 30,000): within a small tile, sites tend to be
 similar to their neighbors, so there are fewer opportunities to exchange
@@ -327,11 +333,11 @@ also return the share of randomizations that tie the observed value at
 each site, which flags sites, typically in small edge tiles, whose
 quantiles are pulled toward 0.5.)</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rand_spatial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">1000</span>, progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<code class="sourceCode R"><span><span class="va">rand_spatial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ps_rand.html">ps_rand</a></span><span class="op">(</span><span class="va">ps</span>, n_rand <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>                        site_groups <span class="op">=</span> <span class="va">tiles</span>,</span>
 <span>                        metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PD"</span>, <span class="st">"PE"</span>, <span class="st">"CE"</span>, <span class="st">"RPE"</span><span class="op">)</span>,</span>
 <span>                        fun <span class="op">=</span> <span class="st">"quantize"</span>, method <span class="op">=</span> <span class="st">"curvecat"</span>, transform <span class="op">=</span> <span class="va">tf</span>,</span>
-<span>                        n_iter <span class="op">=</span> <span class="va">iters</span>, n_cores <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
+<span>                        n_iter <span class="op">=</span> <span class="va">iters_spatial</span>, n_cores <span class="op">=</span> <span class="fl">8</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">rand_comp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">rand</span><span class="op">$</span><span class="va">qPE</span>, <span class="va">rand_spatial</span><span class="op">$</span><span class="va">qPE</span><span class="op">)</span>,</span>
 <span>                      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"unconstrained"</span>, <span class="st">"spacing = 250 km"</span><span class="op">)</span><span class="op">)</span></span>

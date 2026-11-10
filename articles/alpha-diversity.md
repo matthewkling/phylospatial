@@ -129,8 +129,9 @@ choice, we can call
 
 tf <- function(x) log10(x + 0.001)
 set.seed(123)
-iters <- ps_suggest_n_iter(ps, fun = "quantize", method = "curvecat", transform = tf,
-                           n_iter = 2e5, plot = TRUE)
+iters <- ps_suggest_n_iter(
+      ps, fun = "quantize", method = "curvecat", transform = tf,
+      n_iter = 2e5, plot = TRUE)
 ```
 
 ![plot of chunk n_iter](figures/alpha-diversity-n_iter-1.png)
@@ -156,7 +157,7 @@ than 0.95.
 rand <- ps_rand(ps, n_rand = 1000,
                 metric = c("PD", "PE", "CE", "RPE"),
                 fun = "quantize", method = "curvecat", transform = tf,
-                n_iter = iters, n_cores = 8)
+                n_iter = iters, n_cores = 8, progress = FALSE)
 plot(rand$qPE, axes = FALSE)
 ```
 
@@ -184,7 +185,7 @@ doesn’t work with `vegan`, we need to set `n_iter` arbitrarily):
 
 ps2 <- ps_simulate(data_type = "abundance")
 rand2 <- ps_rand(ps2, fun = "nullmodel", method = "abuswap_c", metric = "PD", 
-                 n_iter = 1e6, n_rand = 999)
+                 n_iter = 1e6, n_rand = 1000)
 ```
 
 ## Spatially constrained randomization
@@ -201,8 +202,8 @@ and are only compatible with `fun = "nullcat"` or `fun = "quantize"`.
 
 Because spatially constrained randomizations run separately within each
 subset of sites, `n_iter` applies to each subset, and needs to be large
-enough to mix the largest one. That can be more or fewer iterations than
-the full matrix needs (since smaller pools have less to mix but can also
+enough to mix all of them. That can be more or fewer iterations than the
+full matrix needs (since smaller pools have less to mix but can also
 have more constraints), so pass your `site_groups` to
 [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md),
 which traces the grouped randomization as it will be run and estimates
@@ -235,23 +236,29 @@ To instead use a smoother, distance-based approach, use
 `site_groups = ps_tile_groups(...)`, which pools each site with its
 neighbors, more often the closer they are.
 
-This is implemented by tiling the study area with hexagonal tiles, sized
-by `spacing` (the distance between neighboring tile centers) or
-alternatively by `group_size` (the nominal number of sites per tile). In
-any single randomization, a site only exchanges data with other sites in
-its own tile, but the tiling is randomly shifted and rotated in each
+This is implemented by partitioning the study area into compact tiles of
+equal area, sized by `spacing` (the distance between neighboring tile
+centers, for a grid of regular hexagons) or alternatively by
+`group_size` (the nominal number of sites per tile). In any single
+randomization, a site only exchanges data with other sites in its own
+tile, but the tiling is randomly shifted and rotated in each
 randomization, so across randomizations, nearby sites share a tile more
 often than distant ones. The result is a smooth distance kernel: the
 frequency with which two sites share a tile declines roughly linearly at
-short distances, falls to one half when they are `0.42 * spacing` apart,
-and tapers to zero at about `1.15 * spacing`.
+short distances, falls to one half when they are about `0.42 * spacing`
+apart, and tapers to zero by about `1.3 * spacing`. For data with a
+coordinate reference system, like the moss data, tiles are laid out on
+the sphere, where they all have the area of a hexagon with the given
+spacing but vary in shape between irregular hexagons and near-squares.
+See the [nullcat
+vignette](https://matthewkling.github.io/nullcat/articles/nullcat.html#random-spatial-tilings)
+for illustrations of the tiles and the kernel.
 
 Sites near edges and gaps tend to fall in tiles with few other sites,
 and a site that is alone in its tile can’t be randomized, so it’s worth
 checking pool sizes when choosing `spacing`. Let’s define our tiles
 using a `spacing` of 250 km, and map each site’s average pool size.
-Since the moss data have a coordinate reference system, tiles are laid
-out on the sphere and `spacing` is in meters:
+Since the moss data are tiled on the sphere, `spacing` is in meters:
 
 ``` r
 
@@ -269,8 +276,9 @@ call as above but with our tiles:
 
 ``` r
 
-iters <- ps_suggest_n_iter(ps, fun = "quantize", method = "curvecat", transform = tf,
-                           n_iter = 1.5e5, plot = FALSE, site_groups = tiles)
+iters_spatial <- ps_suggest_n_iter(
+      ps, fun = "quantize", method = "curvecat", transform = tf,
+      n_iter = 1.5e5, plot = FALSE, site_groups = tiles)
 ```
 
 Here each tile needs more iterations (roughly 80,000) than the full
@@ -288,11 +296,11 @@ sites, typically in small edge tiles, whose quantiles are pulled toward
 
 ``` r
 
-rand_spatial <- ps_rand(ps, n_rand = 1000, progress = FALSE,
+rand_spatial <- ps_rand(ps, n_rand = 1000,
                         site_groups = tiles,
                         metric = c("PD", "PE", "CE", "RPE"),
                         fun = "quantize", method = "curvecat", transform = tf,
-                        n_iter = iters, n_cores = 8)
+                        n_iter = iters_spatial, n_cores = 8, progress = FALSE)
 
 rand_comp <- setNames(c(rand$qPE, rand_spatial$qPE),
                       c("unconstrained", "spacing = 250 km"))
