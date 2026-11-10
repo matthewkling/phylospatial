@@ -1,6 +1,6 @@
 #' Random spatial tilings of a phylospatial data set
 #'
-#' Generates random hexagonal tilings of the occupied sites in a `phylospatial`
+#' Generates random tilings of the occupied sites in a `phylospatial`
 #' object, for use as `site_groups` in [ps_rand()]. This is a wrapper around
 #' [nullcat::tile_groups()] that extracts site coordinates from `ps`.
 #'
@@ -9,16 +9,17 @@
 #' randomized independently within each tile of a different, randomly placed
 #' and oriented tiling, so taxa are only redistributed among nearby sites.
 #' Across randomizations, two sites a distance `d` apart share a tile with a
-#' probability that falls from 1 at `d = 0` to about 0.5 at
-#' `d = 0.42 * spacing`, and to 0 at about `1.15 * spacing` (somewhat more for
-#' the occasional elongated tile in geographic coordinates). See
-#' [nullcat::tile_groups()] for details.
+#' probability that depends only on `d`: it falls from 1 at `d = 0` to about 0.5
+#' at `d = 0.42 * spacing`, and to 0 at about `1.15 * spacing` in the plane or
+#' `1.3 * spacing` on the sphere. See [nullcat::tile_groups()] for details.
 #'
 #' Site coordinates are cell centers for raster data, or feature centroids for
 #' `sf` data. If `ps` has a coordinate reference system, sites are projected to
 #' longitude and latitude and tiled on the sphere, with `spacing` in meters, so
-#' results don't depend on the map projection. Without a coordinate reference
-#' system, sites are tiled in the plane, with `spacing` in coordinate units.
+#' results don't depend on the map projection. Tiles on the sphere all have the
+#' same area, but vary in shape between irregular hexagons and near-squares.
+#' Without a coordinate reference system, sites are tiled with regular hexagons
+#' in the plane, with `spacing` in coordinate units.
 #'
 #' The scale of the tiling can be set either as a distance (`spacing`) or as a
 #' nominal number of sites per tile (`group_size`). `group_size` is converted to
@@ -35,8 +36,10 @@
 #' pool size.
 #'
 #' @param ps A `phylospatial` object with spatial data.
-#' @param spacing Distance between the centers of neighboring tiles: in meters
-#'   if `ps` has a coordinate reference system, otherwise in coordinate units.
+#' @param spacing The size of the tiles: the distance between the centers of
+#'   neighboring hexagonal tiles, or on the sphere, the equivalent spacing for
+#'   tiles of the same area. In meters if `ps` has a coordinate reference
+#'   system, otherwise in coordinate units.
 #'   Either a single value or a vector of `n` values (one per tiling). Supply
 #'   either `spacing` or `group_size`.
 #' @param n Number of tilings to generate. For `ps_rand()`, use one per

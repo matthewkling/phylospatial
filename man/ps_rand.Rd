@@ -150,7 +150,7 @@ rand <- ps_rand(ps3, metric = c("ShPD", "SiPD"),
       fun = "nullmodel", method = "abuswap_c")
 
 # spatially constrained null model: randomize within a different random
-# tiling of 500 km hexagons in each randomization
+# tiling (with 500 km spacing) in each randomization
 if(requireNamespace("nullcat")){
     ps4 <- moss()
     tiles <- ps_tile_groups(ps4, spacing = 500e3, n = 20)

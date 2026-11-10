@@ -9,8 +9,10 @@ ps_tile_groups(ps, spacing = NULL, n = 1, group_size = NULL)
 \arguments{
 \item{ps}{A \code{phylospatial} object with spatial data.}
 
-\item{spacing}{Distance between the centers of neighboring tiles: in meters
-if \code{ps} has a coordinate reference system, otherwise in coordinate units.
+\item{spacing}{The size of the tiles: the distance between the centers of
+neighboring hexagonal tiles, or on the sphere, the equivalent spacing for
+tiles of the same area. In meters if \code{ps} has a coordinate reference
+system, otherwise in coordinate units.
 Either a single value or a vector of \code{n} values (one per tiling). Supply
 either \code{spacing} or \code{group_size}.}
 
@@ -27,7 +29,7 @@ An integer matrix with a row for every occupied site (in the order of
 the tile spacing used as its \code{"spacing"} attribute.
 }
 \description{
-Generates random hexagonal tilings of the occupied sites in a \code{phylospatial}
+Generates random tilings of the occupied sites in a \code{phylospatial}
 object, for use as \code{site_groups} in \code{\link[=ps_rand]{ps_rand()}}. This is a wrapper around
 \code{\link[nullcat:tile_groups]{nullcat::tile_groups()}} that extracts site coordinates from \code{ps}.
 }
@@ -37,16 +39,17 @@ constrained null model: in each randomization, the community matrix is
 randomized independently within each tile of a different, randomly placed
 and oriented tiling, so taxa are only redistributed among nearby sites.
 Across randomizations, two sites a distance \code{d} apart share a tile with a
-probability that falls from 1 at \code{d = 0} to about 0.5 at
-\code{d = 0.42 * spacing}, and to 0 at about \code{1.15 * spacing} (somewhat more for
-the occasional elongated tile in geographic coordinates). See
-\code{\link[nullcat:tile_groups]{nullcat::tile_groups()}} for details.
+probability that depends only on \code{d}: it falls from 1 at \code{d = 0} to about 0.5
+at \code{d = 0.42 * spacing}, and to 0 at about \code{1.15 * spacing} in the plane or
+\code{1.3 * spacing} on the sphere. See \code{\link[nullcat:tile_groups]{nullcat::tile_groups()}} for details.
 
 Site coordinates are cell centers for raster data, or feature centroids for
 \code{sf} data. If \code{ps} has a coordinate reference system, sites are projected to
 longitude and latitude and tiled on the sphere, with \code{spacing} in meters, so
-results don't depend on the map projection. Without a coordinate reference
-system, sites are tiled in the plane, with \code{spacing} in coordinate units.
+results don't depend on the map projection. Tiles on the sphere all have the
+same area, but vary in shape between irregular hexagons and near-squares.
+Without a coordinate reference system, sites are tiled with regular hexagons
+in the plane, with \code{spacing} in coordinate units.
 
 The scale of the tiling can be set either as a distance (\code{spacing}) or as a
 nominal number of sites per tile (\code{group_size}). \code{group_size} is converted to
