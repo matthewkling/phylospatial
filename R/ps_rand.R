@@ -65,8 +65,8 @@
 #'    columns), giving a different grouping for each; [ps_tile_groups()] generates such a matrix of random
 #'    spatial tilings, which pools each site with its neighbors. Rows (or elements) correspond either to all
 #'    sites, as for the `site_weight` argument of [phylospatial()], or to occupied sites only, as returned by
-#'    [ps_tile_groups()]. With `site_groups`, `n_iter` iterations are run within every group, so `n_iter`
-#'    only needs to be large enough for the largest group; pass the same `site_groups` to
+#'    [ps_tile_groups()]. With `site_groups`, `n_iter` iterations are run within every group; the number
+#'    needed can be more or fewer than for the full matrix, so pass the same `site_groups` to
 #'    [ps_suggest_n_iter()] to estimate it. See [nullcat::nullcat()] for details.
 #' @param wt_row,wt_col No longer supported, and must be `NULL` (the default); supplying a weight matrix
 #'    gives an error. Weighting which pairs of sites exchange values does not constrain the null model

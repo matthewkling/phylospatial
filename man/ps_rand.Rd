@@ -92,8 +92,8 @@ region), applied to every randomization, or a matrix with one column per randomi
 columns), giving a different grouping for each; \code{\link[=ps_tile_groups]{ps_tile_groups()}} generates such a matrix of random
 spatial tilings, which pools each site with its neighbors. Rows (or elements) correspond either to all
 sites, as for the \code{site_weight} argument of \code{\link[=phylospatial]{phylospatial()}}, or to occupied sites only, as returned by
-\code{\link[=ps_tile_groups]{ps_tile_groups()}}. With \code{site_groups}, \code{n_iter} iterations are run within every group, so \code{n_iter}
-only needs to be large enough for the largest group; pass the same \code{site_groups} to
+\code{\link[=ps_tile_groups]{ps_tile_groups()}}. With \code{site_groups}, \code{n_iter} iterations are run within every group; the number
+needed can be more or fewer than for the full matrix, so pass the same \code{site_groups} to
 \code{\link[=ps_suggest_n_iter]{ps_suggest_n_iter()}} to estimate it. See \code{\link[nullcat:nullcat]{nullcat::nullcat()}} for details.}
 
 \item{wt_row, wt_col}{No longer supported, and must be \code{NULL} (the default); supplying a weight matrix

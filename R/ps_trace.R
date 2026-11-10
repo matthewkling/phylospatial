@@ -14,10 +14,12 @@
 #'    to [ps_rand()].
 #' @param plot Logical: if `TRUE`, plot the mixing traces with the suggested burn-in marked.
 #' @param site_groups Optional grouping of sites, as passed to [ps_rand()]. Randomizations then run
-#'    independently within groups, with `n_iter` applied to each group, so the trace is run on the
-#'    largest group (searched across up to the first 10 columns of a matrix of groupings), and the
-#'    result estimates the `n_iter` needed per group. Use the same `site_groups` (e.g. tilings from
-#'    [ps_tile_groups()] with the same `spacing`) as in the intended `ps_rand()` call.
+#'    independently within groups, with `n_iter` applied to each group. The trace runs the grouped
+#'    randomization as a whole (using the first column of a matrix of groupings), so the result
+#'    estimates the `n_iter` needed per group, which can be more or fewer than the full matrix needs.
+#'    Use the same `site_groups` (e.g. tilings from [ps_tile_groups()] with the same `spacing`) as in
+#'    the intended `ps_rand()` call. Each traced chain costs as much as one grouped randomization of
+#'    `n_iter` iterations.
 #' @param ... Additional arguments passed to [nullcat::suggest_n_iter()] and through to
 #'    [nullcat::trace_cat()], such as `method`, `n_iter`, `n_chains`, `n_strata`, `fixed`, etc.
 #' @return An integer giving the suggested minimum number of iterations, with additional
@@ -71,10 +73,12 @@ ps_suggest_n_iter <- function(ps, fun = c("nullcat", "quantize"), plot = TRUE, s
 #'    to [ps_rand()].
 #' @param plot Logical: if `TRUE`, plot the traces.
 #' @param site_groups Optional grouping of sites, as passed to [ps_rand()]. Randomizations then run
-#'    independently within groups, with `n_iter` applied to each group, so the trace is run on the
-#'    largest group (searched across up to the first 10 columns of a matrix of groupings), and the
-#'    result estimates the `n_iter` needed per group. Use the same `site_groups` (e.g. tilings from
-#'    [ps_tile_groups()] with the same `spacing`) as in the intended `ps_rand()` call.
+#'    independently within groups, with `n_iter` applied to each group. The trace runs the grouped
+#'    randomization as a whole (using the first column of a matrix of groupings), so the result
+#'    estimates the `n_iter` needed per group, which can be more or fewer than the full matrix needs.
+#'    Use the same `site_groups` (e.g. tilings from [ps_tile_groups()] with the same `spacing`) as in
+#'    the intended `ps_rand()` call. Each traced chain costs as much as one grouped randomization of
+#'    `n_iter` iterations.
 #' @param ... Additional arguments passed to [nullcat::trace_cat()], such as `method`,
 #'    `n_iter`, `thin`, `n_chains`, `n_strata`, `fixed`, `stat`, etc.
 #' @return An object of class `"cat_trace"`. See [nullcat::trace_cat()] for details.

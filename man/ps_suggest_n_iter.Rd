@@ -21,10 +21,12 @@ to \code{\link[=ps_rand]{ps_rand()}}.}
 \item{plot}{Logical: if \code{TRUE}, plot the mixing traces with the suggested burn-in marked.}
 
 \item{site_groups}{Optional grouping of sites, as passed to \code{\link[=ps_rand]{ps_rand()}}. Randomizations then run
-independently within groups, with \code{n_iter} applied to each group, so the trace is run on the
-largest group (searched across up to the first 10 columns of a matrix of groupings), and the
-result estimates the \code{n_iter} needed per group. Use the same \code{site_groups} (e.g. tilings from
-\code{\link[=ps_tile_groups]{ps_tile_groups()}} with the same \code{spacing}) as in the intended \code{ps_rand()} call.}
+independently within groups, with \code{n_iter} applied to each group. The trace runs the grouped
+randomization as a whole (using the first column of a matrix of groupings), so the result
+estimates the \code{n_iter} needed per group, which can be more or fewer than the full matrix needs.
+Use the same \code{site_groups} (e.g. tilings from \code{\link[=ps_tile_groups]{ps_tile_groups()}} with the same \code{spacing}) as in
+the intended \code{ps_rand()} call. Each traced chain costs as much as one grouped randomization of
+\code{n_iter} iterations.}
 
 \item{...}{Additional arguments passed to \code{\link[nullcat:suggest_n_iter]{nullcat::suggest_n_iter()}} and through to
 \code{\link[nullcat:trace_cat]{nullcat::trace_cat()}}, such as \code{method}, \code{n_iter}, \code{n_chains}, \code{n_strata}, \code{fixed}, etc.}

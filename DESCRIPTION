@@ -33,11 +33,12 @@ Suggests:
     hillR,
     picante,
     phytools,
-    nullcat (>= 0.2.0.9000),
+    nullcat (>= 0.2.0.9001),
     parallelDist,
     prioritizr (>= 9.0.0),
     highs,
     Matrix
+Remotes: matthewkling/nullcat
 URL: https://matthewkling.github.io/phylospatial/, https://github.com/matthewkling/phylospatial
 Config/testthat/edition: 3
 Depends: 
