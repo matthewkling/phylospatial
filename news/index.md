@@ -1,6 +1,6 @@
 # Changelog
 
-## phylospatial (development version)
+## phylospatial 1.7.0
 
 - Bug fix: the default `ps_rand(fun = "tip_shuffle")` null model did not
   randomize anything. It shuffled the tip names of the community matrix
@@ -10,6 +10,42 @@
   of 0 at every site. Tip ranges are now shuffled among tips as
   intended. The bug was introduced in version 1.2.0; `tip_shuffle`
   results from versions 1.2.0 to 1.6.0 should be rerun.
+
+- Bug fix: `ps_rand(summary = "quantile")` now counts randomizations
+  that tie the observed value as one half (a mid-rank quantile).
+  Previously ties counted entirely against the observed value, so sites
+  whose null values equaled the observed value got spuriously low
+  quantiles: a site that the null model cannot alter received a quantile
+  of 0, which reads as significantly low diversity. Such sites now get
+  0.5. This mainly affects null models that leave some sites unchanged.
+  For example, under `fun = "quantize"` with the default strata, sites
+  whose values all fall in a single stratum are never altered. In the
+  [`moss()`](https://matthewkling.github.io/phylospatial/reference/moss.md)
+  data these were 64 of 527 sites, accounting for 22% of sites with PD
+  quantiles below 0.05. Results can change wherever ties occur,
+  including CANAPE categories from
+  [`ps_canape()`](https://matthewkling.github.io/phylospatial/reference/ps_canape.md).
+
+- The `wt_row` and `wt_col` arguments to
+  [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+  and
+  [`ps_quantize()`](https://matthewkling.github.io/phylospatial/reference/ps_quantize.md)
+  are defunct, and now give an error unless `NULL`;
+  [`ps_trace()`](https://matthewkling.github.io/phylospatial/reference/ps_trace.md)
+  and
+  [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md)
+  give the same error if they are passed through `...`. These weights
+  were documented as producing spatially constrained null models, but
+  they do not. With distance-decay weights, or any weights that link all
+  sites through chains of neighbors, the randomization converges to the
+  same null as unweighted randomization as `n_iter` grows, so any
+  apparent spatial constraint reflects incomplete mixing. Zone-based
+  weights (sites split into groups with zero weight between them) are
+  not respected under `quantize`’s default `fixed = "cell"` setting, and
+  the convergence diagnostics ignored weights for `fun = "quantize"`.
+  Use the new `site_groups` argument instead (see below), to which the
+  error message points. The distance-weighting examples have been
+  removed from the documentation and the alpha diversity vignette.
 
 - Spatially constrained null models:
   [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md),
@@ -25,7 +61,7 @@
   only. `n_iter` is applied within each group, and the trace functions
   trace the grouped randomization as a whole, estimating the `n_iter`
   needed per group (which can be more or fewer than for the full
-  matrix). This requires `nullcat` 0.2.0.9001 or later.
+  matrix). This requires `nullcat` 0.3.0 or later.
 
 - New function
   [`ps_tile_groups()`](https://matthewkling.github.io/phylospatial/reference/ps_tile_groups.md)
@@ -44,6 +80,14 @@
   maps each site’s average pool size under a site grouping, to help
   choose a tile `spacing`.
 
+- [`ps_canape()`](https://matthewkling.github.io/phylospatial/reference/ps_canape.md)
+  now attaches a color table with the conventional CANAPE colors to
+  `SpatRaster` results, so
+  [`terra::plot()`](https://rspatial.github.io/terra/reference/plot.html)
+  shows them by default and
+  [`terra::writeRaster()`](https://rspatial.github.io/terra/reference/writeRaster.html)
+  saves them.
+
 - [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)’s
   `summary` argument accepts several values, and a new option, `"ties"`,
   returns the proportion of randomizations tying the observed value at
@@ -52,45 +96,6 @@
   [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
   now also warns when, at some sites, every randomization ties the
   observed value, i.e. the null model provided no comparison.
-
-- The error for non-`NULL` `wt_row` / `wt_col` now points to
-  `site_groups`.
-
-- Bug fix: `ps_rand(summary = "quantile")` now counts randomizations
-  that tie the observed value as one half (a mid-rank quantile).
-  Previously ties counted entirely against the observed value, so sites
-  whose null values equalled the observed value got spuriously low
-  quantiles: a site that the null model cannot alter received a quantile
-  of 0, which reads as significantly low diversity. Such sites now get
-  0.5. This mainly affects null models that leave some sites unchanged.
-  For example, under `fun = "quantize"` with the default strata, sites
-  whose values all fall in a single stratum are never altered. In the
-  [`moss()`](https://matthewkling.github.io/phylospatial/reference/moss.md)
-  data these were 64 of 527 sites, accounting for 22% of sites with PD
-  quantiles below 0.05. Results can change wherever ties occur,
-  including CANAPE categories from
-  [`ps_canape()`](https://matthewkling.github.io/phylospatial/reference/ps_canape.md).
-
-- The `wt_row` and `wt_col` arguments to
-  [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
-  and
-  [`ps_quantize()`](https://matthewkling.github.io/phylospatial/reference/ps_quantize.md)
-  are temporarily disabled, and now give an error unless `NULL`;
-  [`ps_trace()`](https://matthewkling.github.io/phylospatial/reference/ps_trace.md)
-  and
-  [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md)
-  give the same error if they are passed through `...`. These weights
-  were documented as producing spatially constrained null models, but
-  they do not. With distance-decay weights, or any weights that link all
-  sites through chains of neighbors, the randomization converges to the
-  same null as unweighted randomization as `n_iter` grows, so any
-  apparent spatial constraint reflects incomplete mixing. Zone-based
-  weights (sites split into groups with zero weight between them) are
-  not respected under `quantize`’s default `fixed = "cell"` setting, and
-  the convergence diagnostics ignored weights for `fun = "quantize"`.
-  The arguments are kept as placeholders for a planned spatially
-  constrained null model, and the distance-weighting examples have been
-  removed from the documentation and the alpha diversity vignette.
 
 - New function
   [`ps_dissim_paired()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_paired.md)

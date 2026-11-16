@@ -71,7 +71,11 @@ determining significance.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of the same class as <code>rand</code> containing a variable called <code>"canape"</code>, with values 0-4
-corresponding to not-significant, mixed-, super-, neo-, and paleo-endemism, respectively.</p>
+corresponding to not-significant, mixed-, super-, neo-, and paleo-endemism, respectively. For a
+<code>SpatRaster</code>, the categories are labeled and the layer carries a color table with the conventional
+CANAPE colors (<code>"gray90"</code>, <code>"#CB7FFF"</code>, <code>"#9D00FF"</code>, <code>"red"</code>, and <code>"royalblue"</code>, in category order),
+which <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">terra::plot()</a></code> uses and <code><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">terra::writeRaster()</a></code> saves; pass <code>col</code> to <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code> to use different
+colors. For other classes, <code>canape</code> is a factor with labeled levels.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

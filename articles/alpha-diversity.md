@@ -87,9 +87,7 @@ div <- ps_diversity(ps, metric = c("PD", "PE"))
 plot(div, axes = FALSE)
 ```
 
-![plot of chunk alpha](figures/alpha-diversity-alpha-1.png)
-
-plot of chunk alpha
+![](figures/alpha-diversity-alpha-1.png)
 
 ## Null model randomization
 
@@ -134,9 +132,7 @@ iters <- ps_suggest_n_iter(
       n_iter = 2e5, plot = TRUE)
 ```
 
-![plot of chunk n_iter](figures/alpha-diversity-n_iter-1.png)
-
-plot of chunk n_iter
+![](figures/alpha-diversity-n_iter-1.png)
 
 This suggests we need around 30,000 iterations for our matrix to mix
 sufficiently, so we’ll pass that value to
@@ -161,9 +157,7 @@ rand <- ps_rand(ps, n_rand = 1000,
 plot(rand$qPE, axes = FALSE)
 ```
 
-![plot of chunk rand](figures/alpha-diversity-rand-1.png)
-
-plot of chunk rand
+![](figures/alpha-diversity-rand-1.png)
 
 There are numerous alternative options for randomization algorithms, a
 choice that will depend on the type of occurrence data you have
@@ -266,9 +260,7 @@ tiles <- ps_tile_groups(ps, spacing = 250e3, n = 1000)
 plot(ps_group_sizes(ps, tiles), axes = FALSE)
 ```
 
-![plot of chunk tiles](figures/alpha-diversity-tiles-1.png)
-
-plot of chunk tiles
+![](figures/alpha-diversity-tiles-1.png)
 
 Next let’s check how many iterations we need, using the same
 [`ps_suggest_n_iter()`](https://matthewkling.github.io/phylospatial/reference/ps_suggest_n_iter.md)
@@ -307,10 +299,7 @@ rand_comp <- setNames(c(rand$qPE, rand_spatial$qPE),
 plot(rand_comp, range = c(0, 1), axes = FALSE)
 ```
 
-![plot of chunk
-rand_spatial](figures/alpha-diversity-rand_spatial-1.png)
-
-plot of chunk rand_spatial
+![](figures/alpha-diversity-rand_spatial-1.png)
 
 ## CANAPE
 
@@ -328,11 +317,7 @@ subset of the five categories may occur in the result here:
 ``` r
 
 cp <- ps_canape(rand, alpha = .05)
-coltab(cp) <- data.frame(value = 0:4, # conventional CANAPE colors, by category
-                         col = c("gray90", "#CB7FFF", "#9D00FF", "red", "royalblue"))
 plot(cp, axes = FALSE)
 ```
 
-![plot of chunk canape](figures/alpha-diversity-canape-1.png)
-
-plot of chunk canape
+![](figures/alpha-diversity-canape-1.png)

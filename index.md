@@ -1,75 +1,206 @@
 # phylospatial
 
-`phylospatial` is an R package for spatial phylogenetic diversity
-analysis—accounting for evolutionary relationships among taxa when
-describing biodiversity patterns. The package provides functions for
-building and analyzing phylospatial data:
+`phylospatial` is an R package for spatial phylogenetics: mapping and
+analyzing biodiversity in a way that accounts for the evolutionary
+relationships among taxa. The package is built around the “phylogenetic
+diversity” family of metrics, which count each clade or branch segment
+on the phylogeny rather than giving primacy to the terminal species. It
+covers the full workflow, from building data sets to mapping diversity
+and endemism, testing significance against null models, comparing
+communities, delineating bioregions, and setting conservation
+priorities. It is designed to be flexible:
 
-- [`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
-  constructs a spatial phylogenetic data set from community data and a
-  tree.
-- [`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md)
-  calculates a range of phylogenetic diversity and endemism metrics.
-- [`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
-  computes significance values for diversity metrics using null model
-  randomizations.
-- [`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
-  calculates a pairwise community phylogenetic beta diversity matrix.
-- [`ps_ordinate()`](https://matthewkling.github.io/phylospatial/reference/ps_ordinate.md)
-  performs a community ordination to reduce the dimensionality of the
-  data set.
-- [`ps_regions()`](https://matthewkling.github.io/phylospatial/reference/ps_regions.md)
-  clusters sites into phylogenetically similar biogeographic regions.
-- [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
-  and
-  [`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
-  perform spatial optimizations to identify conservation priorities.
-
-A key feature of `phylospatial` is full support for quantitative
-community data, including occurrence probabilities (e.g., from species
-distribution models) and abundances, in addition to binary
-presence-absence data. This avoids information loss from thresholding
-continuous data, and enables new analyses not available in other spatial
-phylogenetic R packages.
-
-## Vignettes
-
-- [`vignette("phylospatial-data")`](https://matthewkling.github.io/phylospatial/articles/phylospatial-data.md)
-  gives details about constructing `phylospatial` datasets with
-  different types of data.
-- [`vignette("alpha-diversity")`](https://matthewkling.github.io/phylospatial/articles/alpha-diversity.md)
-  demonstrates calculation of alpha phylogenetic diversity and endemism
-  measures, including statistical hypothesis testing using
-  randomization-based null models.
-- [`vignette("beta-diversity")`](https://matthewkling.github.io/phylospatial/articles/beta-diversity.md)
-  shows how to calculate phylogenetic beta diversity measures including
-  nestedness and turnover, as well as phylogenetic ordination and
-  regionalization to visualize phylogenetic community structure.
-- [`vignette("prioritization")`](https://matthewkling.github.io/phylospatial/articles/prioritization.md)
-  explains how to perform a phylogenetic conservation prioritization.
+- **Any kind of occurrence data.** Binary presence-absence, abundances,
+  or continuous occurrence probabilities such as species distribution
+  model predictions. Every analysis uses quantitative values directly
+  rather than thresholding them, which avoids information loss and
+  enables analyses not available in other spatial phylogenetic R
+  packages.
+- **Any spatial format.** Raster grids (`terra`), polygons or points
+  (`sf`), or occurrence records converted to a grid with
+  [`ps_grid()`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md).
+  Results come back as maps ready to plot.
+- **A wide range of null models.** Randomizations from `vegan` and
+  `nullcat` (including stratified algorithms designed for quantitative
+  data), custom functions, and spatially constrained null models that
+  test whether sites are unusual relative to their neighbors.
+- **Not just for phylogenies.** Leave out the tree and the same tools
+  perform conventional, non-phylogenetic analyses of richness, endemism,
+  beta diversity, bioregions, and conservation priorities. Or supply
+  another kind of tree, such as a taxonomic hierarchy or a functional
+  trait dendrogram.
 
 ## Installation
 
 ``` r
 
-# you can install the package from CRAN:
+# install the package from CRAN:
 install.packages("phylospatial")
 
 # or the development version from GitHub:
 remotes::install_github("matthewkling/phylospatial")
 ```
 
-## Quick start
+## Building a data set
+
+Analyses start from a `phylospatial` object, created by
+[`phylospatial()`](https://matthewkling.github.io/phylospatial/reference/phylospatial.md)
+from a community data set (a `SpatRaster` or `sf` object with a layer or
+column per taxon, or a site-by-taxon matrix) and a phylogeny. If your
+data are occurrence points,
+[`ps_grid()`](https://matthewkling.github.io/phylospatial/reference/ps_grid.md)
+converts them to a raster data set first. The package includes an
+example data set of occurrence probabilities for 443 moss species across
+California, along with their phylogeny, which we’ll use here:
 
 ``` r
 
 library(phylospatial)
-ps <- moss() # load example data
-div <- ps_diversity(ps) # calculate diversity metrics
-terra::plot(div)
+library(terra)
+
+ps <- moss()
+ps
+#> `phylospatial` object
+#>   - 884 lineages across 527 occupied sites (1116 total) 
+#>   - community data type: probability 
+#>   - branch length rescaling: sum1 
+#>   - site weights: equal 
+#>   - spatial data class: SpatRaster 
+#>   - dissimilarity data: none
 ```
 
-![](reference/figures/README-example-1.png)
+See
+[`vignette("phylospatial-data")`](https://matthewkling.github.io/phylospatial/articles/phylospatial-data.md)
+for details on constructing data sets.
+
+## Alpha diversity
+
+[`ps_diversity()`](https://matthewkling.github.io/phylospatial/reference/ps_diversity.md)
+calculates a suite of richness, divergence, and regularity metrics,
+including phylogenetic diversity (PD) and phylogenetic endemism (PE):
+
+``` r
+
+div <- ps_diversity(ps, metric = c("PD", "PE"))
+plot(div, axes = FALSE)
+```
+
+![](reference/figures/README-alpha-1.png)
+
+[`ps_rand()`](https://matthewkling.github.io/phylospatial/reference/ps_rand.md)
+tests these metrics against a null model, and
+[`ps_canape()`](https://matthewkling.github.io/phylospatial/reference/ps_canape.md)
+uses the results to classify sites into centers of neo- and
+paleo-endemism (CANAPE). There are a range of null model algorithms
+available for different hypotheses and data types; see
+[`vignette("alpha-diversity")`](https://matthewkling.github.io/phylospatial/articles/alpha-diversity.md)
+for details. Here’s a quick version with 1000 randomizations and a
+modest number of burn-in iterations. Adding
+`site_groups = ps_tile_groups(...)` would make the null model spatially
+constrained, comparing each site only to its surroundings rather than to
+the whole study area.
+
+``` r
+
+rand <- ps_rand(ps, metric = c("PD", "PE", "CE", "RPE"), n_rand = 1000,
+                fun = "quantize", method = "curvecat",
+                transform = function(x) log10(x + 0.001),
+                n_iter = 30000, n_cores = 8, progress = FALSE)
+
+par(mfrow = c(1, 2))
+plot(rand$qPD, axes = FALSE, main = "PD null quantile")
+
+canape <- ps_canape(rand)
+plot(canape, axes = FALSE, main = "CANAPE")
+```
+
+![](reference/figures/README-canape-1.png)
+
+## Beta diversity
+
+[`ps_dissim()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim.md)
+computes various measures of phylogenetic dissimilarity between sites,
+with options to partition it into turnover and nestedness, weight
+lineages by endemism, and compare a focal site to every other site
+([`ps_dissim_focal()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_focal.md))
+or each site to itself in another data set
+([`ps_dissim_paired()`](https://matthewkling.github.io/phylospatial/reference/ps_dissim_paired.md),
+for example to measure change over time). Dissimilarities feed into
+ordination
+([`ps_ordinate()`](https://matthewkling.github.io/phylospatial/reference/ps_ordinate.md),
+[`ps_rgb()`](https://matthewkling.github.io/phylospatial/reference/ps_rgb.md))
+and bioregionalization
+([`ps_regions()`](https://matthewkling.github.io/phylospatial/reference/ps_regions.md)),
+and can be used in a wide range of analyses such as GDM and PERMANOVA
+tests. Here, sites with similar colors on the left have similar lineage
+composition, and the map on the right groups sites into four
+phylogenetic regions:
+
+``` r
+
+ps <- ps_add_dissim(ps, method = "sorensen", endemism = TRUE, normalize = TRUE)
+rgb <- ps_rgb(ps, method = "cmds")
+regions <- ps_regions(ps, k = 4, method = "average")
+
+par(mfrow = c(1, 2))
+plotRGB(rgb, scale = 1, smooth = FALSE, mar = c(0, 0, 2, 0),
+        main = "Community ordination")
+plot(regions, type = "classes", col = palette.colors(4, "Dark 2"), legend = FALSE,
+     axes = FALSE, mar = c(0, 0, 2, 0), main = "Phylogenetic regions")
+```
+
+![](reference/figures/README-beta-1.png)
+
+See
+[`vignette("beta-diversity")`](https://matthewkling.github.io/phylospatial/articles/beta-diversity.md)
+for more.
+
+## Conservation prioritization
+
+The package includes two approaches for computing optimal reserve
+networks that protect evolutionary diversity while accounting for
+existing protected areas, the cost of protection, and complementarity
+among sites:
+[`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+finds a nested ranking of sites, while
+[`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md)
+sets up a [prioritizr](https://prioritizr.net) problem that finds
+optimal solutions for a given budget or target.
+[`ps_performance()`](https://matthewkling.github.io/phylospatial/reference/ps_performance.md)
+traces how conservation value accumulates along the ranking. Here, low
+ranks (yellow) are the highest priorities for expanding California’s
+protected areas to conserve moss lineages:
+
+``` r
+
+protection <- moss(data = "protection") # existing protection level of each site
+cost <- 1 + log1p(moss(data = "popdens")) # population density as a proxy for cost
+priority <- ps_prioritize(ps, init = protection, cost = cost, progress = FALSE)
+
+rank_breaks <- c(0, 10, 25, 50, 100, 250, global(priority, "max", na.rm = TRUE)[[1]])
+plot(priority, breaks = rank_breaks, col = rev(hcl.colors(6, "inferno")),
+     axes = FALSE, plg = list(title = "priority rank"))
+```
+
+![](reference/figures/README-priority-1.png)
+
+## Learn more
+
+The [package website](https://matthewkling.github.io/phylospatial/) has
+full documentation and four vignettes:
+
+- [`vignette("phylospatial-data")`](https://matthewkling.github.io/phylospatial/articles/phylospatial-data.md):
+  constructing `phylospatial` data sets from different types of data.
+- [`vignette("alpha-diversity")`](https://matthewkling.github.io/phylospatial/articles/alpha-diversity.md):
+  alpha diversity and endemism metrics, null model randomization, and
+  CANAPE.
+- [`vignette("beta-diversity")`](https://matthewkling.github.io/phylospatial/articles/beta-diversity.md):
+  phylogenetic dissimilarity, ordination, and regionalization.
+- [`vignette("prioritization")`](https://matthewkling.github.io/phylospatial/articles/prioritization.md):
+  conservation prioritization with
+  [`ps_prioritize()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritize.md)
+  and
+  [`ps_prioritizr()`](https://matthewkling.github.io/phylospatial/reference/ps_prioritizr.md).
 
 ## Citation
 

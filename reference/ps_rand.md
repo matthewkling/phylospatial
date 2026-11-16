@@ -232,7 +232,7 @@ if(requireNamespace("nullcat")){
       transform = sqrt, n_strata = 4, fixed = "cell")
 }
 #> Warning: 17 of 349 rows and 0 of 10 columns have all their values in a single stratum, so the randomization cannot change them under `fixed = "cell"`: their randomized values will equal the observed values. To randomize them, separate low values into their own strata (e.g. `zero_stratum = TRUE`, or a `transform`), or use a different `fixed` mode.
-#> Warning: At some sites, every randomized value equalled the observed value, so the null model provided no comparison for them (PD: 17 sites). Their quantiles are 0.5 and their z-scores undefined. This happens, for example, at sites that are alone in their group under `site_groups`, or whose values the null model cannot rearrange; use `summary = "ties"` to see the share of tied randomizations at each site.
+#> Warning: At some sites, every randomized value equaled the observed value, so the null model provided no comparison for them (PD: 17 sites). Their quantiles are 0.5 and their z-scores undefined. This happens, for example, at sites that are alone in their group under `site_groups`, or whose values the null model cannot rearrange; use `summary = "ties"` to see the share of tied randomizations at each site.
 
 # binary data with nullcat's curvecat algorithm
 ps2 <- ps_simulate(data_type = "binary")

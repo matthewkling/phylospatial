@@ -99,7 +99,8 @@ red:
 
 focal <- sf::st_as_sf(data.frame(site = c("Sierra Nevada", "Mojave Desert"),
                                  lon = c(-119.6, -116), lat = c(37.8, 34.6)),
-                      coords = c("lon", "lat"), crs = 4326)
+                      coords = c("lon", "lat"),
+                      crs = 4269) # longitude/latitude on the same datum (NAD83) as the moss data
 focal$site <- factor(focal$site, levels = focal$site) # keep panels in this order
 
 map_focal <- function(r, pts){

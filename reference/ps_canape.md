@@ -28,7 +28,17 @@ ps_canape(rand, alpha = 0.05)
 
 An object of the same class as `rand` containing a variable called
 `"canape"`, with values 0-4 corresponding to not-significant, mixed-,
-super-, neo-, and paleo-endemism, respectively.
+super-, neo-, and paleo-endemism, respectively. For a `SpatRaster`, the
+categories are labeled and the layer carries a color table with the
+conventional CANAPE colors (`"gray90"`, `"#CB7FFF"`, `"#9D00FF"`,
+`"red"`, and `"royalblue"`, in category order), which
+[`terra::plot()`](https://rspatial.github.io/terra/reference/plot.html)
+uses and
+[`terra::writeRaster()`](https://rspatial.github.io/terra/reference/writeRaster.html)
+saves; pass `col` to
+[`plot()`](https://rspatial.github.io/terra/reference/plot.html) to use
+different colors. For other classes, `canape` is a factor with labeled
+levels.
 
 ## Details
 
