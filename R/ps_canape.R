@@ -22,7 +22,11 @@
 #' If the data have site weights, see the details of [ps_rand()] for how they affect the underlying null model tests.
 #'
 #' @return An object of the same class as `rand` containing a variable called `"canape"`, with values 0-4
-#' corresponding to not-significant, mixed-, super-, neo-, and paleo-endemism, respectively.
+#' corresponding to not-significant, mixed-, super-, neo-, and paleo-endemism, respectively. For a
+#' `SpatRaster`, the categories are labeled and the layer carries a color table with the conventional
+#' CANAPE colors (`"gray90"`, `"#CB7FFF"`, `"#9D00FF"`, `"red"`, and `"royalblue"`, in category order),
+#' which [terra::plot()] uses and [terra::writeRaster()] saves; pass `col` to `plot()` to use different
+#' colors. For other classes, `canape` is a factor with labeled levels.
 #'
 #' @examples
 #' \donttest{
@@ -68,11 +72,12 @@ ps_canape <- function(rand, alpha = .05){
 
       levs <- data.frame(id = 0:4,
                          endemism = c("non-significant", "mixed", "super", "neo", "paleo"),
-                         color = c("gray", "orchid", "darkorchid4", "red", "blue"))
+                         color = c("gray90", "#CB7FFF", "#9D00FF", "red", "royalblue"))
 
       if(inherits(rand, "SpatRaster")){
             cp <- rand$canape
             levels(cp) <- levs
+            terra::coltab(cp) <- data.frame(value = levs$id, col = levs$color)
       }else{ # sf or data.frame:
             cp <- rand["canape"]
             cp$canape <- factor(cp$canape, levels = levs$id, labels = levs$endemism)

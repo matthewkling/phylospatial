@@ -29,7 +29,6 @@ Suggests:
     betapart,
     knitr,
     rmarkdown,
-    magrittr,
     hillR,
     picante,
     phytools,

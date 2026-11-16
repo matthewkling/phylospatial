@@ -69,7 +69,7 @@ plot(c(init, cost), main = c("existing protection", "cost"), axes = FALSE)
 Now we'll pass those inputs to `ps_prioritize()`. Plotting the result, the highest-priority sites are those with low rank values, shown in yellow. Since the differences that matter most are among the top-ranked sites, we'll color the ranks in classes of increasing width:
 
 ```{r optim}
-priority <- ps_prioritize(ps, init = init, cost = cost)
+priority <- ps_prioritize(ps, init = init, cost = cost, progress = FALSE)
 
 rank_breaks <- c(0, 10, 25, 50, 100, 250, global(priority, "max", na.rm = TRUE)[[1]])
 plot(priority, breaks = rank_breaks, col = rev(hcl.colors(6, "inferno")),
@@ -108,7 +108,7 @@ Let's demonstrate that here; we'll run 2500 reps, though more might be better fo
 ```{r prob}
 set.seed(123)
 priority <- ps_prioritize(ps, init = init, cost = cost, n_reps = 2500,
-                          method = "prob", max_iter = 10)
+                          method = "prob", max_iter = 10, progress = FALSE)
 
 plot(priority$top10, col = hcl.colors(100, "inferno"), axes = FALSE,
      main = "Proportion of runs in which site was a top-10 priority")

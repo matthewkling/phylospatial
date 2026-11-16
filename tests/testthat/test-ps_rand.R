@@ -79,7 +79,7 @@ test_that("`ps_rand` quantiles count ties with the observed value as one half", 
       # a null that never changes anything: every site ties in every replicate
       expect_warning(q <- ps_rand(ps, c("PD", "PE"), fun = function(x, ...) x, n_rand = 5,
                                   summary = c("quantile", "ties"), spatial = FALSE, progress = FALSE),
-                     "every randomized value equalled the observed value")
+                     "every randomized value equaled the observed value")
       q <- q[ps$occupied, ]
       expect_true(all(q[, c("qPD", "qPE")] == 0.5))
       expect_true(all(q[, c("tPD", "tPE")] == 1))

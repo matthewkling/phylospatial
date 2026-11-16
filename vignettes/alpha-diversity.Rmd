@@ -70,7 +70,7 @@ div <- ps_diversity(ps, metric = c("PD", "PE"))
 plot(div, axes = FALSE)
 ```
 
-![plot of chunk alpha](figures/alpha-diversity-alpha-1.png)
+<img src="figures/alpha-diversity-alpha-1.png" alt="" width="100%" />
 
 
 ## Null model randomization
@@ -90,7 +90,7 @@ iters <- ps_suggest_n_iter(
       n_iter = 2e5, plot = TRUE)
 ```
 
-![plot of chunk n_iter](figures/alpha-diversity-n_iter-1.png)
+<img src="figures/alpha-diversity-n_iter-1.png" alt="" width="100%" />
 
 This suggests we need around 30,000 iterations for our matrix to mix sufficiently, so we'll pass that value to `ps_rand()`. Let's generate a null distribution of `n_rand = 1000` randomized matrices against which to compare our actual data; we can use parallelization to speed things up by setting `n_cores`. Then we'll plot the results for PE. This is a quantile value that gives the proportion of randomizations in which observed PE was greater than randomized PE in a given grid cell (plus half the proportion of randomizations where observed PE exactly equals the randomized value). If you wanted to identify "statistically significant" grid cells in a one-tailed test with alpha = 0.05, these would be cells with quantile values greater than 0.95.
 
@@ -103,7 +103,7 @@ rand <- ps_rand(ps, n_rand = 1000,
 plot(rand$qPE, axes = FALSE)
 ```
 
-![plot of chunk rand](figures/alpha-diversity-rand-1.png)
+<img src="figures/alpha-diversity-rand-1.png" alt="" width="100%" />
 
 There are numerous alternative options for randomization algorithms, a choice that will depend on the type of occurrence data you have (probability, binary, or abundance) and on which attributes of the terminal community matrix (fill, row and column sums, etc.) you want to hold fixed. In addition to the `"quantize"` function used above, these include "`nullcat"` randomizations for binary data, a basic `"tip_shuffle"` randomization (the default algorithm), a range of algorithms defined in the `vegan` package `"nullmodel"` function, and an option to supply a custom randomization function. As a second example, here's a randomization with an abundance data set, using the `"abuswap_c"` algorithm provided by `vegan::nullmodel` (note that since `ps_suggest_n_iter()` doesn't work with `vegan`, we need to set `n_iter` arbitrarily):
 
@@ -149,7 +149,7 @@ tiles <- ps_tile_groups(ps, spacing = 250e3, n = 1000)
 plot(ps_group_sizes(ps, tiles), axes = FALSE)
 ```
 
-![plot of chunk tiles](figures/alpha-diversity-tiles-1.png)
+<img src="figures/alpha-diversity-tiles-1.png" alt="" width="100%" />
 
 Next let's check how many iterations we need, using the same `ps_suggest_n_iter()` call as above but with our tiles:
 
@@ -177,7 +177,7 @@ rand_comp <- setNames(c(rand$qPE, rand_spatial$qPE),
 plot(rand_comp, range = c(0, 1), axes = FALSE)
 ```
 
-![plot of chunk rand_spatial](figures/alpha-diversity-rand_spatial-1.png)
+<img src="figures/alpha-diversity-rand_spatial-1.png" alt="" width="100%" />
 
 
 ## CANAPE
@@ -187,9 +187,7 @@ A lot can be done with randomization results like the ones we generated above. O
 
 ``` r
 cp <- ps_canape(rand, alpha = .05)
-coltab(cp) <- data.frame(value = 0:4, # conventional CANAPE colors, by category
-                         col = c("gray90", "#CB7FFF", "#9D00FF", "red", "royalblue"))
 plot(cp, axes = FALSE)
 ```
 
-![plot of chunk canape](figures/alpha-diversity-canape-1.png)
+<img src="figures/alpha-diversity-canape-1.png" alt="" width="100%" />

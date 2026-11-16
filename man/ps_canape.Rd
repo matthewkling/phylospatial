@@ -15,7 +15,11 @@ determining significance.}
 }
 \value{
 An object of the same class as \code{rand} containing a variable called \code{"canape"}, with values 0-4
-corresponding to not-significant, mixed-, super-, neo-, and paleo-endemism, respectively.
+corresponding to not-significant, mixed-, super-, neo-, and paleo-endemism, respectively. For a
+\code{SpatRaster}, the categories are labeled and the layer carries a color table with the conventional
+CANAPE colors (\code{"gray90"}, \code{"#CB7FFF"}, \code{"#9D00FF"}, \code{"red"}, and \code{"royalblue"}, in category order),
+which \code{\link[terra:plot]{terra::plot()}} uses and \code{\link[terra:writeRaster]{terra::writeRaster()}} saves; pass \code{col} to \code{plot()} to use different
+colors. For other classes, \code{canape} is a factor with labeled levels.
 }
 \description{
 This function classifies sites into areas of significant endemism according to the scheme of Mishler et al. (2014).

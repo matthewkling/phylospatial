@@ -4,7 +4,7 @@
 
 ## What's changed
 
-This is a minor release (1.6.0) with feature additions and bug fixes.
+This is a minor release (1.7.0) with feature additions and bug fixes. It uses new features of the suggested package nullcat (>= 0.3.0), now on CRAN.
 
 ## Test environments
 

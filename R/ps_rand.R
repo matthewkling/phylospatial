@@ -310,7 +310,7 @@ binary_models <- function() c("r00", "r0", "r1", "r2", "c0", "swap", "tswap",
 warn_all_ties <- function(ties, metric) {
       n <- colSums(ties == 1, na.rm = TRUE)
       if (!any(n > 0)) return(invisible(NULL))
-      warning("At some sites, every randomized value equalled the observed value, so the null model ",
+      warning("At some sites, every randomized value equaled the observed value, so the null model ",
               "provided no comparison for them (", paste0(metric[n > 0], ": ", n[n > 0], " sites", collapse = "; "),
               "). Their quantiles are 0.5 and their z-scores undefined. This happens, for example, at ",
               "sites that are alone in their group under `site_groups`, or whose values the null model ",

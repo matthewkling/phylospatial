@@ -165,7 +165,5 @@ A lot can be done with randomization results like the ones we generated above. O
 
 ```{r canape, message=FALSE, warning=FALSE}
 cp <- ps_canape(rand, alpha = .05)
-coltab(cp) <- data.frame(value = 0:4, # conventional CANAPE colors, by category
-                         col = c("gray90", "#CB7FFF", "#9D00FF", "red", "royalblue"))
 plot(cp, axes = FALSE)
 ```
