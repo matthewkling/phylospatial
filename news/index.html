@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">phylospatial</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +35,12 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/matthewkling/phylospatial/blob/v1.7.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/matthewkling/phylospatial/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="phylospatial-development-version">phylospatial (development version)<a class="anchor" aria-label="anchor" href="#phylospatial-development-version"></a></h2>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.7.0" id="phylospatial-170">phylospatial 1.7.0<a class="anchor" aria-label="anchor" href="#phylospatial-170"></a></h2>
 <ul><li><p>Bug fix: the default <code>ps_rand(fun = "tip_shuffle")</code> null model did not randomize anything. It shuffled the tip names of the community matrix rather than its columns, but tips are matched to the phylogeny by position, so every randomized community was identical to the observed one. Combined with the previous handling of ties, this gave quantiles of 0 at every site. Tip ranges are now shuffled among tips as intended. The bug was introduced in version 1.2.0; <code>tip_shuffle</code> results from versions 1.2.0 to 1.6.0 should be rerun.</p></li>

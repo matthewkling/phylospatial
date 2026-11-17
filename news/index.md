@@ -1,5 +1,7 @@
 # Changelog
 
+## phylospatial (development version)
+
 ## phylospatial 1.7.0
 
 - Bug fix: the default `ps_rand(fun = "tip_shuffle")` null model did not

@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/matthewkling/phylospatial/blob/v1.7.0/inst/CITATION)
+[`inst/CITATION`](https://github.com/matthewkling/phylospatial/blob/master/inst/CITATION)
 
 Kling MM (2025). “phylospatial: An R package for spatial phylogenetic
 analysis with quantitative community data.” *Methods in Ecology and
