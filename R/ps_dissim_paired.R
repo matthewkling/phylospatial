@@ -63,12 +63,12 @@
 #' @examples
 #' # a hypothetical second time period, in which some taxa are lost
 #' # and others decline in occurrence probability
-#' ps1 <- moss()
-#' comm2 <- ps_get_comm(ps1)
 #' set.seed(1)
-#' i <- sample(terra::nlyr(comm2), 150)
-#' comm2[[i[1:50]]] <- comm2[[i[1:50]]] * 0
-#' comm2[[i[51:150]]] <- comm2[[i[51:150]]] * 0.5
+#' ps1 <- ps_simulate()
+#' comm2 <- ps_get_comm(ps1)
+#' i <- sample(terra::nlyr(comm2), 8)
+#' comm2[[i[1:4]]] <- comm2[[i[1:4]]] * 0
+#' comm2[[i[5:8]]] <- comm2[[i[5:8]]] * 0.5
 #'
 #' # lost taxa are dropped from the second data set and its tree, with a warning
 #' ps2 <- phylospatial(comm2, ps1$tree)
