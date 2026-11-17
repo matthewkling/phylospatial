@@ -1,3 +1,5 @@
+# phylospatial (development version)
+
 # phylospatial 1.7.0
 
 * Bug fix: the default `ps_rand(fun = "tip_shuffle")` null model did not randomize anything. It shuffled the tip names of the community matrix rather than its columns, but tips are matched to the phylogeny by position, so every randomized community was identical to the observed one. Combined with the previous handling of ties, this gave quantiles of 0 at every site. Tip ranges are now shuffled among tips as intended. The bug was introduced in version 1.2.0; `tip_shuffle` results from versions 1.2.0 to 1.6.0 should be rerun.
